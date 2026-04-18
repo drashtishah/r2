@@ -1,6 +1,6 @@
 # GitHub setup
 
-State of `drashtishah/r2` on GitHub. Update when settings change.
+State of drashtishah/r2 on GitHub. Update when settings change.
 
 ## Repo
 

@@ -9,6 +9,15 @@
             "command": "jq -r '.tool_input.command' | awk '{ for (i=1;i<=NF;i++) if ($i !~ /^[A-Za-z_][A-Za-z0-9_]*=/) { print $i; exit } }' | grep -qx git && printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"Reminder: use `rtk git ...` instead of plain `git ...`. rtk wraps diff, log, status, show, add, commit, push, pull, branch, fetch, stash, and worktree with compact output.\"}}'"
           }
         ]
+      },
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "INPUT=$(cat); SESSION=$(echo \"$INPUT\" | jq -r '.session_id // \"default\"'); SENTINEL=\"/tmp/claude-karpathy-fired-$SESSION\"; if [ -f \"$SENTINEL\" ]; then exit 0; fi; touch \"$SENTINEL\"; jq -n '{hookSpecificOutput:{hookEventName:\"PreToolUse\",permissionDecision:\"deny\",permissionDecisionReason:\"Karpathy Guidelines: reconsider your plan against these four principles, then edit the plan file and retry ExitPlanMode.\\n\\n1. Surface, do not assume. State assumptions in the plan. Name multiple interpretations instead of silently picking one. If unclear, ask before ExitPlanMode.\\n\\n2. Minimum viable change. Plan only what the task requires. No speculative features, unused abstractions, extra sections, or error handling for impossible cases. If the plan could be half the size, shrink it.\\n\\n3. Surgical edits. Touch only what the task demands. No adjacent improvements, reformatting, unrelated rewrites, or style cleanup. Match existing conventions. Remove only the orphans your changes create.\\n\\n4. Verifiable success. The plan must say how you will know it is done. Code: test passes, command exits zero, output appears. Text: named claims present, structure intact, reviewable in one pass.\\n\\nRe-read your plan file, revise if any principle is violated, then call ExitPlanMode again.\"}}'"
+          }
+        ]
       }
     ]
   }

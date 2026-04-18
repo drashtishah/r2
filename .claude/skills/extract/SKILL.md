@@ -31,7 +31,7 @@ Full type rules (title style, jargon policy, per-type checks) live in `.claude/s
 
 - **Frontmatter**: YAML block delimited by `---` at the top. Keys: `type` (required); `date` (events, YYYY-MM-DD or YYYY); `domain` (specifics and events; single domain; kebab-case); `source` (events; URL or citation); `tags` (list; always include `type/<x>` mirroring `type:`, and `domain/<x>` when a domain is set).
 - **Wiki-links**: `[[filename-without-extension]]` or `[[filename|display text]]`. Kebab-case targets, no `.md` extension in the link.
-- **Tags**: lowercase, slash-hierarchical (`type/specific`, `domain/molecular-biology`). In frontmatter: list entries without leading `#`. In body prose: with leading `#`.
+- **Tags**: lowercase, slash-hierarchical, e.g. type/specific, domain/molecular-biology. In frontmatter: list entries without leading `#`. In body prose: with leading `#`.
 - **Body**: `# Title` H1 → 1–3 short prose paragraphs → `## Related` with wiki-links as a bulleted list. No arrows, no parent/child labels.
 - **Filenames**: kebab-case, no underscores, no punctuation. H1 is readable English matching filename semantics.
 

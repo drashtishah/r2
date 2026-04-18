@@ -1,11 +1,11 @@
 ---
 name: extract
-description: Turn raw input (pasted text, URLs, notes) into ontology-shaped notes in the `things` Obsidian vault at things/. Drafts notes, runs a verifier sub-agent, presents a plan via ExitPlanMode for the user's approval, then writes approved files. Trigger on `/extract` or when the user asks to add content to the `things` vault.
+description: Turn a topic into ontology-shaped notes in the `things` Obsidian vault at things/ by researching the web (and NotebookLM for complex topics). User provides a topic; skill researches, drafts notes, runs a verifier sub-agent, presents a plan via ExitPlanMode for approval, then writes approved files. Trigger on `/extract <topic>` or when the user asks to research a topic for the `things` vault.
 ---
 
 # extract
 
-Turns raw input into notes in the `things` vault at `things/`, following a strict four-type ontology. Every run ends with a plan the human approves before anything is written to disk.
+Turns a user-supplied topic into notes in the `things` vault at `things/` by researching the web (and NotebookLM for complex topics), following a strict four-type ontology. Every run ends with a plan the human approves before anything is written to disk.
 
 ## At the start of every run
 
@@ -69,7 +69,16 @@ tags: [type/mechanism]
 
 ## Pipeline
 
-1. **Parse** the raw input. Identify candidate ideas without assigning types yet.
+1. **Research** the topic. Pick the tier based on what the topic needs:
+   - **Simple topics** (well-known concepts, widely-documented events, common knowledge domains): WebSearch + WebFetch on 3–6 authoritative sources. Keep URLs for event `source:` fields.
+   - **Complex topics** (research papers, technical depth, contested or specialized domains): use NotebookLM via `nlm` CLI (pre-authenticated).
+     - `nlm notebook create "<topic>"`, capture the notebook ID.
+     - `nlm research start <id> --query "<topic>"`, poll `nlm research status <task-id>` until done, then `nlm research import <task-id>` to pull in discovered sources.
+     - `nlm notebook query <id> "<question>"` per fact, date, or claim. Capture citation URLs for event `source:` fields.
+     - Do not generate audio overviews, reports, flashcards, or other studio artifacts.
+   - If unsure which tier, start with WebSearch; escalate to NotebookLM if sources are shallow or you need to triangulate across papers. WebSearch is also fine for looking up how to use NotebookLM well.
+
+   Then identify candidate ideas without assigning types yet.
 2. **Decompose** compound ideas into atomic pieces using the decomposition checklist in `.claude/skills/extract/references/checklists.md`.
 3. **Draft notes as plan content** (session only; not saved to disk, not written to any memory system). For each atom pick type, title, body prose, and `## Related` wiki-links. Glob `things/*.md` to find existing notes; draft stubs for any missing link targets in the same pass.
 4. **Dispatch a verifier sub-agent** (Agent tool, subagent_type `general-purpose`). Pass `.claude/skills/extract/references/verifier-prompt.md` verbatim as its instructions, the drafted note contents inline, and the vault path `things/` for backlink lookups. It returns structured pass/fail per note.
@@ -93,7 +102,8 @@ This skill must not write anything to Claude's auto-memory system (`~/.claude/pr
 
 ## Stop conditions
 
-- Raw input too ambiguous to decompose → ask.
+- Topic too broad or ambiguous to scope → ask for narrower framing.
+- Research (either tier) returns no useful sources → report back rather than drafting from thin material.
 - A draft seems to duplicate an existing vault note → user decides merge vs. keep separate.
 - Verifier returns failures you don't know how to address → ask.
 

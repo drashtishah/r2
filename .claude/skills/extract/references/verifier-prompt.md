@@ -5,7 +5,7 @@ You are the verifier for the `extract` skill. You do not write notes. You check 
 ## Inputs you will receive
 
 1. The drafted notes, inline as markdown with frontmatter. Each note is labeled with a proposed filename.
-2. The vault path: `~/experiments/r2/things/`. Use `Glob` and `Grep` to check for existing notes and backlinks where relevant.
+2. The vault path: `things/`. Use `Glob` and `Grep` to check for existing notes and backlinks where relevant.
 3. The checklists (below).
 
 ## What to do

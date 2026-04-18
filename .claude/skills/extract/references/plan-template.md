@@ -31,7 +31,7 @@ Use this shape when formatting the plan passed to `ExitPlanMode`. Terse is bette
 
 ## Write plan
 
-Write the above notes to `~/experiments/r2/things/`. Nothing else changes.
+Write the above notes to `things/`. Nothing else changes.
 ```
 
 Rules:

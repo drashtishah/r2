@@ -1,10 +1,3 @@
-## Behavioral guidelines
-
-Use `rtk git <subcommand>` instead of plain `git <subcommand>` for any
-subcommand `rtk` wraps. Run `rtk git --help` for the current list;
-at time of writing it covers diff, log, status, show, add, commit,
-push, pull, branch, fetch, stash, and worktree.
-
 ## Conventions
 
 - No emojis.
@@ -20,7 +13,3 @@ push, pull, branch, fetch, stash, and worktree.
   what is necessary; skip restating what is visible in the diff.
   Exemption: reasoning steps (debugging, root-cause analysis, design
   trade-offs) are NOT capped; padding around them is.
-- All Python code must carry full type hints and pass `mypy --strict`.
-  The pre-push hook and the `check-paths` CI workflow both run mypy
-  against every tracked `.py` file via `git ls-files '*.py'`, so any
-  new Python anywhere in the repo is covered automatically.

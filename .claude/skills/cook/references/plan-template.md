@@ -7,7 +7,7 @@ The skill does not use `EnterPlanMode`/`ExitPlanMode`. Review is conversational:
 Format:
 
 ```
-## Proposed notes for `things`
+## Proposed notes for `brain`
 
 <mermaid flowchart: every proposed note + existing vault notes reached in one hop>
 
@@ -65,7 +65,7 @@ Run the matching type checklist from `checklists.md` against the draft before se
 One line after every note is approved:
 
 ```
-Ready to write: `a.md`, `b.md`, `c.md` to `things/`. Green light?
+Ready to write: `a.md`, `b.md`, `c.md` to `brain/`. Green light?
 ```
 
 Write on confirmation. If the user overruled a checklist failure for a note, record that inline in the note body at write time, e.g. `Checklist flagged: <item>, user overruled because <reason>.`

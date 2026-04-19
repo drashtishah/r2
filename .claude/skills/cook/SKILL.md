@@ -1,15 +1,15 @@
 ---
-name: extract
-description: Turn a topic into ontology-shaped notes in the `things` Obsidian vault at things/ by researching the web (and NotebookLM for complex topics). User provides a topic; skill researches, drafts notes, walks the user through each one interactively, then writes approved files. Trigger on `/extract <topic>` or when the user asks to research a topic for the `things` vault.
+name: cook
+description: Turn a topic into ontology-shaped notes in the `brain` Obsidian vault at brain/ by researching the web (and NotebookLM for complex topics). Part of the cook-brain workflow, cook researches and drafts, brain stores. User provides a topic; skill researches, drafts notes, walks the user through each one interactively, then writes approved files. Trigger on `/cook <topic>` or when the user asks to research a topic for the `brain` vault.
 ---
 
-# extract
+# cook
 
-Turns a user-supplied topic into notes in the `things` vault at `things/` by researching the web (and NotebookLM for complex topics), following a strict four-type ontology. The human is the sole verifier; every draft is reviewed one note at a time before anything is written to disk.
+Turns a user-supplied topic into notes in the `brain` vault at `brain/` by researching the web (and NotebookLM for complex topics), following a strict four-type ontology. The human is the sole verifier; every draft is reviewed one note at a time before anything is written to disk.
 
 ## At the start of every run
 
-Announce that you are using the `extract` skill.
+Announce that you are using the `cook` skill.
 
 ## The ontology
 
@@ -26,7 +26,7 @@ Four note types. Every note declares its type in frontmatter. All links live in 
 
 When a topic spans several independent sub-ideas, split it: keep the broad concept as a **hub specific** that enumerates its moving parts, and give each sub-idea its own **child specific** with its own abstract. The hub may skip the abstract link; declare hub status during review. Do not force this shape on narrow topics.
 
-Full type rules live in `.claude/skills/extract/references/checklists.md`. Full body templates live in `.claude/skills/extract/references/note-templates.md`. Read both during drafting.
+Full type rules live in `.claude/skills/cook/references/checklists.md`. Full body templates live in `.claude/skills/cook/references/note-templates.md`. Read both during drafting.
 
 ## Prose style
 
@@ -76,11 +76,11 @@ type: mechanism
 ---
 ```
 
-Body templates per type are in `.claude/skills/extract/references/note-templates.md`.
+Body templates per type are in `.claude/skills/cook/references/note-templates.md`.
 
 ## ASCII diagrams (optional)
 
-When a concept is easier to see than read (short causal chain, ordered steps), include one spare ASCII diagram inside a fenced code block after the prose. Prose first, diagram second. Keep it under ~6 lines. Wiki-link targets inside a diagram count as real links. See `.claude/skills/extract/references/note-templates.md` for an example. Skip the diagram if the prose is already clear.
+When a concept is easier to see than read (short causal chain, ordered steps), include one spare ASCII diagram inside a fenced code block after the prose. Prose first, diagram second. Keep it under ~6 lines. Wiki-link targets inside a diagram count as real links. See `.claude/skills/cook/references/note-templates.md` for an example. Skip the diagram if the prose is already clear.
 
 ## Pipeline
 
@@ -94,21 +94,21 @@ When a concept is easier to see than read (short causal chain, ordered steps), i
    - If unsure, start with WebSearch; escalate if sources are shallow.
 
    Identify candidate atomic ideas; do not yet assign types.
-2. **Decompose** compound ideas into atomic pieces using the decomposition checklist in `.claude/skills/extract/references/checklists.md`.
+2. **Decompose** compound ideas into atomic pieces using the decomposition checklist in `.claude/skills/cook/references/checklists.md`.
 3. **Invoke `superpowers:brainstorming` before drafting.** Use it to pressure-test scope and surface assumptions. Skip only for trivial single-note topics.
-4. **Draft notes in-memory** (session only; not written to disk, not written to any memory system). For each atom, pick type, title, and body prose with required wiki-links woven in. `Glob things/*.md` to map drafts to real link targets; mark missing targets as stubs.
-5. **Send an overview message** per `.claude/skills/extract/references/plan-template.md`:
+4. **Draft notes in-memory** (session only; not written to disk, not written to any memory system). For each atom, pick type, title, and body prose with required wiki-links woven in. `Glob brain/*.md` to map drafts to real link targets; mark missing targets as stubs.
+5. **Send an overview message** per `.claude/skills/cook/references/plan-template.md`:
    - A mermaid flowchart of every proposed note plus every existing vault note reachable in one hop. Shape per type (event = `([name])`, specific = `[name]`, abstract = `(name)`, mechanism = `{name}`). Box contents = filename only.
    - A numbered summary list: filename, type, one-sentence rationale.
    - Self-check: before sending, scan the mermaid for orphans and dangling links. Fix silently when possible; flag when a human decision is needed. This diagram doubles as your type-check and orphan-check.
 6. **Walk through each note, one per message.** For each note:
-   - Run the matching type checklist in `.claude/skills/extract/references/checklists.md` against the draft.
+   - Run the matching type checklist in `.claude/skills/cook/references/checklists.md` against the draft.
    - Show frontmatter + H1 + body + optional ASCII diagram.
    - Report checklist results ("all passed" or "failed: X — reason") and any writer uncertainty.
    - Ask for feedback: approve, edit, split, merge, drop, rename. The user may also ask understanding questions; answer them without mutating the draft unless the user explicitly asks for a change. The user may overrule a checklist failure; if so, record it inline in the note body at write time (e.g. "Checklist flagged: <item>, user overruled because <reason>.").
    - Only move to the next note once the current one is approved.
 7. **Final confirm.** One line restating the write set; ask for the final green light.
-8. **Write files** to `things/` after confirmation.
+8. **Write files** to `brain/` after confirmation.
 9. **Brief summary** of what was written.
 
 ## Memory-system boundary
@@ -125,7 +125,7 @@ This skill does not write to Claude's auto-memory system. Drafts are session-sco
 
 | Path | Purpose |
 |---|---|
-| `.claude/skills/extract/SKILL.md` | This file. |
-| `.claude/skills/extract/references/checklists.md` | Decomposition + four type-specific checklists. |
-| `.claude/skills/extract/references/note-templates.md` | Body templates per note type, with ASCII diagram example. |
-| `.claude/skills/extract/references/plan-template.md` | Shape for the overview, per-note, and final-confirm messages. |
+| `.claude/skills/cook/SKILL.md` | This file. |
+| `.claude/skills/cook/references/checklists.md` | Decomposition + four type-specific checklists. |
+| `.claude/skills/cook/references/note-templates.md` | Body templates per note type, with ASCII diagram example. |
+| `.claude/skills/cook/references/plan-template.md` | Shape for the overview, per-note, and final-confirm messages. |

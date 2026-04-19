@@ -9,19 +9,31 @@
   "colorGroups": [
     {
       "query": "tag:#type/abstract",
-      "color": { "a": 1, "rgb": 16755763 }
+      "color": {
+        "a": 1,
+        "rgb": 16755763
+      }
     },
     {
       "query": "tag:#type/specific",
-      "color": { "a": 1, "rgb": 5431518 }
+      "color": {
+        "a": 1,
+        "rgb": 5431518
+      }
     },
     {
       "query": "tag:#type/event",
-      "color": { "a": 1, "rgb": 8421504 }
+      "color": {
+        "a": 1,
+        "rgb": 8421504
+      }
     },
     {
       "query": "tag:#type/mechanism",
-      "color": { "a": 1, "rgb": 15844367 }
+      "color": {
+        "a": 1,
+        "rgb": 15844367
+      }
     }
   ],
   "collapse-display": false,
@@ -34,6 +46,6 @@
   "repelStrength": 10,
   "linkStrength": 1,
   "linkDistance": 250,
-  "scale": 1,
-  "close": false
+  "scale": 1.4689732967142295,
+  "close": true
 }

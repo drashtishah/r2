@@ -10,7 +10,7 @@
           },
           {
             "type": "command",
-            "command": "INPUT=$(cat); CMD=$(echo \"$INPUT\" | jq -r '.tool_input.command'); echo \"$CMD\" | grep -qE '(^|[[:space:]])(rtk[[:space:]]+)?git[[:space:]]+commit([[:space:]]|$)' || exit 0; SESSION=$(echo \"$INPUT\" | jq -r '.session_id // \"default\"'); SENTINEL=\"/tmp/claude-commit-hygiene-$SESSION\"; [ -f \"$SENTINEL\" ] && exit 0; touch \"$SENTINEL\"; jq -n '{hookSpecificOutput:{hookEventName:\"PreToolUse\",additionalContext:\"Commit hygiene: keep each commit small, focused, and independently revertible. Split unrelated changes into separate commits so any single feature or fix can be reverted without pulling in others. This reminder fires once per session.\"}}'"
+            "command": "INPUT=$(cat); CMD=$(echo \"$INPUT\" | jq -r '.tool_input.command'); echo \"$CMD\" | grep -qE '(^|[[:space:]])(rtk[[:space:]]+)?git[[:space:]]+commit([[:space:]]|$)' || exit 0; SESSION=$(echo \"$INPUT\" | jq -r '.session_id // \"default\"'); SENTINEL=\"/tmp/claude-commit-hygiene-$SESSION\"; [ -f \"$SENTINEL\" ] && exit 0; touch \"$SENTINEL\"; jq -n '{hookSpecificOutput:{hookEventName:\"PreToolUse\",additionalContext:\"Commit hygiene: (1) keep each commit small, focused, and independently revertible, splitting unrelated changes into separate commits so any single feature or fix can be reverted without pulling in others; (2) write commit messages future agents can learn from, imperative subject plus a body covering what changed and WHY, including non-obvious context the diff does not show; include the Co-Authored-By trailer on agent-authored commits. This reminder fires once per session.\"}}'"
           }
         ]
       },

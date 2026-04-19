@@ -7,6 +7,10 @@
           {
             "type": "command",
             "command": "jq -r '.tool_input.command' | awk '{ for (i=1;i<=NF;i++) if ($i !~ /^[A-Za-z_][A-Za-z0-9_]*=/) { print $i; exit } }' | grep -qx git && printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"Reminder: use `rtk git ...` instead of plain `git ...`. rtk wraps diff, log, status, show, add, commit, push, pull, branch, fetch, stash, and worktree with compact output.\"}}'"
+          },
+          {
+            "type": "command",
+            "command": "INPUT=$(cat); CMD=$(echo \"$INPUT\" | jq -r '.tool_input.command'); echo \"$CMD\" | grep -qE '(^|[[:space:]])(rtk[[:space:]]+)?git[[:space:]]+commit([[:space:]]|$)' || exit 0; SESSION=$(echo \"$INPUT\" | jq -r '.session_id // \"default\"'); SENTINEL=\"/tmp/claude-commit-hygiene-$SESSION\"; [ -f \"$SENTINEL\" ] && exit 0; touch \"$SENTINEL\"; jq -n '{hookSpecificOutput:{hookEventName:\"PreToolUse\",additionalContext:\"Commit hygiene: keep each commit small, focused, and independently revertible. Split unrelated changes into separate commits so any single feature or fix can be reverted without pulling in others. This reminder fires once per session.\"}}'"
           }
         ]
       },

@@ -1,2 +1,7 @@
 #!/bin/sh
-exec python3 -m unittest discover tests
+set -e
+python3 -m unittest discover tests
+py_files=$(git ls-files '*.py')
+if [ -n "$py_files" ]; then
+  mypy --strict $py_files
+fi

@@ -9,4 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: pip install mypy
       - run: python3 -m unittest discover tests
+      - name: mypy --strict on all tracked Python
+        run: |
+          py_files=$(git ls-files '*.py')
+          if [ -n "$py_files" ]; then
+            mypy --strict $py_files
+          fi

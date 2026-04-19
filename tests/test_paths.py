@@ -137,7 +137,7 @@ def format_missing(missing: List[PathEntry]) -> str:
 
 
 class PathIntegrity(unittest.TestCase):
-    def test_all_referenced_paths_exist(self):
+    def test_all_referenced_paths_exist(self) -> None:
         missing = find_missing(extract_all())
         if missing:
             self.fail('\n' + format_missing(missing))

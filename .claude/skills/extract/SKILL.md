@@ -1,58 +1,51 @@
 ---
 name: extract
-description: Turn a topic into ontology-shaped notes in the `things` Obsidian vault at things/ by researching the web (and NotebookLM for complex topics). User provides a topic; skill researches, drafts notes, runs a verifier sub-agent, presents a plan via ExitPlanMode for approval, then writes approved files. Trigger on `/extract <topic>` or when the user asks to research a topic for the `things` vault.
+description: Turn a topic into ontology-shaped notes in the `things` Obsidian vault at things/ by researching the web (and NotebookLM for complex topics). User provides a topic; skill researches, drafts notes, walks the user through each one interactively, then writes approved files. Trigger on `/extract <topic>` or when the user asks to research a topic for the `things` vault.
 ---
 
 # extract
 
-Turns a user-supplied topic into notes in the `things` vault at `things/` by researching the web (and NotebookLM for complex topics), following a strict four-type ontology. Every run ends with a plan the human approves before anything is written to disk.
+Turns a user-supplied topic into notes in the `things` vault at `things/` by researching the web (and NotebookLM for complex topics), following a strict four-type ontology. The human is the sole verifier; every draft is reviewed one note at a time before anything is written to disk.
 
 ## At the start of every run
 
-1. Read `.claude/skills/extract/references/learnings.md` and apply its guidance.
-2. Announce that you're using the `extract` skill.
+Announce that you are using the `extract` skill.
 
-## The ontology (summary)
+## The ontology
 
-Four note types. Every note declares its type in frontmatter.
+Four note types. Every note declares its type in frontmatter. All links live in body prose; notes do not use a `## Related` section. Relationships are undirected; the target's `type:` carries the role.
 
-| Type | Purpose | Required links (woven into body prose) |
+| Type | Purpose | Required links (in body prose) |
 |---|---|---|
 | `event` | Dated, verifiable happening | ≥1 `type: specific` |
-| `specific` | Domain concept, fact, or construct | ≥1 `type: abstract`, unless the note is a hub (see below) |
+| `specific` | Domain concept, fact, or construct | ≥1 `type: abstract`, unless hub (see below) |
 | `abstract` | Cross-discipline concept, plain English | none |
 | `mechanism` | Causal claim between two notes | exactly 2, both non-event |
 
-All links live in body prose. Notes do not use a `## Related` section; the Obsidian graph and backlinks pane surface connections automatically.
+### Hub-and-spoke for big concepts
 
-Relationships are undirected. The target's `type:` carries the role; never add `from`/`to` or parent/child labels. Each note expresses one idea.
+When a topic spans several independent sub-ideas, split it: keep the broad concept as a **hub specific** that enumerates its moving parts, and give each sub-idea its own **child specific** with its own abstract. The hub may skip the abstract link; declare hub status during review. Do not force this shape on narrow topics.
 
-### Hub-and-spoke decomposition for big concepts
-
-When a topic is broad enough to cover several independent sub-ideas, split it: keep the broad concept as a **hub specific** whose body enumerates its moving parts, and give each sub-idea its own **child specific**. Each child specific pairs with its own abstract. The hub note may skip the abstract link; its role is to federate the children. Children link back to the hub in their `## Related`.
-
-Signs a topic wants this shape: the one-sentence definition keeps spawning "...which depends on X, Y, and Z," or the draft for one note tries to explain three unrelated sub-concepts inline. Do not force the shape on narrow topics; most runs produce flat sets of notes.
-
-Full type rules (title style, jargon policy, per-type checks) live in `.claude/skills/extract/references/checklists.md`. Read it during drafting and verification.
+Full type rules live in `.claude/skills/extract/references/checklists.md`. Full body templates live in `.claude/skills/extract/references/note-templates.md`. Read both during drafting.
 
 ## Prose style
 
-Write note body prose in Hemingway style. Notes are reference material, not essays: readers scan them.
+Write bodies in Hemingway style. Notes are reference material; readers scan.
 
-- Extreme concision. Cut every word that does not carry meaning.
-- Short sentences. Subject, verb, object. Break long sentences.
-- Active verbs. Prefer "the provider adds" over "are added by the provider."
-- Few adjectives and adverbs. Lean on nouns and verbs.
-- Objective tone. Journalistic and detached. No hedging, no emotion.
-- Iceberg theory. State the surface fact. Let the reader infer the rest.
+- Extreme concision. Cut words that do not carry meaning.
+- Short sentences. Subject, verb, object.
+- Active verbs.
+- Few adjectives and adverbs.
+- Objective, journalistic tone. No hedging.
+- State the surface fact. Let the reader infer.
 
-This applies to body prose only. Frontmatter, `## Related` lists, and wiki-link targets are structural and unchanged by style.
+Applies to body prose only.
 
-## Obsidian formatting conventions (inlined — skill is self-contained)
+## Obsidian formatting
 
-- **Frontmatter**: YAML block delimited by `---` at the top. Keys: `type` (required); `date` (events, YYYY-MM-DD or YYYY); `domain` (specifics and events; single domain; kebab-case); `source` (events; URL or citation). Do not add a `tags:` list that merely duplicates `type:` or `domain:` — those already exist as structured fields. Use `tags:` only for genuinely orthogonal labels, which are rare.
-- **Wiki-links**: `[[filename-without-extension]]`. Kebab-case targets, no `.md` extension. Do not use aliased links (`[[target|display text]]`); pick one surface name per concept and use it consistently across notes.
-- **Body**: `# Title` H1 → 1–3 short prose paragraphs. All wiki-links live inside the prose. No `## Related` section, no arrows, no parent/child labels.
+- **Frontmatter**: YAML block delimited by `---`. Keys: `type` (required); `date` (events, YYYY-MM-DD or YYYY); `domain` (specifics and events; single domain; kebab-case); `source` (events; URL or citation). No `tags:` that merely duplicate `type:` or `domain:`.
+- **Wiki-links**: `[[filename-without-extension]]`, kebab-case targets, no `.md`. No aliased links (`[[target|display]]`); pick one surface name per concept and use it everywhere.
+- **Body**: `# Title` H1, then 1–3 short prose paragraphs. All wiki-links live inside the prose.
 - **Filenames**: kebab-case, no underscores, no punctuation. H1 is readable English matching filename semantics.
 
 ### Frontmatter templates
@@ -83,53 +76,56 @@ type: mechanism
 ---
 ```
 
+Body templates per type are in `.claude/skills/extract/references/note-templates.md`.
+
+## ASCII diagrams (optional)
+
+When a concept is easier to see than read (short causal chain, ordered steps), include one spare ASCII diagram inside a fenced code block after the prose. Prose first, diagram second. Keep it under ~6 lines. Wiki-link targets inside a diagram count as real links. See `.claude/skills/extract/references/note-templates.md` for an example. Skip the diagram if the prose is already clear.
+
 ## Pipeline
 
-1. **Research** the topic. Pick the tier based on what the topic needs:
-   - **Simple topics** (well-known concepts, widely-documented events, common knowledge domains): WebSearch + WebFetch on 3–6 authoritative sources. Keep URLs for event `source:` fields.
-   - **Complex topics** (research papers, technical depth, contested or specialized domains): use NotebookLM via `nlm` CLI (pre-authenticated).
+1. **Research.** Pick the tier:
+   - **Simple topics** (well-known concepts, widely-documented events): WebSearch + WebFetch on 3–6 authoritative sources. Keep URLs for event `source:` fields.
+   - **Complex topics** (research papers, technical depth, contested domains): use NotebookLM via the `nlm` CLI (pre-authenticated).
      - `nlm notebook create "<topic>"`, capture the notebook ID.
-     - `nlm research start <id> --query "<topic>"`, poll `nlm research status <task-id>` until done, then `nlm research import <task-id>` to pull in discovered sources.
-     - `nlm notebook query <id> "<question>"` per fact, date, or claim. Capture citation URLs for event `source:` fields.
-     - Do not generate audio overviews, reports, flashcards, or other studio artifacts.
-   - If unsure which tier, start with WebSearch; escalate to NotebookLM if sources are shallow or you need to triangulate across papers. WebSearch is also fine for looking up how to use NotebookLM well.
+     - `nlm research start <id> --query "<topic>"`, poll `nlm research status <task-id>` until done, then `nlm research import <task-id>`.
+     - `nlm notebook query <id> "<question>"` per fact, date, or claim. Capture citation URLs.
+     - Do not generate audio overviews, reports, or flashcards.
+   - If unsure, start with WebSearch; escalate if sources are shallow.
 
-   Then identify candidate ideas without assigning types yet.
+   Identify candidate atomic ideas; do not yet assign types.
 2. **Decompose** compound ideas into atomic pieces using the decomposition checklist in `.claude/skills/extract/references/checklists.md`.
-3. **Invoke the `superpowers:brainstorming` skill before drafting.** Use it to pressure-test scope, surface assumptions, and align on what to include before committing to note text. Skip only for trivial single-note topics.
-4. **Draft notes as plan content** (session only; not saved to disk, not written to any memory system). For each atom pick type, title, and body prose with all required wiki-links woven in. Glob `things/*.md` to find existing notes; draft stubs for any missing link targets in the same pass.
-5. **Dispatch a verifier sub-agent** (Agent tool, subagent_type `general-purpose`). Pass `.claude/skills/extract/references/verifier-prompt.md` verbatim as its instructions, the drafted note contents inline, and the vault path `things/` for backlink lookups. It returns structured pass/fail per note.
-6. **Enter plan mode, then present the plan.** Always call `EnterPlanMode` explicitly before `ExitPlanMode`, even if you believe the session is already in plan mode; the skill is responsible for driving this transition and should not assume the harness has done it. Then call `ExitPlanMode`, formatted per `.claude/skills/extract/references/plan-template.md`. The plan must list, per proposed note: filename, title, type + one-sentence rationale, `## Related` links (mark `(stub)` where applicable), writer uncertainty, and verifier results.
-7. **Wait for approval.** The user may approve, reject, or edit (change a type, rename, split, merge, drop, overrule a verifier flag). Write nothing until approval.
-8. **Write files** to `things/` after approval. If the user overruled a verifier flag, record the disagreement in the note body inline (e.g. `Verifier flagged: <item> — user overruled because <reason>.`).
+3. **Invoke `superpowers:brainstorming` before drafting.** Use it to pressure-test scope and surface assumptions. Skip only for trivial single-note topics.
+4. **Draft notes in-memory** (session only; not written to disk, not written to any memory system). For each atom, pick type, title, and body prose with required wiki-links woven in. `Glob things/*.md` to map drafts to real link targets; mark missing targets as stubs.
+5. **Send an overview message** per `.claude/skills/extract/references/plan-template.md`:
+   - A mermaid flowchart of every proposed note plus every existing vault note reachable in one hop. Shape per type (event = `([name])`, specific = `[name]`, abstract = `(name)`, mechanism = `{name}`). Box contents = filename only.
+   - A numbered summary list: filename, type, one-sentence rationale.
+   - Self-check: before sending, scan the mermaid for orphans and dangling links. Fix silently when possible; flag when a human decision is needed. This diagram doubles as your type-check and orphan-check.
+6. **Walk through each note, one per message.** For each note:
+   - Run the matching type checklist in `.claude/skills/extract/references/checklists.md` against the draft.
+   - Show frontmatter + H1 + body + optional ASCII diagram.
+   - Report checklist results ("all passed" or "failed: X — reason") and any writer uncertainty.
+   - Ask for feedback: approve, edit, split, merge, drop, rename. The user may also ask understanding questions; answer them without mutating the draft unless the user explicitly asks for a change. The user may overrule a checklist failure; if so, record it inline in the note body at write time (e.g. "Checklist flagged: <item>, user overruled because <reason>.").
+   - Only move to the next note once the current one is approved.
+7. **Final confirm.** One line restating the write set; ask for the final green light.
+8. **Write files** to `things/` after confirmation.
 9. **Brief summary** of what was written.
 
 ## Memory-system boundary
 
-This skill must not write anything to Claude's auto-memory system (`~/.claude/projects/.../memory/`) during a run. Drafts are session-scoped plan content only. Files this skill may write:
-
-- Approved notes in `things/` (after step 7).
-- Its own `.claude/skills/extract/references/learnings.md` (and, on user approval, any of its own files — see below).
-
-## Self-improvement
-
-**Per-run learning (routine).** When the user corrects the skill's judgment during plan review, offer to append a short bullet to `.claude/skills/extract/references/learnings.md` (rule + one-line reason). Ask first; do not append silently.
-
-**Structural self-edits (periodic).** When the skill notices a repeated pattern across runs — the same correction landing in `learnings.md` several times, a checklist item that keeps getting overruled, a verifier question that never finds real failures — propose a structural edit. May edit any file in this skill, but must first describe the pattern, the proposed edit, and the files affected, and get user approval. Never edit silently.
+This skill does not write to Claude's auto-memory system. Drafts are session-scoped until approved.
 
 ## Stop conditions
 
-- Topic too broad or ambiguous to scope → ask for narrower framing.
-- Research (either tier) returns no useful sources → report back rather than drafting from thin material.
+- Topic too broad or ambiguous → ask for narrower framing.
+- Research returns no useful sources → report back rather than drafting from thin material.
 - A draft seems to duplicate an existing vault note → user decides merge vs. keep separate.
-- Verifier returns failures you don't know how to address → ask.
 
 ## Files
 
 | Path | Purpose |
 |---|---|
-| `.claude/skills/extract/SKILL.md` | This file — entry point, conventions, pipeline. |
+| `.claude/skills/extract/SKILL.md` | This file. |
 | `.claude/skills/extract/references/checklists.md` | Decomposition + four type-specific checklists. |
-| `.claude/skills/extract/references/verifier-prompt.md` | Instructions passed verbatim to the verifier sub-agent. |
-| `.claude/skills/extract/references/plan-template.md` | Shape for the plan presented via `ExitPlanMode`. |
-| `.claude/skills/extract/references/learnings.md` | Self-improving scratchpad; read at start of every run. |
+| `.claude/skills/extract/references/note-templates.md` | Body templates per note type, with ASCII diagram example. |
+| `.claude/skills/extract/references/plan-template.md` | Shape for the overview, per-note, and final-confirm messages. |

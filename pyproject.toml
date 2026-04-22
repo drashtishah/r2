@@ -1,0 +1,20 @@
+[project]
+name = "r2"
+version = "0.0.0"
+requires-python = ">=3.11"
+dependencies = [
+    "polars",
+]
+
+[dependency-groups]
+dev = [
+    "mypy",
+    "pytest",
+]
+
+[tool.uv]
+package = false
+
+[tool.mypy]
+disallow_untyped_defs = true
+ignore_missing_imports = true

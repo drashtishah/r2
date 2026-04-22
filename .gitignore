@@ -1,2 +1,8 @@
 .claude/plans/
+.mypy_cache/
+.pytest_cache/
+.venv/
 __pycache__/
+data/
+logs/
+outputs/

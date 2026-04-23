@@ -32,7 +32,7 @@ from methbooks.pipeline.config import (
     SEMANTIC_VERIFIER,
 )
 from methbooks.pipeline.logging import log_event
-from methbooks.pipeline.schemas.plan import PlanModel
+from methbooks.pipeline.schemas.plan import Methbook  # single-schema methbook shape
 from methbooks.pipeline.tools import list_existing_rules
 
 PROMPT_DIR = Path(__file__).parent / "prompts"
@@ -106,12 +106,12 @@ async def _drain(prompt: str, options: ClaudeAgentOptions, role: str) -> ResultM
     return final
 
 
-async def run_planner(run_dir: Path, slug: str, ts: str) -> PlanModel:
+async def run_planner(run_dir: Path, slug: str, ts: str) -> Methbook:
     prompt = _load_role_prompt("planner", slug, ts)
     options = _make_options(
         PLANNER, "planner",
         allowed_tools=["Read", "Glob", "Grep", "mcp__methbooks__list_existing_rules"],
-        output_format={"type": "json_schema", "schema": PlanModel.model_json_schema()},
+        output_format={"type": "json_schema", "schema": Methbook.model_json_schema()},
         include_mcp=True,
     )
     log_event("planner", "agent_start", model=PLANNER.model)
@@ -122,8 +122,8 @@ async def run_planner(run_dir: Path, slug: str, ts: str) -> PlanModel:
     if structured is None:
         log_event("planner", "error", note="no structured_output")
         raise RuntimeError("planner: structured_output missing")
-    plan = PlanModel.model_validate(structured)
-    (run_dir / "plan_v1.json").write_text(json.dumps(structured, indent=2))
+    plan = Methbook.model_validate(structured)
+    (run_dir / "methbook_v1.json").write_text(json.dumps(structured, indent=2))
     log_event(
         "planner", "agent_end",
         duration_ms=duration, stop_reason=result.stop_reason,
@@ -131,12 +131,12 @@ async def run_planner(run_dir: Path, slug: str, ts: str) -> PlanModel:
     return plan
 
 
-async def run_critique(run_dir: Path, slug: str, ts: str) -> PlanModel:
+async def run_critique(run_dir: Path, slug: str, ts: str) -> Methbook:
     prompt = _load_role_prompt("critique", slug, ts)
     options = _make_options(
         CRITIQUE, "critique",
         allowed_tools=["Read", "Glob", "Grep", "mcp__methbooks__list_existing_rules"],
-        output_format={"type": "json_schema", "schema": PlanModel.model_json_schema()},
+        output_format={"type": "json_schema", "schema": Methbook.model_json_schema()},
         include_mcp=True,
     )
     log_event("critique", "agent_start", model=CRITIQUE.model)
@@ -147,8 +147,8 @@ async def run_critique(run_dir: Path, slug: str, ts: str) -> PlanModel:
     if structured is None:
         log_event("critique", "error", note="no structured_output")
         raise RuntimeError("critique: structured_output missing")
-    plan = PlanModel.model_validate(structured)
-    (run_dir / "plan_v2.json").write_text(json.dumps(structured, indent=2))
+    plan = Methbook.model_validate(structured)
+    (run_dir / "methbook_v2.json").write_text(json.dumps(structured, indent=2))
     log_event(
         "critique", "agent_end",
         duration_ms=duration, stop_reason=result.stop_reason,

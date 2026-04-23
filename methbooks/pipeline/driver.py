@@ -42,7 +42,6 @@ def _run(pdf: Path) -> None:
     run_dir = Path("meth-pipeline") / slug / ts
 
     if not pdf.exists():
-        (run_dir / "input").mkdir(parents=True, exist_ok=True)
         log_event("driver", "error", note=f"pdf not found: {pdf}", run_id=run_id)
         sys.exit(1)
 
@@ -76,15 +75,15 @@ def _run(pdf: Path) -> None:
     # 3. Planner
     asyncio.run(run_planner(run_dir, slug, ts))
 
-    # 4. Critique (returns the authoritative plan_v2)
-    plan_v2 = asyncio.run(run_critique(run_dir, slug, ts))
+    # 4. Critique (returns the authoritative methbook_v2)
+    methbook_v2 = asyncio.run(run_critique(run_dir, slug, ts))
 
     # 5. Implementer
     asyncio.run(run_implementer(run_dir, slug, ts))
 
     # 6. Deterministic verifier
     log_event("deterministic_verifier", "agent_start")
-    det_report = run_deterministic_checks(plan_v2, f"main...{branch}")
+    det_report = run_deterministic_checks(methbook_v2, f"main...{branch}")
     (run_dir / "deterministic_report.json").write_text(json.dumps(det_report, indent=2))
     log_event("deterministic_verifier", "agent_end", overall=det_report["overall"])
     if det_report["overall"] != "pass":
@@ -101,7 +100,7 @@ def _run(pdf: Path) -> None:
     # 8. Push and open auto-merge PR
     log_event("driver", "stage_start", stage="pr")
     subprocess.check_call(["git", "push", "-u", "origin", branch])
-    body = json.dumps(plan_v2.model_dump(), indent=2)
+    body = json.dumps(methbook_v2.model_dump(), indent=2)
     subprocess.check_call([
         "gh", "pr", "create", "--title", f"methbook: {slug}", "--body", body,
     ])

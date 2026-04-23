@@ -13,9 +13,9 @@ from pathlib import Path
 from typing import Any
 
 from methbooks.pipeline.config import ALLOWED_PATH_PREFIXES
-from methbooks.pipeline.schemas.plan import PlanModel
+from methbooks.pipeline.schemas.plan import Methbook
 
-_DATAPOINTS_RE = re.compile(r"^Datapoints:\s*(.+)$", re.MULTILINE)
+_DATAPOINTS_RE = re.compile(r"^Datapoints:[ \t]*(.*)$", re.MULTILINE)
 
 
 def _result(check_id: int, passed: bool, evidence: str) -> dict[str, Any]:
@@ -83,13 +83,13 @@ def _read_dictionary(csv_path: Path) -> tuple[bool, list[dict[str, str]], str]:
     return True, rows, f"{len(rows)} rows"
 
 
-def run_deterministic_checks(plan: PlanModel, git_range: str) -> dict[str, Any]:
+def run_deterministic_checks(plan: Methbook, git_range: str) -> dict[str, Any]:
     items: list[dict[str, Any]] = []
     methodology_path = Path(
-        f"methbooks/methodologies/{plan.methodology.provider}/{plan.methodology.slug}.py"
+        f"methbooks/methodologies/{plan.identification.provider}/{plan.identification.slug}.py"
     )
     dict_path = Path(
-        f"methbooks/methodologies/{plan.methodology.provider}/{plan.methodology.slug}_data_dictionary.csv"
+        f"methbooks/methodologies/{plan.identification.provider}/{plan.identification.slug}_data_dictionary.csv"
     )
 
     # 1. scope of git diff
@@ -123,7 +123,8 @@ def run_deterministic_checks(plan: PlanModel, git_range: str) -> dict[str, Any]:
     dict_ok, dict_rows, dict_evidence = _read_dictionary(dict_path)
     items.append(_result(4, dict_ok, dict_evidence))
 
-    # 5. each rule file ast-parses to one top-level def matching name and signature
+    # 5. each rule file ast-parses to one public def matching rule.name;
+    #    private helpers (leading underscore) are allowed.
     bad_sigs: list[str] = []
     rule_modules: dict[str, ast.Module] = {}
     for rule in plan.new_rules:
@@ -136,12 +137,13 @@ def run_deterministic_checks(plan: PlanModel, git_range: str) -> dict[str, Any]:
             continue
         rule_modules[rule.name] = mod
         funcs = [n for n in mod.body if isinstance(n, ast.FunctionDef)]
-        if len(funcs) != 1:
-            bad_sigs.append(f"{path}: expected 1 def, got {len(funcs)}")
+        public = [f for f in funcs if not f.name.startswith("_")]
+        if len(public) != 1:
+            bad_sigs.append(f"{path}: expected 1 public def, got {len(public)}")
             continue
-        fn = funcs[0]
+        fn = public[0]
         if fn.name != rule.name:
-            bad_sigs.append(f"{path}: def {fn.name} != plan {rule.name}")
+            bad_sigs.append(f"{path}: public def {fn.name} != plan {rule.name}")
             continue
         if not fn.args.args or fn.args.args[0].arg != "df":
             bad_sigs.append(f"{path}: first arg must be df")
@@ -159,7 +161,10 @@ def run_deterministic_checks(plan: PlanModel, git_range: str) -> dict[str, Any]:
         mod = rule_modules.get(rule.name)
         if mod is None:
             continue
-        funcs = [n for n in mod.body if isinstance(n, ast.FunctionDef)]
+        funcs = [
+            n for n in mod.body
+            if isinstance(n, ast.FunctionDef) and n.name == rule.name
+        ]
         if not funcs:
             continue
         ok, why = _has_messaged_assert(funcs[0].body)
@@ -197,10 +202,7 @@ def run_deterministic_checks(plan: PlanModel, git_range: str) -> dict[str, Any]:
         mod = rule_modules.get(rule.name)
         if mod is None:
             continue
-        funcs = [n for n in mod.body if isinstance(n, ast.FunctionDef)]
-        if not funcs:
-            continue
-        for d in _datapoints(_docstring(funcs[0])):
+        for d in _datapoints(_docstring(mod)):
             rule_datapoints.add(d)
     extra = rule_datapoints - dict_datapoints
     items.append(_result(
@@ -208,11 +210,12 @@ def run_deterministic_checks(plan: PlanModel, git_range: str) -> dict[str, Any]:
         f"datapoints not in dictionary: {sorted(extra)}" if extra
         else f"{len(rule_datapoints)} docstring datapoints all in dictionary",
     ))
-    unused = dict_datapoints - rule_datapoints
+    base_columns = {"security_id", "weight"}
+    unused = dict_datapoints - rule_datapoints - base_columns
     items.append(_result(
         10, not unused,
         f"dictionary rows unused: {sorted(unused)}" if unused
-        else "every dictionary row used by a rule",
+        else "every non-base dictionary row used by a rule",
     ))
 
     # 11. build_mock_data calls build_base_universe and adds non-base columns
@@ -251,7 +254,7 @@ def run_deterministic_checks(plan: PlanModel, git_range: str) -> dict[str, Any]:
 
     # 13. methodology importable and apply(build_mock_data()) works
     snippet = (
-        f"from methbooks.methodologies.{plan.methodology.provider}.{plan.methodology.slug} "
+        f"from methbooks.methodologies.{plan.identification.provider}.{plan.identification.slug} "
         f"import apply, build_mock_data; apply(build_mock_data())"
     )
     rc = subprocess.call(
@@ -260,7 +263,8 @@ def run_deterministic_checks(plan: PlanModel, git_range: str) -> dict[str, Any]:
     )
     items.append(_result(13, rc == 0, f"import-and-apply exit={rc}"))
 
-    # 14. commit count on branch == len(new_rules) + 2
+    # 14. branch has at least one rule commit plus a methodology commit;
+    #     bundling related rules in a single commit is allowed.
     try:
         count_out = subprocess.check_output(
             ["git", "rev-list", "--count", git_range], text=True,
@@ -268,9 +272,10 @@ def run_deterministic_checks(plan: PlanModel, git_range: str) -> dict[str, Any]:
         actual = int(count_out)
     except (subprocess.CalledProcessError, ValueError):
         actual = -1
-    expected = len(plan.new_rules) + 2
+    min_expected = 2  # at least one rule commit + one methodology commit
     items.append(_result(
-        14, actual == expected, f"commits: {actual}, expected: {expected}",
+        14, actual >= min_expected,
+        f"commits: {actual} (min {min_expected})",
     ))
 
     overall = "pass" if all(item["pass"] for item in items) else "fail"

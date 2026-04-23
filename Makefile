@@ -29,4 +29,4 @@ methbook:
 	uv run python -m methbooks.pipeline.driver $(PDF)
 
 graph:
-	graphify methbooks/
+	graphify update methbooks/

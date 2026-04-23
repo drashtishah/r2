@@ -6,7 +6,7 @@ __pycache__/
 data/
 logs/
 outputs/
-graphify-out/
+methbooks/graphify-out/
 meth-pipeline/
 methbooks/data/pdfs/*.pdf
 methbooks/data/markdown/*.md

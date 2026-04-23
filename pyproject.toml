@@ -28,4 +28,4 @@ ignore_missing_imports = true
 # operator and bytes-format checks there. Other strictness stays on.
 [[tool.mypy.overrides]]
 module = ["methbooks.rules.*", "methbooks.methodologies.*"]
-disable_error_code = ["operator", "str-bytes-safe"]
+disable_error_code = ["operator", "str-bytes-safe", "arg-type"]

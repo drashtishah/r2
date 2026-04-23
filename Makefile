@@ -24,3 +24,9 @@ clean:
 	rm -rf data/* outputs/* logs/*
 
 check: typecheck test
+
+methbook:
+	uv run python -m methbooks.pipeline.driver $(PDF)
+
+graph:
+	graphify methbooks/

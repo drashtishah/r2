@@ -3,8 +3,10 @@ name = "r2"
 version = "0.0.0"
 requires-python = ">=3.11"
 dependencies = [
+    "claude-agent-sdk>=0.1.65",
     "markitdown[pdf]>=0.1.5",
     "polars",
+    "pydantic>=2.13.3",
 ]
 
 [dependency-groups]

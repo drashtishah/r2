@@ -23,7 +23,7 @@ from typing import List, Optional, Set
 ROOT = Path(__file__).resolve().parent.parent
 
 SCAN_EXTENSIONS: Set[str] = {'.md', '.json'}
-EXCLUDE_DIRS: Set[str] = {'.git'}
+EXCLUDE_DIRS: Set[str] = {'.git', '.venv'}
 
 PATH_CHAR_RE = re.compile(r'^[a-z0-9./\-_{}\$]+$')
 

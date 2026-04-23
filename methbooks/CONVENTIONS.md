@@ -89,9 +89,8 @@ A small linear methodology: one rule with a module-level threshold, one
 methodology module with the three public functions, and the matching data
 dictionary CSV.
 
-`methbooks/rules/eligibility/exclude_zero_weight.py`:
-
 ```python
+# methbooks/rules/eligibility/exclude_zero_weight.py
 """
 Purpose: Drop rows whose weight is zero so downstream maths is well-defined.
 Datapoints: weight.
@@ -115,9 +114,8 @@ def exclude_zero_weight(df: pl.DataFrame) -> pl.DataFrame:
     return out
 ```
 
-`methbooks/methodologies/example/simple.py`:
-
 ```python
+# methbooks/methodologies/example/simple.py
 """Worked-example methodology: one eligibility rule over the base universe."""
 from __future__ import annotations
 
@@ -152,9 +150,8 @@ def apply(df: pl.DataFrame) -> pl.DataFrame:
     return out
 ```
 
-`methbooks/methodologies/example/simple_data_dictionary.csv`:
-
 ```
+# methbooks/methodologies/example/simple_data_dictionary.csv
 datapoint,description,source
 security_id,Random 6-character security identifier.,methbooks/mock_universe.py
 weight,Initial weight from base universe normalised to sum to 1.,methbooks/mock_universe.py
@@ -163,8 +160,9 @@ weight,Initial weight from base universe normalised to sum to 1.,methbooks/mock_
 ## 7. Graphify invocation
 
 Run `graphify methbooks/` from r2 root. `methbooks/.graphifyignore`
-(gitignore syntax) excludes `data/`, `pipeline/`, `CONVENTIONS.md`,
-`AGENT_GUIDELINES.md`, and `examples/` so detection sees only code. With
-zero docs, papers, or images in the corpus, graphify skips its semantic
-pass and runs only AST extraction plus clustering (deterministic, no LLM
-tokens).
+(gitignore syntax, paths relative to that file) excludes
+`methbooks/data/`, `methbooks/pipeline/`, `methbooks/CONVENTIONS.md`,
+`methbooks/AGENT_GUIDELINES.md`, and `methbooks/examples/` so detection
+sees only code. With zero docs, papers, or images in the corpus,
+graphify skips its semantic pass and runs only AST extraction plus
+clustering (deterministic, no LLM tokens).

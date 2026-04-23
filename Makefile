@@ -9,7 +9,7 @@ update:
 	uv sync --upgrade
 
 typecheck:
-	uv run mypy scripts/ tests/
+	uv run mypy scripts/ tests/ methbooks/
 
 test:
 	uv run pytest tests/

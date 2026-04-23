@@ -9,7 +9,7 @@ update:
 	uv sync --upgrade
 
 typecheck:
-	uv run mypy scripts/ tests/ constants.py
+	uv run mypy scripts/ tests/
 
 test:
 	uv run pytest tests/

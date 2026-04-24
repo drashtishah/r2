@@ -160,9 +160,10 @@ def build_mock_data() -> pl.DataFrame:
         rng.random() < 0.3 if not is_standard_constituent[i] else False
         for i in range(n)
     ]
-    # Excess returns: normally distributed around 0 with most below thresholds.
-    def _excess_return(rng: random.Random) -> float:
-        return rng.gauss(0, 20)
+    # Excess returns: normally distributed around 0, most below thresholds.
+    def _er(rng: random.Random) -> list[float]:
+        return [rng.gauss(0, 20) for _ in range(n)]
+
     # Country weight, global min size reference, LAF, consecutive reviews.
     country_weight = [rng.uniform(0, 15) for _ in range(n)]
     laf = [1.0 for _ in range(n)]
@@ -184,6 +185,25 @@ def build_mock_data() -> pl.DataFrame:
     last_reduction_date = ["2025-01-01" for _ in range(n)]
     # Market size segment cutoff (for buffer zone calc).
     mss_cutoff = [_MOCK_STANDARD_CUTOFF_USD for _ in range(n)]
+    # Event handling datapoints.
+    pre_event_mcap = [v * rng.uniform(0.5, 2.0) for v in full_mcap]
+    post_event_mcap = full_mcap
+    event_types = ["none", "new_addition", "same_segment_migration", "spinoff", "micro_cap_upgrade"]
+    event_type_col = [rng.choice(event_types) for _ in range(n)]
+    bankruptcy = [rng.random() < 0.002 for _ in range(n)]
+    delisting = [rng.random() < 0.002 for _ in range(n)]
+    suspension = [rng.random() < 0.01 for _ in range(n)]
+    days_since_ipo = [int(rng.expovariate(0.05)) for _ in range(n)]
+    interim_imi_cutoff = [_MOCK_IMI_CUTOFF_USD for _ in range(n)]
+    interim_standard_cutoff = [_MOCK_STANDARD_CUTOFF_USD for _ in range(n)]
+    interim_small_cap_cutoff = [_MOCK_IMI_CUTOFF_USD * 1.5 for _ in range(n)]
+    interim_micro_cap_cutoff = [_MOCK_MICRO_CAP_MIN_SIZE_USD for _ in range(n)]
+    size_segment = [rng.choice(["Large Cap", "Mid Cap", "Small Cap", "IMI"]) for _ in range(n)]
+    reclass_date = ["2026-04-30" for _ in range(n)]
+    review_eff_date = [_REVIEW_EFFECTIVE_DATE for _ in range(n)]
+    announce_date = [_ANNOUNCEMENT_DATE for _ in range(n)]
+    # Ranking placeholder (overwritten by ranking rule in pipeline).
+    stability_rank = list(range(1, n + 1))
 
     return df.with_columns(
         _col("security_type", security_types),
@@ -240,10 +260,42 @@ def build_mock_data() -> pl.DataFrame:
         _col("liquidity_adjustment_factor", laf),
         _col("consecutive_reviews_meeting_new_constituent_liquidity", consec_reviews),
         _col("market_size_segment_cutoff_usd", mss_cutoff),
-        *[
-            _col(f"excess_return_{d}d_pct", [_excess_return(rng) for _ in range(n)])
-            for d in [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 90, 120, 150, 180, 250]
-        ],
+        # Event handling columns.
+        _col("pre_event_full_market_cap_usd", pre_event_mcap),
+        _col("post_event_full_market_cap_usd", post_event_mcap),
+        _col("event_type", event_type_col),
+        _col("bankruptcy_flag", bankruptcy),
+        _col("delisting_flag", delisting),
+        _col("suspension_flag", suspension),
+        _col("days_since_ipo", days_since_ipo),
+        _col("interim_imi_cutoff_usd", interim_imi_cutoff),
+        _col("interim_standard_cutoff_usd", interim_standard_cutoff),
+        _col("interim_small_cap_cutoff_usd", interim_small_cap_cutoff),
+        _col("interim_micro_cap_cutoff_usd", interim_micro_cap_cutoff),
+        _col("size_segment", size_segment),
+        _col("reclassification_effective_date", reclass_date),
+        _col("review_effective_date", review_eff_date),
+        _col("announcement_date", announce_date),
+        # Ranking placeholder (overwritten by ranking rule).
+        _col("stability_weighted_ff_mcap_rank", stability_rank),
+        # Excess return columns - explicit names required.
+        _col("excess_return_5d_pct", _er(rng)),
+        _col("excess_return_10d_pct", _er(rng)),
+        _col("excess_return_15d_pct", _er(rng)),
+        _col("excess_return_20d_pct", _er(rng)),
+        _col("excess_return_25d_pct", _er(rng)),
+        _col("excess_return_30d_pct", _er(rng)),
+        _col("excess_return_35d_pct", _er(rng)),
+        _col("excess_return_40d_pct", _er(rng)),
+        _col("excess_return_45d_pct", _er(rng)),
+        _col("excess_return_50d_pct", _er(rng)),
+        _col("excess_return_55d_pct", _er(rng)),
+        _col("excess_return_60d_pct", _er(rng)),
+        _col("excess_return_90d_pct", _er(rng)),
+        _col("excess_return_120d_pct", _er(rng)),
+        _col("excess_return_150d_pct", _er(rng)),
+        _col("excess_return_180d_pct", _er(rng)),
+        _col("excess_return_250d_pct", _er(rng)),
     )
 
 

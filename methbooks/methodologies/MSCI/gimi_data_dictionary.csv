@@ -49,11 +49,11 @@ prior_micro_cap_reference_rank,Rank of the security at prior reference point for
 reclassification_effective_date,Effective date of the GICS reclassification.,"meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md section ""3.3.2 Global Industry Classification Standard (GICS)"""
 review_effective_date,Effective date of the Index Review (close of last business day of Feb/May/Aug/Nov).,"meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md section ""3.3 Announcement Policy"""
 announcement_date,Date on which Index Review results are publicly announced.,"meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md section ""3.3 Announcement Policy"""
-bankruptcy_flag,TODO,TODO
-delisting_flag,TODO,TODO
-event_type,TODO,TODO
-post_event_full_market_cap_usd,TODO,TODO
-pre_event_full_market_cap_usd,TODO,TODO
-size_segment,TODO,TODO
-stability_weighted_ff_mcap_rank,TODO,TODO
-suspension_flag,TODO,TODO
+bankruptcy_flag,True if the constituent has filed for bankruptcy.,"meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md section ""3.2.6 Early Deletions of Existing Index Constituents"""
+delisting_flag,True if the constituent faces delisting from its exchange.,"meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md section ""3.2.6 Early Deletions of Existing Index Constituents"""
+suspension_flag,True if the constituent is subject to prolonged suspension.,"meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md section ""3.2.6 Early Deletions of Existing Index Constituents"""
+event_type,Corporate event type label (e.g. new_addition / spinoff / same_segment_migration / micro_cap_upgrade / none).,"meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md section ""3.2.5 Changes in Style Segment or Industry Classification due to the Corporate Event"""
+pre_event_full_market_cap_usd,Full market capitalization in USD before the corporate event.,"meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md section ""3.2.4 Changes in Size segment of Existing Index Constituents as a Result of a Large Corporate Event"""
+post_event_full_market_cap_usd,Full market capitalization in USD after the corporate event.,"meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md section ""3.2.4 Changes in Size segment of Existing Index Constituents as a Result of a Large Corporate Event"""
+size_segment,Current size-segment assignment (Large Cap / Mid Cap / Small Cap / IMI / Micro Cap).,"meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md section ""3.2.5 Changes in Style Segment or Industry Classification due to the Corporate Event"""
+stability_weighted_ff_mcap_rank,Rank by descending stability-weighted ff-adjusted mcap within market_type; computed by ranking rule.,"meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md section ""2.4 Index Continuity Rules"""

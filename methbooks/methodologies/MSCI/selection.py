@@ -72,6 +72,7 @@ def build_mock_data() -> pl.DataFrame:
         pl.Series("cbi_screen_flag", [rng.random() < 0.05 for _ in range(n)]),
         pl.Series("bisr_controversial_weapons_flag", [rng.random() < 0.02 for _ in range(n)]),
         pl.Series("nuclear_weapons_flag", [rng.random() < 0.01 for _ in range(n)]),
+        pl.Series("rank", [0] * n, dtype=pl.UInt32),
     )
 
 

@@ -1,0 +1,999 @@
+{
+  "identification": {
+    "provider": "MSCI",
+    "family": "Index Calculation",
+    "slug": "index_calculation",
+    "version_date": "2026-02-10",
+    "index_type": "reference"
+  },
+  "document_metadata": {
+    "title": "MSCI Index Calculation Methodology for the MSCI Equity Indexes",
+    "publication_date": "February 2026",
+    "page_count": 140,
+    "primary_calculation_approach": "PAF (Price Adjustment Factor)",
+    "alternative_calculation_approach": "Index Divisors (Appendix X)"
+  },
+  "weighting": {
+    "method": "ff_mcap",
+    "caps": [],
+    "floors": [],
+    "buffers": []
+  },
+  "review_cadence": {
+    "schedules": [
+      {
+        "name": "Withholding tax rate review",
+        "frequency": "quarterly",
+        "announcement_lead": "Announced and implemented simultaneously with the respective Index Review.",
+        "data_cutoff": null,
+        "months": []
+      }
+    ],
+    "base_date_reset": null
+  },
+  "event_handling": {
+    "defers_to": {
+      "methbook": "corporate_events",
+      "section": "3.5 Optional Dividends"
+    },
+    "rule_names": [
+      "reinvest_regular_distribution_on_exdate",
+      "defer_reinvestment_when_security_not_traded",
+      "apply_paf_for_special_dividend_gte_5pct",
+      "apply_negative_wht_reinvestment_for_special_dividend_net_dtr",
+      "apply_paf_for_stock_dividend",
+      "apply_negative_wht_reinvestment_for_taiwanese_stock_dividend",
+      "apply_paf_for_extraordinary_capital_repayment",
+      "apply_negative_reinvestment_on_payment_default",
+      "apply_withholding_tax_to_net_dtr_reinvestment",
+      "no_dividend_reinvestment_sunday_intermediary",
+      "reinvest_dividends_in_sunday_thursday_calendar",
+      "reinvest_estimated_dividend_japan_on_exdate",
+      "reinvest_korean_dividend_estimate_enhanced_methodology",
+      "apply_redemption_right_paf_usa"
+    ],
+    "intra_review_invariants": [
+      {
+        "quote": "MSCI will not cancel the PAF implementation if the size of the special dividend becomes smaller than 5% after it has been announced in 'confirmed' status.",
+        "concern": "Once a 5%+ special dividend PAF is announced in confirmed status, it is not retroactively cancelled if the dividend later falls below the 5% trigger."
+      },
+      {
+        "quote": "MSCI's Daily Total Return process requires that dividends be confirmed by at least two distinct data sources.",
+        "concern": "All dividend reinvestments downstream depend on this two-source confirmation invariant from section 2.3.1."
+      },
+      {
+        "quote": "As the number of shares on the day preceding the ex-date is used to calculate the dividend amount to be reinvested, MSCI adjusts the dividend to reflect the number of shares on that day.",
+        "concern": "Section 2.3.2: dividend per share is normalised against any NOS change between announcement and ex-date before any reinvestment rule fires."
+      }
+    ]
+  },
+  "new_rules": [
+    {
+      "category": "weighting",
+      "name": "compute_price_index_level_laspeyres",
+      "purpose": "Calculate the daily price index level using the Laspeyres concept: today's level equals yesterday's level multiplied by the ratio of adjusted market cap to initial market cap, ensuring chain-linking across days with corporate events.",
+      "source": {
+        "markdown": "PriceIndexLevelUSD_t = PriceIndexLevelUSD_{t-1} * IndexAdjustedMarketCapUSD_t / IndexInitialMarketCapUSD_t",
+        "section": "1.1 Price Index Level",
+        "line": 205
+      },
+      "datapoints": [
+        "price_per_share",
+        "end_of_day_number_of_shares",
+        "inclusion_factor",
+        "price_adjustment_factor",
+        "fx_rate_vs_usd",
+        "internal_currency_index"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "price index level > 0",
+          "inclusion_factor in [0, 1]",
+          "fx_rate_vs_usd > 0",
+          "price_per_share > 0",
+          "end_of_day_number_of_shares > 0"
+        ],
+        "business": [
+          "index level equals yesterday * (adjusted_mcap / initial_mcap)",
+          "local currency index uses same FX rate in numerator and denominator so FX impact drops out"
+        ]
+      },
+      "canonical_concept": "laspeyres_price_index_level"
+    },
+    {
+      "category": "event_handling",
+      "name": "reinvest_regular_distribution_on_exdate",
+      "purpose": "Reinvest regular cash dividends and regular capital repayments into the DTR index on the ex-date of the distribution, using shares as of the cum-date and the inclusion factor.",
+      "source": {
+        "markdown": "The amount of an announced regular cash distribution is reinvested on the ex-date of such distribution on its principal exchange.",
+        "section": "2.2.1 Timing of Reinvestment",
+        "line": 1388
+      },
+      "datapoints": [
+        "gross_dividend_per_share",
+        "net_dividend_per_share",
+        "end_of_day_number_of_shares_ex_date_minus_1",
+        "inclusion_factor",
+        "fx_rate_vs_usd"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "dividend_per_share >= 0",
+          "end_of_day_number_of_shares_ex_date_minus_1 > 0",
+          "fx_rate_vs_usd > 0"
+        ],
+        "business": [
+          "gross reinvestment uses full gross dividend; net reinvestment uses dividend after maximum withholding tax",
+          "regular cash distributions are not considered in the price index (no PAF applied)"
+        ]
+      },
+      "canonical_concept": "dtr_dividend_reinvestment_exdate"
+    },
+    {
+      "category": "event_handling",
+      "name": "defer_reinvestment_when_security_not_traded",
+      "purpose": "Postpone dividend reinvestment to the next day the security trades when the security does not trade on the ex-date or scheduled reinvestment date, to avoid reinvesting into a non-functional market.",
+      "source": {
+        "markdown": "If a security does not trade on the ex-date or on the scheduled reinvestment date of the regular cash distribution, the reinvestment is postponed to the day when the security resumes trading.",
+        "section": "2.2.1 Timing of Reinvestment",
+        "line": 1393
+      },
+      "datapoints": [
+        "security_traded_flag",
+        "ex_date"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "reinvestment date >= ex_date"
+        ],
+        "business": [
+          "no reinvestment occurs on a day the security does not trade; late reinvestment does not trigger index-level correction"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "event_handling",
+      "name": "apply_paf_for_special_dividend_gte_5pct",
+      "purpose": "Apply a Price Adjustment Factor (PAF) using the gross dividend amount when a special or extraordinary cash dividend is greater than or equal to 5% of the security price on the announcement date in confirmed status, ensuring historical price comparability.",
+      "source": {
+        "markdown": "if the impact is greater than or equal to 5% of the market price of the underlying security on the date the event is announced in 'confirmed' status, the dividends are reinvested in the MSCI Index through an adjustment on the ex-date.",
+        "section": "2.2.4 Dividends Resulting in a Reinvestment or in a Price Adjustment",
+        "line": 1586
+      },
+      "datapoints": [
+        "special_dividend_per_share",
+        "price_per_share",
+        "announcement_status"
+      ],
+      "thresholds": {
+        "paf_trigger_threshold": 0.05
+      },
+      "asserts": {
+        "technical": [
+          "paf > 0",
+          "paf <= 1 for cash dividend events",
+          "dividend_per_share / price_per_share >= 0.05 when PAF is applied"
+        ],
+        "business": [
+          "PAF using the gross dividend amount is applied to the MSCI Price Indexes, MSCI Gross DTR Indexes and MSCI Net DTR Indexes on the ex-date",
+          "trigger evaluated against price on announcement date in 'confirmed' status, not against ex-date price"
+        ]
+      },
+      "canonical_concept": "special_dividend_paf_threshold"
+    },
+    {
+      "category": "event_handling",
+      "name": "apply_negative_wht_reinvestment_for_special_dividend_net_dtr",
+      "purpose": "Reinvest a negative amount equal to the withholding tax on a 5%+ special cash dividend in MSCI Net DTR Indexes only, simultaneously with the PAF on the ex-date, so net DTR reflects the after-tax dividend impact.",
+      "source": {
+        "markdown": "For special cash dividends that are greater than or equal to 5% of the market price and subject to a withholding tax, as defined in Section 2.3.7.2, MSCI reinvests a negative amount corresponding to the withholding tax in the MSCI Net DTR Indexes only.  This negative reinvestment is reflected simultaneously with the PAF on the ex-date of the special cash dividend.",
+        "section": "2.2.4 Dividends Resulting in a Reinvestment or in a Price Adjustment",
+        "line": 1607
+      },
+      "datapoints": [
+        "special_dividend_per_share",
+        "withholding_tax_rate",
+        "end_of_day_number_of_shares_ex_date_minus_1",
+        "inclusion_factor",
+        "fx_rate_vs_usd"
+      ],
+      "thresholds": {
+        "paf_trigger_threshold": 0.05
+      },
+      "asserts": {
+        "technical": [
+          "withholding_tax_rate >= 0",
+          "withholding_tax_rate <= 1",
+          "negative_reinvestment_amount <= 0"
+        ],
+        "business": [
+          "applies only to MSCI Net DTR Indexes; gross DTR and price index see only the PAF",
+          "fires on the same ex-date as apply_paf_for_special_dividend_gte_5pct"
+        ]
+      },
+      "canonical_concept": "special_dividend_net_dtr_negative_reinvestment"
+    },
+    {
+      "category": "event_handling",
+      "name": "apply_paf_for_stock_dividend",
+      "purpose": "Apply a PAF to adjust the price for a stock dividend (stock bonus or gratis issue) to prevent artificial price drop on ex-date from appearing as an index loss.",
+      "source": {
+        "markdown": "Stock Dividend (stock bonus/gratis issue) - The company issues shares at no direct cost to the shareholders.",
+        "section": "2.2.5 Dividends Resulting in a Price Adjustment Only",
+        "line": 1642
+      },
+      "datapoints": [
+        "stock_dividend_ratio",
+        "price_per_share"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "paf > 0",
+          "paf < 1 for stock bonus"
+        ],
+        "business": [
+          "PAF applied to the security in the MSCI Price Indexes, MSCI Gross DTR Indexes and MSCI Net DTR Indexes",
+          "no reinvestment leg in any DTR variant; only price adjustment"
+        ]
+      },
+      "canonical_concept": "stock_dividend_paf"
+    },
+    {
+      "category": "event_handling",
+      "name": "apply_negative_wht_reinvestment_for_taiwanese_stock_dividend",
+      "purpose": "Reinvest a negative amount equal to the withholding tax on Taiwanese stock dividends in MSCI Net DTR Indexes only, simultaneously with the PAF on the ex-date, when the stock dividend is paid out of retained earnings (par value subject to default Taiwanese withholding tax).",
+      "source": {
+        "markdown": "For Taiwanese stock dividends subject to withholding tax, MSCI reinvests a negative amount corresponding to the tax amount in the MSCI Net DTR Indexes only. This negative reinvestment is reflected simultaneously with the PAF on the ex-date of the stock dividend.",
+        "section": "2.3.7.3 Country Exceptions - Taiwanese Stock Dividends",
+        "line": 2009
+      },
+      "datapoints": [
+        "country_of_listing",
+        "stock_dividend_shares_received_subject_to_wht",
+        "par_value_per_share",
+        "withholding_tax_rate"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "negative_reinvestment_amount <= 0",
+          "withholding_tax_rate >= 0"
+        ],
+        "business": [
+          "negative amount = shares received subject to WHT * par value * Taiwanese default withholding tax rate (per Appendix VI)",
+          "applies only to the portion of stock dividends paid out of retained earnings; the capital-surplus portion is not subject to withholding tax"
+        ]
+      },
+      "canonical_concept": "taiwanese_stock_dividend_net_dtr_negative_reinvestment"
+    },
+    {
+      "category": "event_handling",
+      "name": "apply_paf_for_extraordinary_capital_repayment",
+      "purpose": "Apply a PAF using the gross capital repayment amount, regardless of size, for capital repayments deemed extraordinary relative to the company's dividend policy or historical distributions.",
+      "source": {
+        "markdown": "Capital repayments that are deemed to be extraordinary compared to the dividend policy of the company or to the historical cash distributions are reinvested in the MSCI Indexes through an adjustment.",
+        "section": "2.2.5 Dividends Resulting in a Price Adjustment Only",
+        "line": 1653
+      },
+      "datapoints": [
+        "capital_repayment_per_share",
+        "price_per_share",
+        "extraordinary_flag"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "paf > 0",
+          "paf <= 1"
+        ],
+        "business": [
+          "PAF using the gross capital repayment amount applied to the security's market price on the ex-date, regardless of repayment size",
+          "extraordinary classification is judged against company dividend policy or historical cash distributions"
+        ]
+      },
+      "canonical_concept": "extraordinary_capital_repayment_paf"
+    },
+    {
+      "category": "maintenance",
+      "name": "correct_dividend_within_12m_window",
+      "purpose": "Apply dividend corrections and late dividends only when discovered within 12 months of the ex-date, using the number of shares at close of cum-date and the spot rate of the reinvestment date for currency conversion.",
+      "source": {
+        "markdown": "Action is taken only if the error is discovered within 12 months of the ex-date.",
+        "section": "2.3.4 Corrections",
+        "line": 1710
+      },
+      "datapoints": [
+        "ex_date",
+        "correction_discovery_date",
+        "dividend_amount_corrected",
+        "shares_cum_date"
+      ],
+      "thresholds": {
+        "correction_window_months": 12
+      },
+      "asserts": {
+        "technical": [
+          "correction_discovery_date - ex_date <= 365 days"
+        ],
+        "business": [
+          "uses number of shares at close of cum-date, not at correction date",
+          "uses spot rate of reinvestment date (not original ex-date) for currency conversion",
+          "no correction reinvested if security's index inclusion status changed between ex-date and correction date"
+        ]
+      },
+      "canonical_concept": "dividend_correction_12m"
+    },
+    {
+      "category": "event_handling",
+      "name": "apply_negative_reinvestment_on_payment_default",
+      "purpose": "Apply a negative reinvestment when a dividend is declared unpaid (payment default), within 12 months of the ex-date, without correcting past index levels.",
+      "source": {
+        "markdown": "A correction is applied when a dividend is declared unpaid (payment default). This may result in a negative reinvestment. Past index levels are not corrected.",
+        "section": "2.3.5 Payment Default",
+        "line": 1731
+      },
+      "datapoints": [
+        "payment_default_flag",
+        "original_dividend_amount",
+        "shares_cum_date",
+        "default_discovery_date"
+      ],
+      "thresholds": {
+        "correction_window_months": 12
+      },
+      "asserts": {
+        "technical": [
+          "default_discovery_date - ex_date <= 365 days"
+        ],
+        "business": [
+          "negative reinvestment applied on next business day after reception and confirmation from at least two data sources",
+          "past index levels are not restated; uses spot rate of reinvestment date and shares effective at close of original cum-date"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "event_handling",
+      "name": "apply_withholding_tax_to_net_dtr_reinvestment",
+      "purpose": "Deduct the maximum withholding tax rate applicable to institutional investors (non-resident for international indexes, resident for domestic indexes) from the dividend reinvestment amount in MSCI Net DTR Indexes, using the company's country of incorporation.",
+      "source": {
+        "markdown": "MSCI uses companies' country of incorporation to determine the relevant dividend withholding tax rates in calculating the net dividends and the MSCI Net DTR Indexes.",
+        "section": "2.3.7.2 Withholding Tax",
+        "line": 1863
+      },
+      "datapoints": [
+        "gross_dividend_per_share",
+        "withholding_tax_rate",
+        "country_of_incorporation",
+        "index_type_domestic_or_international"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "withholding_tax_rate >= 0",
+          "withholding_tax_rate <= 1",
+          "net_dividend_per_share = gross_dividend_per_share * (1 - withholding_tax_rate)"
+        ],
+        "business": [
+          "weighted average rate applied when one company pays distributions with different rates on the same ex-date or one cash dividend has portions taxed differently (e.g., REITs)",
+          "regular capital repayments not subject to withholding tax are reinvested free of tax in net DTR",
+          "Australian effective rate = default rate * (100% - franking% - conduit_foreign_income%)"
+        ]
+      },
+      "canonical_concept": "net_dtr_withholding_tax"
+    },
+    {
+      "category": "weighting",
+      "name": "blend_component_indexes_by_fixed_weight",
+      "purpose": "Calculate a blended index level by combining published component index daily returns using fixed proportions set at the time of rebalance, via linear combination.",
+      "source": {
+        "markdown": "BlendedIndexDailyReturn_t = sum_c (w_c * ComponentIndexDailyReturn_t); BlendedIndexLevel_t = BlendedIndexLevel_{t-1} * (1 + BlendedIndexDailyReturn_t)",
+        "section": "3 Index Calculation for the MSCI Blended Indexes",
+        "line": 2123
+      },
+      "datapoints": [
+        "component_index_level",
+        "component_index_weight"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "sum(component_index_weight) == 1",
+          "component_index_weight > 0 for all components",
+          "blended_index_level > 0"
+        ],
+        "business": [
+          "weights are fixed between rebalances; blended index level equals chain-linked product of 1 + weighted daily return"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "event_handling",
+      "name": "no_dividend_reinvestment_sunday_intermediary",
+      "purpose": "Suppress dividend reinvestment on Sundays in the Sunday intermediary calculation to preserve compatibility with the Monday-Friday index series; DTR performance on Sunday equals price index performance.",
+      "source": {
+        "markdown": "No dividends are reinvested on Sundays. Consequently, the Daily Total Return (DTR) index performances for Sunday will be equal to the ones of the price index.",
+        "section": "Appendix I: Sunday Intermediary Index Calculation for Monday-Friday Index Calculation Methodology",
+        "line": 2174
+      },
+      "datapoints": [
+        "calculation_day_of_week",
+        "is_sunday_intermediary_index"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "on Sunday: dtr_index_level_change == price_index_level_change"
+        ],
+        "business": [
+          "Sunday corporate-event PAFs are applied to both Sunday and Monday market prices",
+          "NOS, FIF and DIF changes from Sunday corporate events are implemented as of close of Monday",
+          "WMR Friday spot FX rate is carried forward to Sunday for the USD calculation"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "maintenance",
+      "name": "compute_atvr_from_12m_monthly_traded_value",
+      "purpose": "Compute the Annualized Traded Value Ratio (ATVR) as the sum of the 12 monthly traded value ratios (MTVR), where each MTVR is the monthly median traded value divided by the FIF- or DIF-adjusted market cap at month end.",
+      "source": {
+        "markdown": "ATVR_FIFAdj_MonthN = sum_{i in N, N-1, ..., N-11} MTVR_FIFAdj_Month_i",
+        "section": "Appendix II: Annualized Traded Value Ratio (ATVR) and Annual Traded Value",
+        "line": 2362
+      },
+      "datapoints": [
+        "daily_security_traded_volume",
+        "price_per_share",
+        "fx_rate_vs_usd",
+        "number_of_security_trading_days",
+        "fif_adjusted_market_cap_month_end"
+      ],
+      "thresholds": {
+        "minimum_months_for_atvr": 12
+      },
+      "asserts": {
+        "technical": [
+          "atvr >= 0",
+          "atvr not computed when fewer than 12 months of MTVR available (security-level)"
+        ],
+        "business": [
+          "monthly median traded value (not mean) is used to screen out extreme daily volumes",
+          "aggregated ATVR sums per-listing ATVRs across all listings linked by issuer, share class and share type, including ADRs and GDRs, and is calculated even when fewer than 12 months are available for one or more listings"
+        ]
+      },
+      "canonical_concept": "atvr"
+    },
+    {
+      "category": "maintenance",
+      "name": "use_wmr_closing_spot_rate_for_fx",
+      "purpose": "Use WMR Closing Spot Rates taken at 4PM London time as the standard FX rate for all MSCI Equity Index calculations; carry forward the previous business day rate when WMR does not provide rates on a given day.",
+      "source": {
+        "markdown": "Since December 31st, 1993, MSCI has been using the WMR Closing Spot Rates, taken at 4PM London time, for all the countries for which it provides indexes.",
+        "section": "Appendix III: Exchange Rates",
+        "line": 2430
+      },
+      "datapoints": [
+        "wmr_closing_spot_rate",
+        "calculation_date"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "fx_rate_vs_usd > 0"
+        ],
+        "business": [
+          "previous business day rate is used when WMR does not provide spot rates on a given day (e.g., Christmas Day, New Year Day)",
+          "MSCI EIC may elect alternative source under exceptional circumstances with client announcement"
+        ]
+      },
+      "canonical_concept": "wmr_fx_rate"
+    },
+    {
+      "category": "maintenance",
+      "name": "restate_index_at_50bps_error_threshold",
+      "purpose": "Apply historical index restatement when a data error causes an impact of 50 basis points or more on any affected country index or World/EM industry group index (or the MSCI Frontier Markets region), within a 12-month correction window.",
+      "source": {
+        "markdown": "If the impact of the error is greater or equal to 50 basis points on the country index OR on the World/EM Industry Group (or 50 basis points on the MSCI Frontier Markets region including the MSCI GCC Countries), all of the indexes affected by 50 basis points or more are re stated.",
+        "section": "Appendix XI: Index Correction Policy",
+        "line": 14199
+      },
+      "datapoints": [
+        "error_impact_bps",
+        "affected_index_type",
+        "error_discovery_date"
+      ],
+      "thresholds": {
+        "restatement_threshold_bps": 50,
+        "correction_window_months": 12
+      },
+      "asserts": {
+        "technical": [
+          "only indexes with impact >= restatement_threshold_bps are restated"
+        ],
+        "business": [
+          "MSCI may correct below threshold for systematic errors at its discretion (e.g., constituent omission, large-scale price errors)",
+          "errors on historical values older than 12 months are in general not revised"
+        ]
+      },
+      "canonical_concept": "index_error_restatement_50bps"
+    },
+    {
+      "category": "event_handling",
+      "name": "reinvest_dividends_in_sunday_thursday_calendar",
+      "purpose": "Reinvest dividends on Sundays for indexes following a Sunday-to-Thursday trading calendar, comparing Sunday DTR performance against the previous Thursday's level; carry forward WMR Friday spot FX rate to Sunday.",
+      "source": {
+        "markdown": "Dividends are reinvested on Sundays. Consequently, the Daily Total Return (DTR) index performances for Sunday will be calculated by comparing DTR Index levels of the previous Thursday.",
+        "section": "Appendix XII: Sunday-Thursday Index Calculation Methodology",
+        "line": 14238
+      },
+      "datapoints": [
+        "calculation_day_of_week",
+        "is_sunday_thursday_index",
+        "dividend_per_share",
+        "wmr_closing_spot_rate_friday"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "sunday index performance computed against previous Thursday unadjusted prices"
+        ],
+        "business": [
+          "NOS and FIF/DIF changes from Sunday corporate events implemented at close of Sunday (unlike Sunday intermediary which defers them to Monday close)",
+          "unlike Sunday intermediary indexes, DTR includes dividend reinvestment on Sundays"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "event_handling",
+      "name": "reinvest_estimated_dividend_japan_on_exdate",
+      "purpose": "Reinvest an estimated dividend for Japanese securities on the ex-date using the previous year's same-period dividend when the actual dividend is not yet declared, and treat any subsequent difference as a payment-default-style correction without restating past index levels.",
+      "source": {
+        "markdown": "an estimation of the dividend is reinvested on the ex-date. When a company does not declare an estimated dividend, MSCI uses the previous year's dividend amount from the same period as the estimation.",
+        "section": "2.3.6 Country Exceptions - Japan",
+        "line": 1759
+      },
+      "datapoints": [
+        "country_of_listing",
+        "prior_year_dividend_same_period",
+        "announced_dividend_estimate"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "estimated_dividend_per_share >= 0"
+        ],
+        "business": [
+          "difference between estimated and ratified amount processed as payment-default reinvestment (no past index-level correction) on next business day after reception from data sources"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "event_handling",
+      "name": "reinvest_korean_dividend_estimate_enhanced_methodology",
+      "purpose": "For Korean dividends with ex-date from December 2014 onwards (enhanced methodology), reinvest an estimated dividend on the ex-date using the previous year's same-period amount adjusted for any capital changes; reinvest the actual-vs-estimate difference on the next business day after reception, without correcting past index levels.",
+      "source": {
+        "markdown": "Under the enhanced methodology, MSCI will reinvest an estimated dividend amount for Korean securities on the ex-date of the dividend. The estimate will be calculated as the previous year's dividend amount from the same period, adjusted by any capital changes if necessary. If no dividend was paid from the same period in the previous year or an estimated dividend amount is not available, MSCI will reinvest the dividend amount of zero.",
+        "section": "2.3.6 Country Exceptions - Korea",
+        "line": 1788
+      },
+      "datapoints": [
+        "country_of_listing",
+        "prior_year_dividend_same_period",
+        "capital_change_adjustment",
+        "ratified_dividend_per_share",
+        "reception_date",
+        "shares_prior_to_exdate"
+      ],
+      "thresholds": {
+        "minimum_data_source_confirmations": 2
+      },
+      "asserts": {
+        "technical": [
+          "estimated_dividend_per_share >= 0",
+          "if no prior-year same-period dividend and no estimate available, estimated_dividend_per_share == 0"
+        ],
+        "business": [
+          "applies to dividends with ex-date from December 2014 onwards",
+          "shares used are those effective on the day prior to ex-date",
+          "true-up of difference between estimated and ratified amount reinvested on next business day after reception, without restating past index levels",
+          "estimates are also used for dividend yield calculation as if not estimated"
+        ]
+      },
+      "canonical_concept": "korean_dividend_estimate_enhanced"
+    },
+    {
+      "category": "event_handling",
+      "name": "apply_redemption_right_paf_usa",
+      "purpose": "Apply a price adjustment when a USA company redeems shares distributed under a poison pill rights issue, reflecting the change in the company's capital structure.",
+      "source": {
+        "markdown": "When a company redeems shares distributed to shareholders due to a poison pill rights issue (applies mainly in USA), there may be a change in the company's capital structure. In this case MSCI will apply a price adjustment.",
+        "section": "2.3.6 Country Exceptions - USA: Redemption Right",
+        "line": 1823
+      },
+      "datapoints": [
+        "country_of_listing",
+        "redemption_right_flag",
+        "price_per_share"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "paf > 0"
+        ],
+        "business": [
+          "applies to poison-pill-style redemption rights, mainly USA"
+        ]
+      },
+      "canonical_concept": null
+    }
+  ],
+  "reused_rules": [
+    {
+      "methbook": "corporate_events",
+      "name": "optional_dividend_cash_default",
+      "justification": "Section 2.2.3 of this document states that MSCI assumes shareholders receive the default distribution for optional dividends (cash if no default available), and refers to section 3.5 of the MSCI Corporate Events Methodology for full treatment details."
+    }
+  ],
+  "mock_datapoints": [
+    {
+      "name": "price_per_share",
+      "type": "float",
+      "distribution": "positive continuous, typically 0.01 to 10000 in local currency",
+      "description": "Official exchange closing price per share of the security, sourced per the closing prices policy (Appendix VII).",
+      "canonical_concept": "security_price",
+      "source_section": "1.1.1 Index Market Capitalization",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": [
+        "Appendix VII defines the specific price type by country (VWAP, auction close, last traded, etc.)",
+        "When a security does not trade on a day, the previous day closing price is carried forward"
+      ]
+    },
+    {
+      "name": "end_of_day_number_of_shares",
+      "type": "float",
+      "distribution": "positive integer-valued, millions to billions range",
+      "description": "Number of shares of the security held as of the end of day t-1 used for index calculation on day t. Shown as 'Number of Shares (Today Index)' in MSCI products.",
+      "canonical_concept": "number_of_shares",
+      "source_section": "1.1.1 Index Market Capitalization",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": [
+        "End-of-day vs intraday share counts differ on corporate event days",
+        "'Number of Shares (Next Day Index)' is the forward-looking share count for t+1 calculation"
+      ]
+    },
+    {
+      "name": "inclusion_factor",
+      "type": "float",
+      "distribution": "uniform in [0, 1], values typically 0.05, 0.10, ..., 1.0",
+      "description": "Composite inclusion factor applied to the security's market cap in the index. Can be one or a combination of: Foreign Inclusion Factor (FIF), Domestic Inclusion Factor (DIF), Growth Inclusion Factor (GIF), Value Inclusion Factor (VIF), Index Inclusion Factor.",
+      "canonical_concept": "msci_inclusion_factor",
+      "source_section": "1.1.1 Index Market Capitalization",
+      "semantic_threshold": null,
+      "taxonomy": "MSCI inclusion factor (FIF/DIF/GIF/VIF/Index Inclusion Factor)",
+      "definition_notes": [
+        "Standard or Small Cap Index Inclusion Factor multiplier applies for specific historical windows and index types per footnotes in sections 1.1.1 and 1.2.2",
+        "From December 1, 2015, the Standard or Small Cap Index Inclusion Factor multiplier applies for standard or small cap index market capitalisation calculations except for China A"
+      ]
+    },
+    {
+      "name": "price_adjustment_factor",
+      "type": "float",
+      "distribution": "positive continuous; < 1 for dilutive events, > 1 for consolidations",
+      "description": "Price Adjustment Factor (PAF) applied to a security's price on the ex-date of a corporate event to preserve historical price comparability.",
+      "canonical_concept": "msci_paf",
+      "source_section": "1.1.1 Index Market Capitalization",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": [
+        "PAF = 1 on non-event days",
+        "PAF derivation methodology defined in the MSCI Corporate Events Methodology book",
+        "Sunday corporate events apply PAF on both Sunday and Monday in the Sunday intermediary calculation"
+      ]
+    },
+    {
+      "name": "fx_rate_vs_usd",
+      "type": "float",
+      "distribution": "positive continuous, represents local currency units per 1 USD",
+      "description": "WMR Closing Spot Rate of the security's price currency versus USD at 4PM London time. Equals 1 USD expressed in foreign currency units.",
+      "canonical_concept": "wmr_fx_rate",
+      "source_section": "Appendix III: Exchange Rates",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": [
+        "Reuters Multi Contributor rates used intraday for real-time indexes; WMR 4PM London rate used for Index Close",
+        "Previous business day rate used when WMR does not provide spot rates (e.g., Christmas Day, New Year Day)",
+        "MSCI EIC may elect alternative source when WMR rate is not reflective of market conditions"
+      ]
+    },
+    {
+      "name": "gross_dividend_per_share",
+      "type": "float",
+      "distribution": "non-negative continuous in same currency as price_per_share",
+      "description": "Gross dividend per share (before withholding tax) used for reinvestment in the MSCI Gross DTR Indexes on the ex-date.",
+      "canonical_concept": "gross_dividend_per_share",
+      "source_section": "2.1.4.1 Security Daily Gross Return",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": [
+        "MSCI's Daily Total Return process requires that dividends be confirmed by at least two distinct data sources before reinvestment",
+        "For Chinese securities with foreign listing paying dividends in RMB, MSCI uses the offshore exchange rate (CNH) for reinvestment; historical corrections of dividends reinvested prior to April 1, 2018 continue to be reflected in CNY"
+      ]
+    },
+    {
+      "name": "withholding_tax_rate",
+      "type": "float",
+      "distribution": "uniform in [0, 1], country-specific values per Appendix VI",
+      "description": "Maximum withholding tax rate applicable to institutional investors (non-resident for international indexes, resident for domestic indexes) used to compute net dividends per share.",
+      "canonical_concept": "withholding_tax_rate",
+      "source_section": "2.3.7.2 Withholding Tax",
+      "semantic_threshold": null,
+      "taxonomy": "MSCI WHT bucket (Foreign / Domestic, per Appendix VI)",
+      "definition_notes": [
+        "Australian effective rate = default rate * (100% - franking% - conduit_foreign_income%); franking and CFI percentages assumed zero if not publicly available before ex-date",
+        "REIT dividends may be subject to separate withholding tax rates per Appendix VI",
+        "Weighted average rate applied when a single company pays distributions with different rates on the same ex-date or one cash dividend has portions taxed differently",
+        "Companies' country of incorporation is reviewed quarterly; rate changes are announced and implemented simultaneously with the respective Index Review"
+      ]
+    },
+    {
+      "name": "internal_currency_index",
+      "type": "float",
+      "distribution": "positive; equals 1 in normal conditions, large value when currency redenominated",
+      "description": "Internal Currency Index (ICI) for the security's price currency. Differs from 1 only when a country changes the internal value of its currency (e.g., Turkish Lira to New Turkish Lira: ICI = 1,000,000).",
+      "canonical_concept": "internal_currency_index",
+      "source_section": "1.1.1 Index Market Capitalization",
+      "semantic_threshold": "The ICI is different than 1 when a country changes the internal value of its currency (e.g. from Turkish Lira to New Turkish Lira - ICI = 1,000,000).",
+      "taxonomy": null,
+      "definition_notes": [
+        "Applied as ratio ICI_t / ICI_{t-1} in local currency market cap calculations",
+        "Used in both price and DTR index calculations to handle currency redenomination events"
+      ]
+    },
+    {
+      "name": "daily_security_traded_volume",
+      "type": "float",
+      "distribution": "non-negative integer, shares traded during the day",
+      "description": "Number of shares of the security traded during day t, used to compute daily traded value for the ATVR calculation.",
+      "canonical_concept": "daily_traded_volume",
+      "source_section": "Appendix II: Annualized Traded Value Ratio (ATVR) and Annual Traded Value",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": [
+        "Trading volumes in depositary receipts (ADRs, GDRs) and other alternate listings are included in aggregated ATVR",
+        "Monthly median (not mean) used to screen out extreme daily volumes"
+      ]
+    },
+    {
+      "name": "component_index_weight",
+      "type": "float",
+      "distribution": "continuous in (0, 1]; fixed proportion for each component, sums to 1",
+      "description": "Fixed proportion assigned to each component index in a blended index, set at the time of rebalance and held constant until the next rebalance.",
+      "canonical_concept": null,
+      "source_section": "3 Index Calculation for the MSCI Blended Indexes",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": [
+        "Component index daily returns are linearly combined using these fixed weights",
+        "How w_c is determined at rebalance is not specified in this document; see relevant blend index methodology"
+      ]
+    }
+  ],
+  "data_requirements": {
+    "mandatory_products": [],
+    "mandatory_fields": [
+      {
+        "name": "price_per_share",
+        "source": "exchange closing price per Appendix VII sourcing rules"
+      },
+      {
+        "name": "end_of_day_number_of_shares",
+        "source": "MSCI security data files"
+      },
+      {
+        "name": "inclusion_factor",
+        "source": "MSCI index construction methodology (GIMI)"
+      },
+      {
+        "name": "price_adjustment_factor",
+        "source": "MSCI Corporate Events processing"
+      },
+      {
+        "name": "fx_rate_vs_usd",
+        "source": "WMR 4PM London Closing Spot Rates (Appendix III)"
+      },
+      {
+        "name": "gross_dividend_per_share",
+        "source": "confirmed by at least two distinct electronic data feeds (section 2.3.1)"
+      },
+      {
+        "name": "withholding_tax_rate",
+        "source": "MSCI-monitored country withholding tax database (Appendix VI)"
+      }
+    ],
+    "preprocessing": [
+      {
+        "step": "Dividend confirmation",
+        "description": "Dividends must be confirmed by at least two distinct data sources before reinvestment (section 2.3.1)"
+      },
+      {
+        "step": "Corporate action NOS adjustment",
+        "description": "Dividend per share is adjusted to reflect any share count changes between announcement and ex-date (section 2.3.2)"
+      },
+      {
+        "step": "Data date fallback",
+        "description": "When required data is unavailable on the Data Date, latest available prior data is used unless the relevant methodology specifies otherwise (Introduction)"
+      }
+    ]
+  },
+  "composition_order": [],
+  "final_asserts": [
+    "price index level > 0 on all calculation days",
+    "initial security weights sum to 100 across all constituents in the index",
+    "DTR index level >= price index level when cumulative dividends reinvested are positive",
+    "ATVR >= 0; ATVR not published when fewer than 12 months of monthly traded value ratios available (security-level)",
+    "component_index_weights sum to 1 for blended indexes"
+  ],
+  "external_references": [
+    {
+      "methbook": "corporate_events",
+      "section": "3.5 Optional Dividends",
+      "item": null,
+      "item_type": null
+    },
+    {
+      "methbook": "corporate_events",
+      "section": "PAF derivation methodology",
+      "item": null,
+      "item_type": null
+    },
+    {
+      "methbook": "gimi",
+      "section": "Appendix III Country Classification",
+      "item": null,
+      "item_type": null
+    }
+  ],
+  "scoped_out": [
+    {
+      "quote": "Another way to calculate the index level would be to use the initial weight and price return of the individual securities included in the index",
+      "concern": "Section 1.2 (Contribution Method) and sections 1.2.1-1.2.4 present a mathematically equivalent alternative formula for the price index level; no distinct transformation beyond section 1.1."
+    },
+    {
+      "quote": "InitialSecurityWeight_{t+1} = EndOfDayNumberOfShares_t * PricePerShare_t / FXrate_t * InclusionFactor_{t+1} / sum(...)",
+      "concern": "Section 1.3 (Next Day Initial Security Weight) is a derived formula consequence of sections 1.1 and 1.2; covered by compute_price_index_level_laspeyres."
+    },
+    {
+      "quote": "IndexClosingMarketCapUSD_t = sum_s ClosingNumberOfShares_t * PricePerShare_t * InclusionFactor_t / FXrate_t",
+      "concern": "Section 1.4 (Closing Index Market Cap) defines a derived end-of-day portfolio valuation quantity; no index-level calculation transformation distinct from section 1.1."
+    },
+    {
+      "quote": "The security Index of Price is distributed in MSCI daily and monthly security products. It represents the price return from period to period by utilizing the concept of an index of performance.",
+      "concern": "Section 1.5 (Security Index of Price in Local) defines a security-level data product; not an index-level transformation."
+    },
+    {
+      "quote": "The concept of a 'local currency' calculation excludes the impact of currency fluctuations. All currencies of listing are considered in the index calculation in local currency where current prices_t and previous day prices_{t-1} are converted into USD using the same exchange rate.",
+      "concern": "Section 1.6 is an explanatory note on local currency methodology; the rule is fully embedded in the use of FXrate_{t-1} for both numerator and denominator in the local currency formula of section 1.1."
+    },
+    {
+      "quote": "An index can be calculated into any currency by converting the index in USD into the selected currency using the formula below.",
+      "concern": "Section 1.7 (Currency Conversion) defines a mechanical formula for converting a USD index level to another currency using FX rate ratios; no discrete transformation rule beyond the FX rate sourcing policy in Appendix III."
+    },
+    {
+      "quote": "DTRIndexLevelUSD_t = DTRIndexLevelUSD_{t-1} * (IndexAdjustedMarketCapUSD_t + IndexDividendImpactUSD_t) / IndexInitialMarketCapUSD_t",
+      "concern": "Sections 2.1, 2.1.1-2.1.7 define the DTR index level formula and its components; the calculation logic is covered by reinvest_regular_distribution_on_exdate and apply_withholding_tax_to_net_dtr_reinvestment. The formula structure itself is a mathematical derivation."
+    },
+    {
+      "quote": "2.2.2 Reinvestment Rules - table of distribution types with PAF and reinvestment columns",
+      "concern": "Section 2.2.2 is a summary table that consolidates the rules already captured individually in sections 2.2.3, 2.2.4, and 2.2.5."
+    },
+    {
+      "quote": "Raw dividend data is provided by multiple electronic data feeds and is checked for completeness and correctness. MSCI's Daily Total Return process requires that dividends be confirmed by at least two distinct data sources.",
+      "concern": "Section 2.3.1 (Dividend Data) describes a data quality monitoring process; captured as a preprocessing step in data_requirements and an intra-review invariant."
+    },
+    {
+      "quote": "A corporate action, which changes the number of shares outstanding for a company, may take place between the dividend's announcement date and its ex-date. As the number of shares on the day preceding the ex-date is used to calculate the dividend amount to be reinvested, MSCI adjusts the dividend to reflect the number of shares on that day.",
+      "concern": "Section 2.3.2 (Corporate Actions) describes a data preparation step for dividend calculation; captured as a preprocessing step in data_requirements and an intra-review invariant."
+    },
+    {
+      "quote": "A late dividend is a dividend that is only known after its ex-date. It is processed under the correction policy as described in sub-section 2.3.4 below.",
+      "concern": "Section 2.3.3 (Late Dividends) references section 2.3.4; covered by correct_dividend_within_12m_window."
+    },
+    {
+      "quote": "Some companies in Singapore, for example Real Estate Investment Trusts (REITs), pay advanced cash distributions at the time of placement of new shares.",
+      "concern": "Section 2.3.6 Singapore exception describes estimated reinvestment logic analogous to the enhanced Korean methodology (estimate or lower-range on ex-date, true-up on reception, no past-level correction). Mechanics match reinvest_korean_dividend_estimate_enhanced_methodology with different trigger conditions; not creating a separate rule."
+    },
+    {
+      "quote": "A tax credit related to a dividend can be considered as a reimbursement of tax already received by the fiscal administration. ... MSCI does not take into account the amount of a tax credit in calculating either gross or net dividends.",
+      "concern": "Section 2.3.7.1 (Tax Credit) is a negative-policy statement: tax credits are explicitly excluded from gross and net dividend calculations. No transformation rule is required; the exclusion is implicit in the gross/net definitions used by reinvest_regular_distribution_on_exdate and apply_withholding_tax_to_net_dtr_reinvestment."
+    },
+    {
+      "quote": "Some Australian companies pay their dividends with franking credits attached. Effective withholding tax rate = Australia default withholding tax rate x (100% - franking% - conduit foreign income%)",
+      "concern": "Section 2.3.7.3 Australian dividends defines the effective withholding tax formula; captured as a sub-calculation within apply_withholding_tax_to_net_dtr_reinvestment business asserts."
+    },
+    {
+      "quote": "In Taiwan, the cash distributions paid out from the types of capital surplus which are originally contributed by shareholders are not subject to any withholding tax. ... In the case that a Taiwanese company does not clarify the source of capital surplus, the cash distribution is reinvested in the MSCI DTR Indexes free of withholding tax.",
+      "concern": "Section 2.3.7.3 Taiwanese Capital Repayments defines a country-specific WHT classification rule for cash distributions; captured within apply_withholding_tax_to_net_dtr_reinvestment as a country-specific sub-case (capital-surplus contributions free of WHT, otherwise default rate, default-to-free when source unclear)."
+    },
+    {
+      "quote": "MSCI does not take into account such tax exemption in calculating net dividends. That is, MSCI does not differentiate dividends derived from business profit under BOI privilege and non-BOI privilege. MSCI will therefore reinvest the full cash dividend amount with the default withholding tax rate in the MSCI DTR Indexes.",
+      "concern": "Section 2.3.7.3 Thailand BOI dividends explicitly states MSCI does NOT differentiate BOI vs non-BOI dividends and reinvests at the default rate; no separate transformation distinct from apply_withholding_tax_to_net_dtr_reinvestment."
+    },
+    {
+      "quote": "Announcement date - the date on which the company announces its next dividend payment. ... Cum-date - the last day on which, if an investor buys the security, the security carries the right to the declared dividend.",
+      "concern": "Section 2.3.8 (Definitions) is a glossary of dividend lifecycle dates; no transformation rule."
+    },
+    {
+      "quote": "MSCI Index Calculation Methodology | February 2026 - Index Calculation Formulas [Sunday intermediary formulas with market cap components]",
+      "concern": "Appendix I calculation formulas (lines 2197-2283) are mathematical derivations of the Sunday intermediary rule; covered by no_dividend_reinvestment_sunday_intermediary and compute_price_index_level_laspeyres."
+    },
+    {
+      "quote": "On December 1st 1972, the MSCI Singapore/Malaysia Index was added to the World Index.",
+      "concern": "Appendix IV (Singapore & Malaysia History) is a historical narrative of index construction decisions; contains no transformation rules."
+    },
+    {
+      "quote": "Appendix V: Singapore and Singapore Free",
+      "concern": "Appendix V describes historical treatment of Singapore/Singapore Free index series; historical context with no active transformation rules."
+    },
+    {
+      "quote": "Dividends on Real Estate Investment Trusts (REITs) are subject to a 15% withholding tax.",
+      "concern": "Appendix VI (Withholding Tax Rates) is a reference table of country-level withholding tax rates; the data populates the withholding_tax_rate datapoint. No transformation rule beyond apply_withholding_tax_to_net_dtr_reinvestment."
+    },
+    {
+      "quote": "Unless otherwise indicated, the prices used to calculate the MSCI Indexes are the official exchange closing prices or those figures accepted as such.",
+      "concern": "Appendix VII (Closing Prices Policy) is a reference table of standard pricing sources, price types, and availability times by country and exchange; the policy governs price_per_share sourcing captured in data_requirements."
+    },
+    {
+      "quote": "Appendix VIII: Country Composition of MSCI Selected Regional Indexes",
+      "concern": "Appendix VIII is a reference table of country inclusion dates for regional indexes (World, EAFE, EMF, ACWI, etc.); no transformation rule."
+    },
+    {
+      "quote": "MSCI currently calculates price, net and gross variants for approximately 9,000 equity based indexes in real time.",
+      "concern": "Appendix IX (MSCI Real Time Indexes) describes real-time calculation infrastructure and filtering criteria; the end-of-day calculation methodology is the same as sections 1 and 2. Real-time filtering thresholds are described qualitatively but not quantified."
+    },
+    {
+      "quote": "An index level is calculated by multiplying the weighted average performance of the index constituents by the previous index level. This section presents an alternative way of calculating an index level ... by simply multiplying asset constituent quantities by current prices.",
+      "concern": "Appendix X (Index Divisors) presents an alternative, mathematically equivalent formulation of the index calculation using index divisors and interim constituents; no new transformation beyond sections 1 and 2."
+    },
+    {
+      "quote": "MSCI indexes undergo index reviews with a scheduled frequency and pro forma index information is announced in advance of the effective date of the review.",
+      "concern": "Appendix XIII (Advance Notification) is a procedural description of how pro-forma data is used for advance notification; the schedule and notification window are defined in individual index methodology books, not this document."
+    },
+    {
+      "quote": "MSCI Index Calculation Methodology Book Tracked Changes - The following section has been updated since January 2008.",
+      "concern": "The Tracked Changes section is a historical changelog of document revisions; no transformation rules."
+    },
+    {
+      "quote": "To learn more, please visit www.msci.com. The process for submitting a formal index complaint can be found on the index regulation page of MSCI's website.",
+      "concern": "Contact Us section is document metadata; no methodology content."
+    }
+  ],
+  "clarifications_needed": [
+    {
+      "quote": "MSCI blend indexes are calculated by combining published index levels (component indexes) according to methodological rules. The returns of the component indexes are linearly combined in a fixed proportion known at the time of rebalance.",
+      "concern": "Section 3 does not specify how the fixed proportion w_c is determined at rebalance, when rebalancing occurs, or which specific blended indexes this applies to. The rebalancing trigger and weight-setting process need to be sourced from individual blended index methodology documents."
+    },
+    {
+      "quote": "Thresholds for the above-mentioned filters may vary depending on external factors like market conditions for both input data and calculated Index levels.",
+      "concern": "Appendix IX states that real-time input data and output filtering thresholds 'may vary depending on external factors' but does not quantify these thresholds. The actual threshold values are not disclosed in the document."
+    },
+    {
+      "quote": "In certain circumstances, such as errors in the list of constituents (i.e. a security missed), or if MSCI finds that the error is significant enough to justify the revision of indexes impacted by less than 50 basis points (e.g. 1/3 of US prices wrong), MSCI reserves the right to correct information even if the impact is lower than the 50 basis points correction threshold.",
+      "concern": "Appendix XI permits correction below the 50bps threshold at MSCI discretion but does not define the criteria for exercising this discretion, leaving the boundary between automatic and discretionary correction ambiguous."
+    },
+    {
+      "quote": "Starting December 2014, for dividends with an ex-date from December 2014 onwards, MSCI will transition to the enhanced methodology for Korean dividends ...",
+      "concern": "Section 2.3.6 describes both the legacy Korean treatment (reinvest on next business day after reception, no past-level correction) and the enhanced methodology (estimate on ex-date, true-up on reception). For the current methodology version (February 2026), reinvest_korean_dividend_estimate_enhanced_methodology is treated as authoritative; it is unclear whether legacy treatment still applies for any in-scope securities (e.g., dividends with ex-date prior to December 2014 for backfilled history)."
+    }
+  ]
+}

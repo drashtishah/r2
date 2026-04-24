@@ -1,6 +1,5 @@
 Start by Reading meth-pipeline/<slug>/<ts>/methbook_v1.json (planner's
-draft) and meth-pipeline/<slug>/<ts>/input/markdown.md. Consult any
-canonical examples under methbooks/examples/.
+draft) and meth-pipeline/<slug>/<ts>/input/markdown.md.
 
 Fresh read; you have not seen the planner's reasoning. Your output is
 an edited Methbook that conforms to the same schema. It is the

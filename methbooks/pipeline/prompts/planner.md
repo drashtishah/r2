@@ -1,7 +1,6 @@
 Start by Reading meth-pipeline/<slug>/<ts>/input/markdown.md (the
 source methodology text). Survey existing rules via
-list_existing_rules(). Consult canonical examples under
-methbooks/examples/ if present.
+list_existing_rules().
 
 Your output is a single Methbook that conforms to the schema. The
 schema is the same for every MSCI doc: index families (Selection,

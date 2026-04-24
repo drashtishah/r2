@@ -162,7 +162,7 @@ weight,Initial weight from base universe normalised to sum to 1.,methbooks/mock_
 Run `graphify methbooks/` from r2 root. `methbooks/.graphifyignore`
 (gitignore syntax, paths relative to that file) excludes
 `methbooks/data/`, `methbooks/pipeline/`, `methbooks/CONVENTIONS.md`,
-`methbooks/AGENT_GUIDELINES.md`, and `methbooks/examples/` so detection
+and `methbooks/AGENT_GUIDELINES.md` so detection
 sees only code. With zero docs, papers, or images in the corpus,
 graphify skips its semantic pass and runs only AST extraction plus
 clustering (deterministic, no LLM tokens).

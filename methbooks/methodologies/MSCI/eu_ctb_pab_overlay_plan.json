@@ -1,0 +1,868 @@
+{
+  "identification": {
+    "provider": "MSCI",
+    "family": "EU CTB/PAB Overlay Indexes",
+    "slug": "eu_ctb_pab_overlay",
+    "version_date": "2026-02-11",
+    "index_type": "climate",
+    "regulatory_framework": {
+      "name": "EU Delegated Regulation 2020/1818",
+      "reference": "https://eur-lex.europa.eu/eli/reg_del/2020/1818/oj",
+      "key_requirements": [
+        "CTB: minimum 30% GHG intensity reduction vs investment universe; 7% annual decarbonization trajectory from Base Date",
+        "PAB: minimum 50% GHG intensity reduction vs investment universe; 7% annual decarbonization trajectory from Base Date",
+        "Both CTB and PAB: exclude controversial weapons, red flag controversies, red/orange flag environmental controversies, tobacco manufacturing",
+        "PAB additional: exclude thermal coal mining (>=1% revenue), thermal coal distribution (any involvement), oil and gas activities (>=10% revenue), fossil fuel power generation (>=50% revenue)"
+      ]
+    }
+  },
+  "document_metadata": {
+    "title": "MSCI EU CTB/PAB Overlay Indexes Methodology",
+    "publication_date": "February 2026",
+    "eu_ctb_pab_index_framework_url": "https://www.msci.com/index/methodology/latest/EUCTBPABIndexFramework"
+  },
+  "universe": {
+    "applicable_universe": {
+      "methbook": "gimi",
+      "section": "2.1 Applicable Universe",
+      "item": "all existing constituents of Parent Index"
+    },
+    "reference_index": "Free float-adjusted market capitalization weighted index corresponding to the Parent Index per MSCI GIMI methodology; equals Parent Index when Parent follows GIMI",
+    "eligibility_scope": "Parent Index constituents filtered by Section 2.3 exclusion criteria"
+  },
+  "data_requirements": {
+    "mandatory_products": [
+      {
+        "methbook": "msci_controversies",
+        "section": "4.2 MSCI Controversies"
+      },
+      {
+        "methbook": "msci_climate_change_metrics",
+        "section": "4.1 MSCI Climate Change Metrics"
+      },
+      {
+        "methbook": "msci_bisr",
+        "section": "4.3 MSCI Business Involvement Screening Research"
+      }
+    ],
+    "mandatory_fields": [
+      {
+        "name": "msci_controversy_score",
+        "source": "MSCI Controversies"
+      },
+      {
+        "name": "msci_environmental_controversy_score",
+        "source": "MSCI Controversies"
+      },
+      {
+        "name": "bisr_controversial_weapons_flag",
+        "source": "MSCI BISR"
+      },
+      {
+        "name": "bisr_tobacco_manufacturing_flag",
+        "source": "MSCI BISR"
+      },
+      {
+        "name": "bisr_thermal_coal_mining_revenue_pct",
+        "source": "MSCI BISR"
+      },
+      {
+        "name": "bisr_thermal_coal_distribution_flag",
+        "source": "MSCI BISR"
+      },
+      {
+        "name": "bisr_oil_gas_revenue_pct",
+        "source": "MSCI BISR"
+      },
+      {
+        "name": "bisr_fossil_fuel_power_generation_revenue_pct",
+        "source": "MSCI BISR"
+      },
+      {
+        "name": "ghg_intensity_scope123",
+        "source": "MSCI Climate Change Metrics"
+      },
+      {
+        "name": "parent_index_weight",
+        "source": "Parent Index composition"
+      },
+      {
+        "name": "reference_index_weight",
+        "source": "Reference Index composition"
+      },
+      {
+        "name": "high_climate_impact_sector",
+        "source": "MSCI EU CTB/PAB Index Framework"
+      },
+      {
+        "name": "is_rated_msci_controversies",
+        "source": "MSCI Controversies"
+      },
+      {
+        "name": "is_rated_msci_climate",
+        "source": "MSCI Climate Change Metrics"
+      },
+      {
+        "name": "is_rated_msci_bisr",
+        "source": "MSCI BISR"
+      }
+    ],
+    "preprocessing": [
+      {
+        "step": "ghg_intensity_scope123_calculation",
+        "description": "Security Level GHG Intensity (Scope 1+2+3) = (Unadjusted Scope 1+2 intensity + Unadjusted Scope 3 intensity) * (1 + EVIAF). Missing Scope 1+2 or EVIC: substitute average intensity of MSCI ACWI constituents in same GICS Industry Group. Missing Scope 3 or EVIC: substitute average Scope 3 intensity of MSCI ACWI constituents in same GICS Industry Group. EVIAF = (Average(EVIC) / Previous(Average(EVIC))) - 1.",
+        "source_section": "Appendix I: Calculation of Target Metrics"
+      }
+    ]
+  },
+  "eligibility": {
+    "rule_names": [
+      "exclude_controversial_weapons_involvement",
+      "exclude_red_flag_controversies",
+      "exclude_red_orange_flag_environmental_controversies",
+      "exclude_tobacco",
+      "exclude_thermal_coal_mining",
+      "exclude_thermal_coal_distribution",
+      "exclude_oil_gas_activities_pab",
+      "exclude_fossil_fuel_power_generation_pab",
+      "exclude_unrated_msci_solutions"
+    ]
+  },
+  "selection": {
+    "method": "optimization",
+    "content": {
+      "optimizer": "Barra Open Optimizer",
+      "model": "MSCI Barra Global Equity Model for Long-Term Investors (GEMLTL)",
+      "objective": "Minimize ex-ante tracking error relative to Parent Index subject to climate constraints (Table 2) and diversification constraints (Table 3)",
+      "source_section": "2.5 Optimization Constraints, 2.6 Determining the Optimized Index",
+      "no_rebalance_policy": "If no feasible solution found after all constraint relaxations are exhausted, the Index is not rebalanced for that review"
+    }
+  },
+  "weighting": {
+    "method": "optimizer_output",
+    "caps": [
+      {
+        "type": "constituent_active_weight_pct",
+        "value": 2,
+        "relative_to": "parent_index",
+        "note": "Per-index overrides: +/-5% for MSCI Switzerland IMI EU PAB Overlay, MSCI France IMI EU PAB Overlay, MSCI France EU PAB Overlay (footnote 15)"
+      },
+      {
+        "type": "security_weight_as_multiple_of_parent",
+        "value": 20
+      },
+      {
+        "type": "active_sector_weight_pct",
+        "value": 5,
+        "note": "Energy GICS sector not constrained"
+      },
+      {
+        "type": "active_country_weight_pct",
+        "value": 5,
+        "note": "Countries <2.5% of parent: upper bound = 3x parent country weight"
+      },
+      {
+        "type": "one_way_turnover_pct",
+        "value": 5
+      }
+    ],
+    "floors": [
+      {
+        "type": "high_climate_impact_sector_active_weight_pct",
+        "value": 0,
+        "relative_to": "reference_index"
+      }
+    ],
+    "buffers": []
+  },
+  "review_cadence": {
+    "schedules": [
+      {
+        "name": "semi-annual",
+        "frequency": "semi-annual",
+        "months": [
+          "May",
+          "November"
+        ],
+        "data_cutoff": "MSCI Solutions data as of end of month preceding the Index Review",
+        "announcement_lead": "Pro forma Indexes in general announced nine business days before the effective date"
+      }
+    ],
+    "base_date_reset": {
+      "description": "Base Date reset process defined in MSCI EU CTB/PAB Index Framework Sections 5.1 and 5.2. At the November 2025 Index Review, new Base Dates were calculated for each of the MSCI EU CTB/PAB Overlay Indexes that met the requirements of a Base Reset.",
+      "source_section": "Appendix II: Decarbonization Trajectory of Indexes"
+    }
+  },
+  "event_handling": {
+    "defers_to": {
+      "methbook": "corporate_events",
+      "section": "Capped Weighted and Non-Market Capitalization Weighted indexes"
+    },
+    "rule_names": [
+      "neutralize_intermediate_parent_reviews",
+      "block_non_spinoff_parent_additions",
+      "reflect_parent_deletions"
+    ],
+    "intra_review_invariants": [
+      {
+        "quote": "No new securities will be added (except where noted below) to the Indexes between Index Reviews.",
+        "concern": "Spin-offs of existing constituents are the explicit exception: added immediately at event time, reevaluated at subsequent review."
+      },
+      {
+        "quote": "A security will continue to be an Index constituent if there are changes in characteristics (country, sector, size segment, etc.)",
+        "concern": "Characteristics changes (country, sector, size segment) do not trigger deletion between reviews; reevaluation deferred to next review."
+      }
+    ]
+  },
+  "unrated_treatment": {
+    "policy": "exclude",
+    "details": {
+      "products_required": [
+        "MSCI Controversies",
+        "MSCI Climate Change Metrics",
+        "MSCI Business Involvement Screening Research (BISR)"
+      ],
+      "note": "Companies not assessed on any of the three products are ineligible. For treatment of unrated companies in GHG intensity calculation (optimization target metrics), see Appendix I imputation rules.",
+      "source_section": "2.7 Treatment of Unrated Companies"
+    }
+  },
+  "new_rules": [
+    {
+      "name": "exclude_red_flag_controversies",
+      "category": "eligibility",
+      "purpose": "Exclude companies with MSCI Controversy Score of 0 (Red Flag), indicating an ongoing Very Severe controversy implicating the company directly, to meet EU CTB/PAB controversy exclusion requirement.",
+      "source": {
+        "markdown": "Controversies: All companies assessed as having involvement in Controversies that are classified as Red Flags (MSCI Controversy Score of 0). A Red Flag indicates an ongoing, Very Severe controversy implicating a company directly through its actions, products, or operations.",
+        "section": "2.3 Eligible Universe",
+        "line": 263
+      },
+      "datapoints": [
+        "msci_controversy_score"
+      ],
+      "thresholds": {
+        "red_flag_score": 0
+      },
+      "canonical_concept": "msci_red_flag_controversies_exclusion",
+      "asserts": {
+        "business": [
+          "assert (out['msci_controversy_score'] > 0).all(), f'Red Flag controversy score survived: min={out[\"msci_controversy_score\"].min()}'"
+        ],
+        "technical": [
+          "assert 'msci_controversy_score' in out.columns, f'msci_controversy_score column missing: {out.columns}'"
+        ]
+      }
+    },
+    {
+      "name": "exclude_red_orange_flag_environmental_controversies",
+      "category": "eligibility",
+      "purpose": "Exclude companies with MSCI Environmental Controversy Score of 0 (Red Flag) or 1 (Orange Flag), covering ongoing severe environmental controversies, to meet EU CTB/PAB environmental harm exclusion requirement.",
+      "source": {
+        "markdown": "Environmental Harm: All companies assessed as having involvement in environmental controversies that are classified as Red (MSCI Environmental Controversy Score of 0) or Orange Flags (score of 1).",
+        "section": "2.3 Eligible Universe",
+        "line": 267
+      },
+      "datapoints": [
+        "msci_environmental_controversy_score"
+      ],
+      "thresholds": {
+        "red_flag_score": 0,
+        "orange_flag_score": 1
+      },
+      "canonical_concept": "msci_environmental_controversy_exclusion",
+      "asserts": {
+        "business": [
+          "assert (out['msci_environmental_controversy_score'] > 1).all(), f'Red/Orange Flag environmental controversy score survived: min={out[\"msci_environmental_controversy_score\"].min()}'"
+        ],
+        "technical": [
+          "assert 'msci_environmental_controversy_score' in out.columns, f'msci_environmental_controversy_score column missing: {out.columns}'"
+        ]
+      }
+    },
+    {
+      "name": "exclude_tobacco",
+      "category": "eligibility",
+      "purpose": "Exclude companies involved in manufacturing tobacco products to meet EU CTB/PAB tobacco exclusion requirement.",
+      "source": {
+        "markdown": "Tobacco: All companies that are involved in the manufacturing of Tobacco products.",
+        "section": "2.3 Eligible Universe",
+        "line": 279
+      },
+      "datapoints": [
+        "bisr_tobacco_manufacturing_flag"
+      ],
+      "thresholds": {},
+      "canonical_concept": "msci_tobacco_manufacturing_exclusion",
+      "asserts": {
+        "business": [
+          "assert not out['bisr_tobacco_manufacturing_flag'].any(), f'Tobacco manufacturer survived: count={out[\"bisr_tobacco_manufacturing_flag\"].sum()}'"
+        ],
+        "technical": [
+          "assert 'bisr_tobacco_manufacturing_flag' in out.columns, f'bisr_tobacco_manufacturing_flag column missing: {out.columns}'"
+        ]
+      }
+    },
+    {
+      "name": "exclude_thermal_coal_mining",
+      "category": "eligibility",
+      "purpose": "Exclude companies deriving 1% or more revenue from thermal coal mining sold to external parties, as required for PAB Overlay Indexes under EU 2020/1818.",
+      "source": {
+        "markdown": "Thermal Coal Mining: All companies deriving 1% or more revenue (either reported or estimated) from the mining of thermal coal (including lignite, bituminous, anthracite and steam coal) and its sale to external parties.",
+        "section": "2.3 Eligible Universe",
+        "line": 286
+      },
+      "datapoints": [
+        "bisr_thermal_coal_mining_revenue_pct"
+      ],
+      "thresholds": {
+        "thermal_coal_mining_revenue_pct_threshold": 1
+      },
+      "canonical_concept": "msci_thermal_coal_mining_exclusion",
+      "asserts": {
+        "business": [
+          "assert (out['bisr_thermal_coal_mining_revenue_pct'] < 1.0).all(), f'Thermal coal mining revenue >= 1% survived: max={out[\"bisr_thermal_coal_mining_revenue_pct\"].max()}'"
+        ],
+        "technical": [
+          "assert 'bisr_thermal_coal_mining_revenue_pct' in out.columns, f'bisr_thermal_coal_mining_revenue_pct column missing: {out.columns}'"
+        ]
+      }
+    },
+    {
+      "name": "exclude_thermal_coal_distribution",
+      "category": "eligibility",
+      "purpose": "Exclude companies with evidence of thermal coal distribution or transport involvement, as required for PAB Overlay Indexes under EU 2020/1818.",
+      "source": {
+        "markdown": "Thermal Coal Distribution: All companies with evidence of thermal coal distribution or transport involvement. This includes transport of thermal coal by road, rail, shipping or air, and physical trading of thermal coal.",
+        "section": "2.3 Eligible Universe",
+        "line": 294
+      },
+      "datapoints": [
+        "bisr_thermal_coal_distribution_flag"
+      ],
+      "thresholds": {},
+      "canonical_concept": "msci_thermal_coal_distribution_exclusion",
+      "asserts": {
+        "business": [
+          "assert not out['bisr_thermal_coal_distribution_flag'].any(), f'Thermal coal distribution involvement survived: count={out[\"bisr_thermal_coal_distribution_flag\"].sum()}'"
+        ],
+        "technical": [
+          "assert 'bisr_thermal_coal_distribution_flag' in out.columns, f'bisr_thermal_coal_distribution_flag column missing: {out.columns}'"
+        ]
+      }
+    },
+    {
+      "name": "exclude_oil_gas_activities_pab",
+      "category": "eligibility",
+      "purpose": "Exclude companies deriving 10% or more aggregate revenue from oil and gas related activities, as required for PAB Overlay Indexes under EU 2020/1818.",
+      "source": {
+        "markdown": "Oil & Gas Activities: All companies deriving 10% or more aggregate revenue from oil and gas related activities, including distribution / retail, equipment and services, extraction and production, pipelines and transportation and refining but excluding biofuel production and sales and trading activities.",
+        "section": "2.3 Eligible Universe",
+        "line": 310
+      },
+      "datapoints": [
+        "bisr_oil_gas_revenue_pct"
+      ],
+      "thresholds": {
+        "oil_gas_revenue_pct_threshold": 10
+      },
+      "canonical_concept": "msci_oil_gas_activities_exclusion",
+      "asserts": {
+        "business": [
+          "assert (out['bisr_oil_gas_revenue_pct'] < 10.0).all(), f'Oil & gas revenue >= 10% survived: max={out[\"bisr_oil_gas_revenue_pct\"].max()}'"
+        ],
+        "technical": [
+          "assert 'bisr_oil_gas_revenue_pct' in out.columns, f'bisr_oil_gas_revenue_pct column missing: {out.columns}'"
+        ]
+      }
+    },
+    {
+      "name": "exclude_fossil_fuel_power_generation_pab",
+      "category": "eligibility",
+      "purpose": "Exclude companies deriving 50% or more aggregate revenue from thermal coal, liquid fuel, or natural gas based power generation, as required for PAB Overlay Indexes under EU 2020/1818.",
+      "source": {
+        "markdown": "Power Generation: All companies deriving 50% or more aggregate revenue from thermal coal based power generation, liquid fuel based power generation and natural gas based power generation.",
+        "section": "2.3 Eligible Universe",
+        "line": 315
+      },
+      "datapoints": [
+        "bisr_fossil_fuel_power_generation_revenue_pct"
+      ],
+      "thresholds": {
+        "fossil_fuel_power_generation_revenue_pct_threshold": 50
+      },
+      "canonical_concept": "msci_fossil_fuel_power_generation_exclusion",
+      "asserts": {
+        "business": [
+          "assert (out['bisr_fossil_fuel_power_generation_revenue_pct'] < 50.0).all(), f'Fossil fuel power generation revenue >= 50% survived: max={out[\"bisr_fossil_fuel_power_generation_revenue_pct\"].max()}'"
+        ],
+        "technical": [
+          "assert 'bisr_fossil_fuel_power_generation_revenue_pct' in out.columns, f'bisr_fossil_fuel_power_generation_revenue_pct column missing: {out.columns}'"
+        ]
+      }
+    },
+    {
+      "name": "exclude_unrated_msci_solutions",
+      "category": "eligibility",
+      "purpose": "Exclude companies not assessed by MSCI Solutions on Controversies, Climate Change Metrics, or BISR, ensuring all constituents have complete ESG and climate data coverage.",
+      "source": {
+        "markdown": "Companies not assessed by MSCI Solutions on data for the following MSCI sustainability and climate products are not eligible for inclusion in the Indexes: MSCI Controversies, MSCI Climate Change Metrics, MSCI Business Involvement Screening Research (BISR)",
+        "section": "2.7 Treatment of Unrated Companies",
+        "line": 490
+      },
+      "datapoints": [
+        "is_rated_msci_controversies",
+        "is_rated_msci_climate",
+        "is_rated_msci_bisr"
+      ],
+      "thresholds": {},
+      "canonical_concept": "msci_solutions_unrated_exclusion",
+      "asserts": {
+        "business": [
+          "assert out['is_rated_msci_controversies'].all(), f'Unrated Controversies company survived: count={int((~out[\"is_rated_msci_controversies\"]).sum())}'",
+          "assert out['is_rated_msci_climate'].all(), f'Unrated Climate company survived: count={int((~out[\"is_rated_msci_climate\"]).sum())}'",
+          "assert out['is_rated_msci_bisr'].all(), f'Unrated BISR company survived: count={int((~out[\"is_rated_msci_bisr\"]).sum())}'"
+        ],
+        "technical": [
+          "assert 'is_rated_msci_controversies' in out.columns, f'is_rated_msci_controversies column missing: {out.columns}'",
+          "assert 'is_rated_msci_climate' in out.columns, f'is_rated_msci_climate column missing: {out.columns}'",
+          "assert 'is_rated_msci_bisr' in out.columns, f'is_rated_msci_bisr column missing: {out.columns}'"
+        ]
+      }
+    },
+    {
+      "name": "optimize_index_weights",
+      "category": "weighting",
+      "purpose": "Determine constituent weights via Barra Open Optimizer (GEMLTL model), minimizing ex-ante tracking error vs Parent Index subject to climate constraints (GHG intensity reduction vs Reference Index, 7% annual decarbonization trajectory, high-climate-impact sector active weight floor) and diversification constraints (constituent/sector/country active weight bounds, security weight multiple, turnover cap, factor and specific risk aversion). On infeasibility, relax one-way turnover in 1% steps up to 20% and active sector weight in 1% steps up to +/-20% alternately; if still infeasible, Index is not rebalanced.",
+      "source": {
+        "markdown": "At each Index Review, each Index is constructed using an optimization process that aims to achieve replicability and investability as well as minimize ex-ante tracking error relative to the Parent Index subject to the following constraints: 1. Climate objectives \u2013 constraints detailed in Table 2. 2. Diversification objectives \u2013 constraints detailed in Table 3.",
+        "section": "2.5 Optimization Constraints",
+        "line": 334
+      },
+      "datapoints": [
+        "ghg_intensity_scope123",
+        "parent_index_weight",
+        "reference_index_weight",
+        "high_climate_impact_sector"
+      ],
+      "thresholds": {
+        "ctb_ghg_intensity_reduction_pct": 30,
+        "pab_ghg_intensity_reduction_pct": 50,
+        "annual_decarbonization_rate": 0.07,
+        "high_climate_impact_sector_active_weight_floor_pct": 0,
+        "constituent_active_weight_pct": 2,
+        "security_weight_max_multiple_of_parent": 20,
+        "active_sector_weight_pct": 5,
+        "active_country_weight_pct": 5,
+        "one_way_turnover_pct": 5,
+        "common_factor_risk_aversion": 0.0075,
+        "specific_risk_aversion": 0.075,
+        "turnover_relaxation_step_pct": 1,
+        "turnover_max_relaxed_pct": 20,
+        "sector_weight_relaxation_step_pct": 1,
+        "sector_weight_max_relaxed_pct": 20
+      },
+      "canonical_concept": "barra_optimizer_constrained_weights",
+      "asserts": {
+        "business": [
+          "assert abs(float(out['weight'].sum()) - 1.0) < 1e-6, f'Weights do not sum to 1: sum={out[\"weight\"].sum()}'",
+          "assert (out['weight'] >= 0).all(), f'Negative weight in optimizer output: min={out[\"weight\"].min()}'"
+        ],
+        "technical": [
+          "assert 'weight' in out.columns, f'weight column missing after optimization: {out.columns}'"
+        ]
+      }
+    },
+    {
+      "name": "neutralize_intermediate_parent_reviews",
+      "category": "event_handling",
+      "purpose": "When the Parent Index undergoes more frequent reviews than the Index (e.g., quarterly vs semi-annual), neutralize changes made to the Parent Index during intermediate reviews to prevent unintended drift.",
+      "source": {
+        "markdown": "Additionally, if the frequency of Index Reviews in the Parent Index is greater than the frequency of Index Reviews in the Index, the changes made to the Parent Index during intermediate Index Reviews will be neutralized in the Index.",
+        "section": "3.2 Ongoing Event Related Changes",
+        "line": 542
+      },
+      "datapoints": [
+        "parent_index_weight"
+      ],
+      "thresholds": {},
+      "canonical_concept": null,
+      "asserts": {
+        "business": [
+          "assert out.height > 0, f'No constituents after intermediate review neutralization: height={out.height}'"
+        ],
+        "technical": [
+          "assert 'weight' in out.columns, f'weight column missing after neutralization: {out.columns}'"
+        ]
+      }
+    },
+    {
+      "name": "block_non_spinoff_parent_additions",
+      "category": "event_handling",
+      "purpose": "Prevent new Parent Index additions (IPOs and other early inclusions) from being added to the Index between Index Reviews. Spin-offs of existing Index constituents are the sole exception, added at event implementation and reevaluated at the subsequent review.",
+      "source": {
+        "markdown": "No new securities will be added (except where noted below) to the Indexes between Index Reviews.",
+        "section": "3.2 Ongoing Event Related Changes",
+        "line": 551
+      },
+      "datapoints": [],
+      "thresholds": {},
+      "canonical_concept": null,
+      "asserts": {
+        "business": [
+          "assert out.height > 0, f'No constituents after blocking non-spinoff parent additions: height={out.height}'"
+        ],
+        "technical": [
+          "assert 'weight' in out.columns, f'weight column missing after addition-block: {out.columns}'"
+        ]
+      }
+    },
+    {
+      "name": "reflect_parent_deletions",
+      "category": "event_handling",
+      "purpose": "Reflect Parent Index deletions in the Index simultaneously with the Parent Index so that securities removed from the Parent are also removed from the Index at the same time, maintaining alignment between the two.",
+      "source": {
+        "markdown": "Parent Index deletions will be reflected simultaneously.",
+        "section": "3.2 Ongoing Event Related Changes",
+        "line": 553
+      },
+      "datapoints": [
+        "parent_index_weight"
+      ],
+      "thresholds": {},
+      "canonical_concept": null,
+      "asserts": {
+        "business": [
+          "assert out.height > 0, f'No constituents after reflecting parent deletions: height={out.height}'"
+        ],
+        "technical": [
+          "assert 'weight' in out.columns, f'weight column missing after parent-deletion reflection: {out.columns}'"
+        ]
+      }
+    }
+  ],
+  "reused_rules": [
+    {
+      "methbook": "xcw",
+      "name": "exclude_controversial_weapons_involvement",
+      "justification": "Section 2.3 criterion 1 applies the same controversial weapons exclusion as defined in the MSCI Ex-Controversial Weapons Indexes methodology, explicitly citing that methodology as the definition source."
+    }
+  ],
+  "mock_datapoints": [
+    {
+      "name": "msci_controversy_score",
+      "type": "float",
+      "distribution": "uniform(0, 10)",
+      "description": "MSCI Controversies Score on a 0-10 scale; 0 = most severe (Red Flag).",
+      "canonical_concept": "msci_controversies_score",
+      "source_section": "4.2 MSCI Controversies",
+      "semantic_threshold": "A Red Flag indicates an ongoing, Very Severe controversy implicating a company directly through its actions, products, or operations (MSCI Controversy Score of 0).",
+      "taxonomy": "MSCI Controversies 0-10 scale",
+      "definition_notes": [
+        "MSCI Controversies Score falls on a 0-10 scale, with 0 being the most severe controversy."
+      ]
+    },
+    {
+      "name": "msci_environmental_controversy_score",
+      "type": "float",
+      "distribution": "uniform(0, 10)",
+      "description": "MSCI Environmental Controversy Score on a 0-10 scale; 0 = Red Flag, 1 = Orange Flag.",
+      "canonical_concept": "msci_environmental_controversies_score",
+      "source_section": "2.3 Eligible Universe",
+      "semantic_threshold": "A Red Flag indicates an ongoing, Very Severe controversy implicating a company directly through its actions, products, or operations. An Orange Flag indicates an ongoing Severe controversy implicating a company directly, or a Very Severe controversy that is either partially resolved or indirectly attributed to the company's actions, products, or operations.",
+      "taxonomy": "MSCI Controversies 0-10 scale",
+      "definition_notes": []
+    },
+    {
+      "name": "bisr_controversial_weapons_flag",
+      "type": "bool",
+      "distribution": "bernoulli(0.02)",
+      "description": "True if the company is involved in Controversial Weapons as defined by the MSCI Ex-Controversial Weapons Indexes methodology.",
+      "canonical_concept": "msci_bisr_controversial_weapons",
+      "source_section": "2.3 Eligible Universe",
+      "semantic_threshold": "All companies involved in Controversial Weapons as defined by the methodology of the MSCI Ex-Controversial Weapons Indexes.",
+      "taxonomy": "MSCI BISR involvement flag",
+      "definition_notes": [
+        "Definition follows MSCI Ex-Controversial Weapons Indexes methodology."
+      ]
+    },
+    {
+      "name": "bisr_tobacco_manufacturing_flag",
+      "type": "bool",
+      "distribution": "bernoulli(0.03)",
+      "description": "True if the company is involved in the manufacturing of Tobacco products.",
+      "canonical_concept": "msci_bisr_tobacco_manufacturing",
+      "source_section": "2.3 Eligible Universe",
+      "semantic_threshold": "All companies that are involved in the manufacturing of Tobacco products.",
+      "taxonomy": "MSCI BISR involvement flag",
+      "definition_notes": []
+    },
+    {
+      "name": "bisr_thermal_coal_mining_revenue_pct",
+      "type": "float",
+      "distribution": "uniform(0, 20)",
+      "description": "Revenue percentage (reported or estimated) from mining of thermal coal sold to external parties.",
+      "canonical_concept": "msci_bisr_thermal_coal_mining_revenue",
+      "source_section": "2.3 Eligible Universe",
+      "semantic_threshold": "All companies deriving 1% or more revenue (either reported or estimated) from the mining of thermal coal (including lignite, bituminous, anthracite and steam coal) and its sale to external parties.",
+      "taxonomy": "MSCI BISR revenue percentage",
+      "definition_notes": [
+        "Covers lignite, bituminous, anthracite and steam coal.",
+        "Excludes revenue from metallurgical coal.",
+        "Excludes coal mined for internal power generation (e.g., vertically integrated power producers).",
+        "Excludes intra-company sales of mined thermal coal.",
+        "Excludes revenue from coal trading."
+      ]
+    },
+    {
+      "name": "bisr_thermal_coal_distribution_flag",
+      "type": "bool",
+      "distribution": "bernoulli(0.02)",
+      "description": "True if the company has evidence of thermal coal distribution or transport involvement.",
+      "canonical_concept": "msci_bisr_thermal_coal_distribution",
+      "source_section": "2.3 Eligible Universe",
+      "semantic_threshold": "All companies with evidence of thermal coal distribution or transport involvement.",
+      "taxonomy": "MSCI BISR involvement flag",
+      "definition_notes": [
+        "Includes transport of thermal coal by road, rail, shipping or air, and physical trading of thermal coal.",
+        "Does not include involvement in storage of thermal coal.",
+        "Does not include involvement in metallurgical coal-related activities."
+      ]
+    },
+    {
+      "name": "bisr_oil_gas_revenue_pct",
+      "type": "float",
+      "distribution": "uniform(0, 50)",
+      "description": "Aggregate revenue percentage from oil and gas related activities.",
+      "canonical_concept": "msci_bisr_oil_gas_revenue",
+      "source_section": "2.3 Eligible Universe",
+      "semantic_threshold": "All companies deriving 10% or more aggregate revenue from oil and gas related activities, including distribution / retail, equipment and services, extraction and production, pipelines and transportation and refining but excluding biofuel production and sales and trading activities.",
+      "taxonomy": "MSCI BISR revenue percentage",
+      "definition_notes": [
+        "Includes distribution/retail, equipment and services, extraction and production, pipelines and transportation, refining.",
+        "Excludes biofuel production and sales and trading activities."
+      ]
+    },
+    {
+      "name": "bisr_fossil_fuel_power_generation_revenue_pct",
+      "type": "float",
+      "distribution": "uniform(0, 100)",
+      "description": "Aggregate revenue percentage from thermal coal, liquid fuel, and natural gas based power generation.",
+      "canonical_concept": "msci_bisr_fossil_fuel_power_generation_revenue",
+      "source_section": "2.3 Eligible Universe",
+      "semantic_threshold": "All companies deriving 50% or more aggregate revenue from thermal coal based power generation, liquid fuel based power generation and natural gas based power generation.",
+      "taxonomy": "MSCI BISR revenue percentage",
+      "definition_notes": [
+        "Covers thermal coal based, liquid fuel based, and natural gas based power generation.",
+        "Per IPCC AR5 Chapter 7, these sources have median lifecycle emissions exceeding 100gCO2/kWh (source footnote 11)."
+      ]
+    },
+    {
+      "name": "ghg_intensity_scope123",
+      "type": "float",
+      "distribution": "lognormal(5, 1.5)",
+      "description": "Security Level GHG Intensity (Scope 1+2+3) in tCO2e per million USD EVIC.",
+      "canonical_concept": "msci_ghg_intensity_scope123_evic",
+      "source_section": "Appendix I: Calculation of Target Metrics",
+      "semantic_threshold": null,
+      "taxonomy": "MSCI Climate Change Metrics GHG intensity",
+      "definition_notes": [
+        "Formula: (Unadjusted Scope 1+2 intensity + Unadjusted Scope 3 intensity) * (1 + EVIAF).",
+        "Unadjusted intensity per scope = emissions / EVIC in M$.",
+        "Missing Scope 1+2 carbon emissions and/or EVIC: use average Scope 1+2 intensity of MSCI ACWI constituents in same GICS Industry Group.",
+        "Missing Scope 3 carbon emissions and/or EVIC: use average Scope 3 intensity of MSCI ACWI constituents in same GICS Industry Group.",
+        "EVIAF = (Average(EVIC) / Previous(Average(EVIC))) - 1."
+      ]
+    },
+    {
+      "name": "parent_index_weight",
+      "type": "float",
+      "distribution": "uniform(0.0001, 0.05)",
+      "description": "Security weight in the Parent Index.",
+      "canonical_concept": "parent_index_weight",
+      "source_section": "2.1 Applicable Universe",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": []
+    },
+    {
+      "name": "reference_index_weight",
+      "type": "float",
+      "distribution": "uniform(0.0001, 0.05)",
+      "description": "Security weight in the Reference Index (free float-adjusted market capitalization weighted per GIMI methodology).",
+      "canonical_concept": "reference_index_weight",
+      "source_section": "2.2 Reference Indexes",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": [
+        "For a Parent Index which follows the GIMI methodology, the Reference Index is the same as the Parent Index."
+      ]
+    },
+    {
+      "name": "high_climate_impact_sector",
+      "type": "bool",
+      "distribution": "bernoulli(0.3)",
+      "description": "True if the company is classified as belonging to a high climate impact sector.",
+      "canonical_concept": "msci_high_climate_impact_sector",
+      "source_section": "2.5 Optimization Constraints",
+      "semantic_threshold": null,
+      "taxonomy": "MSCI EU CTB/PAB Index Framework climate impact sector classification",
+      "definition_notes": [
+        "Classification defined in the MSCI EU CTB/PAB Index Framework (referenced by footnote 14 of Section 2.5).",
+        "Used in Table 2 constraint 3: minimum active weight in High Climate Impact Sector vs Reference Index = 0%."
+      ]
+    },
+    {
+      "name": "is_rated_msci_controversies",
+      "type": "bool",
+      "distribution": "bernoulli(0.95)",
+      "description": "True if the company has been assessed by MSCI Solutions for MSCI Controversies.",
+      "canonical_concept": null,
+      "source_section": "2.7 Treatment of Unrated Companies",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": []
+    },
+    {
+      "name": "is_rated_msci_climate",
+      "type": "bool",
+      "distribution": "bernoulli(0.95)",
+      "description": "True if the company has been assessed by MSCI Solutions for MSCI Climate Change Metrics.",
+      "canonical_concept": null,
+      "source_section": "2.7 Treatment of Unrated Companies",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": []
+    },
+    {
+      "name": "is_rated_msci_bisr",
+      "type": "bool",
+      "distribution": "bernoulli(0.97)",
+      "description": "True if the company has been assessed by MSCI Solutions for MSCI BISR.",
+      "canonical_concept": null,
+      "source_section": "2.7 Treatment of Unrated Companies",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": []
+    }
+  ],
+  "composition_order": [
+    "exclude_controversial_weapons_involvement",
+    "exclude_red_flag_controversies",
+    "exclude_red_orange_flag_environmental_controversies",
+    "exclude_tobacco",
+    "exclude_thermal_coal_mining",
+    "exclude_thermal_coal_distribution",
+    "exclude_oil_gas_activities_pab",
+    "exclude_fossil_fuel_power_generation_pab",
+    "exclude_unrated_msci_solutions",
+    "optimize_index_weights"
+  ],
+  "final_asserts": [
+    "assert abs(float(out['weight'].sum()) - 1.0) < 1e-6, f'Final weights do not sum to 1: sum={out[\"weight\"].sum()}'",
+    "assert (out['weight'] >= 0).all(), f'Negative weight in final index: min={out[\"weight\"].min()}'",
+    "assert (out['msci_controversy_score'] > 0).all(), f'Red Flag controversy constituent in final index: min score={out[\"msci_controversy_score\"].min()}'",
+    "assert (out['msci_environmental_controversy_score'] > 1).all(), f'Red/Orange Flag environmental controversy constituent: min score={out[\"msci_environmental_controversy_score\"].min()}'",
+    "assert not out['bisr_controversial_weapons_flag'].any(), f'Controversial weapons constituent in final index'",
+    "assert not out['bisr_tobacco_manufacturing_flag'].any(), f'Tobacco manufacturer in final index'",
+    "assert out['is_rated_msci_controversies'].all(), f'Unrated Controversies company in final index'",
+    "assert out['is_rated_msci_climate'].all(), f'Unrated Climate company in final index'",
+    "assert out['is_rated_msci_bisr'].all(), f'Unrated BISR company in final index'"
+  ],
+  "external_references": [
+    {
+      "methbook": "corporate_events",
+      "section": "Capped Weighted and Non-Market Capitalization Weighted indexes"
+    },
+    {
+      "methbook": "readme",
+      "section": "Description of methodology set"
+    },
+    {
+      "methbook": "fundamental_data"
+    },
+    {
+      "methbook": "index_calculation"
+    },
+    {
+      "methbook": "index_glossary"
+    },
+    {
+      "methbook": "index_policies"
+    },
+    {
+      "methbook": "gics"
+    },
+    {
+      "methbook": "gimi"
+    },
+    {
+      "methbook": "xcw"
+    },
+    {
+      "methbook": "eu_ctb_pab_index_framework",
+      "section": "Sections 5.1 and 5.2 (Base Date reset)"
+    },
+    {
+      "methbook": "esg_factors_in_methodology"
+    }
+  ],
+  "scoped_out": [
+    {
+      "quote": "The MSCI EU CTB Overlay C-Series Indexes provide an alternative to the optimization-based approach used in Section 2.5 of this methodology book.",
+      "concern": "Appendix V defines a separate non-optimized construction variant (C-Series) using iterative GHG intensity downweighting. Belongs in its own methbook variant with base_methbook='eu_ctb_pab_overlay', containing only the delta construction steps."
+    },
+    {
+      "quote": "The Methodology of constructing the MSCI Factor EU PAB Overlay differs from the above defined MSCI EU PAB Overlay Indexes due to the following constraints...",
+      "concern": "Appendix VII defines the Factor EU PAB variant with different turnover caps (20% default, 25% Momentum) and relaxation schedules. Separate methbook variant with base_methbook='eu_ctb_pab_overlay'."
+    },
+    {
+      "quote": "The Methodology of constructing the MSCI Factor EU CTB Overlay differs from the above defined MSCI EU CTB Overlay Indexes due to the following constraints...",
+      "concern": "Appendix VIII defines the Factor EU CTB variant with 20% turnover cap and specific relaxation schedule. Separate methbook variant with base_methbook='eu_ctb_pab_overlay'."
+    },
+    {
+      "quote": "In addition to the quarterly Index Reviews in February, May, August and November, the MSCI Momentum EU PAB Indexes undergo ad-hoc rebalancing subject to meeting certain trigger criteria.",
+      "concern": "Appendix IX defers trigger logic entirely to MSCI Momentum Indexes Methodology Appendix III. No transformation defined in this document; belongs in the Momentum EU PAB variant methbook."
+    },
+    {
+      "quote": "A major new release of the relevant Barra Equity Model or Barra Optimizer may replace the former version within a suitable timeframe.",
+      "concern": "Appendix IV is a policy statement about model version updates. No transformation defined."
+    },
+    {
+      "quote": "Section 4: MSCI Solutions",
+      "concern": "Sections 4, 4.1, 4.1.1, 4.1.2, 4.2, 4.3 describe MSCI data products used. Product descriptions and methodology URLs only; no index construction transformations. Product dependencies captured in data_requirements.mandatory_products."
+    },
+    {
+      "quote": "The following sections have been modified as October 2022...",
+      "concern": "Appendix XI is a historical changelog of methodology revisions. No transformations."
+    },
+    {
+      "quote": "Contact Us / Notice and Disclaimer",
+      "concern": "Document metadata and legal disclaimer. No transformations."
+    },
+    {
+      "quote": "The table below shows the Weighted Average GHG Intensity on the Base Date (W1) for each of the regions...",
+      "concern": "Appendix II table of per-index W1 values and Base Dates is reference data consumed by the optimization constraint, not a transformation rule. Captured in optimize_index_weights thresholds (annual_decarbonization_rate=0.07) and review_cadence.base_date_reset."
+    }
+  ],
+  "clarifications_needed": [
+    {
+      "quote": "The MSCI EU CTB Overlay Indexes and the MSCI EU PAB Overlay Indexes",
+      "concern": "The document covers CTB and PAB in a single methodology book, with PAB having four additional exclusion rules (thermal coal mining, thermal coal distribution, oil & gas activities, fossil fuel power generation) per Table 1. The apply() function must accept a CTB/PAB mode parameter to conditionally apply PAB-only rules, or PAB should be a separate variant methbook with base_methbook='eu_ctb_pab_overlay'. Current composition_order includes PAB-only rules; downstream implementation must handle the conditional."
+    },
+    {
+      "quote": "For the MSCI Switzerland IMI EU PAB Overlay Index, MSCI France IMI EU PAB Overlay Index and MSCI France EU PAB Overlay Index, the constituent active weight constraint relative to the Parent is '+/- 5%', instead of '+/- 2%'.",
+      "concern": "The constituent active weight cap is index-specific: default +/-2%, but three named indexes use +/-5%. The optimize_index_weights rule captures the default threshold; per-index overrides require a kwarg or external config in apply() that this methbook does not define."
+    },
+    {
+      "quote": "For the MSCI France IMI EU CTB Overlay Index, the constituent active weight constraint relative to the Parent was relaxed to '-3%' instead of '-2%' at the May 2024 Index Review to achieve a feasible solution during the optimization process.",
+      "concern": "A further one-off per-index active-weight asymmetric relaxation (-3%) applies to the MSCI France IMI EU CTB Overlay Index per footnote 16. Not expressible as a static threshold; requires per-index config."
+    },
+    {
+      "quote": "For Indexes where the Parent Index does not follow the MSCI GIMI methodology, the Parent Index methodology will define the GIMI Parent Index in the construction of this methodology book.",
+      "concern": "Appendix VI states that for non-GIMI parent indexes, the parent's own methodology defines the Reference Index. This creates a per-index meta-dependency not capturable as a static rule; Reference Index identification requires external per-index configuration."
+    },
+    {
+      "quote": "exclude_red_flag_controversies, exclude_tobacco, exclude_thermal_coal_mining already exist in methbooks/rules/eligibility/",
+      "concern": "These three rules exist in the rules directory but their originating methbook cannot be determined from the available information. They are listed here as new_rules; if they originate from another methbook, they should be moved to reused_rules with the correct methbook slug. The thresholds/definitions should be reconciled before duplicating."
+    }
+  ]
+}

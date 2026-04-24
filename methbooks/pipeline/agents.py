@@ -13,7 +13,7 @@ from __future__ import annotations
 import json
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from claude_agent_sdk import (
     ClaudeAgentOptions,
@@ -69,9 +69,30 @@ def _hooks_for(role: str) -> dict[Any, list[HookMatcher]]:
     }
 
 
+def _stderr_sink(run_dir: Path, role: str) -> Callable[[str], None]:
+    """Return a callback that appends each CLI stderr line to run_dir/<role>_cli.stderr.
+
+    The SDK swallows the Claude Code CLI's stderr inside its generic
+    "Command failed ... Check stderr output for details" Exception, so
+    the real crash cause is unreachable unless we pipe stderr to disk
+    ourselves. The file is truncated at the start of each run to avoid
+    cross-run contamination.
+    """
+    path = run_dir / f"{role}_cli.stderr"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("")
+
+    def sink(line: str) -> None:
+        with path.open("a", encoding="utf-8") as f:
+            f.write(line if line.endswith("\n") else line + "\n")
+
+    return sink
+
+
 def _make_options(
     config: AgentConfig,
     role: str,
+    run_dir: Path,
     allowed_tools: list[str],
     output_format: dict[str, Any] | None,
     include_mcp: bool,
@@ -89,14 +110,19 @@ def _make_options(
         mcp_servers=mcp_servers,
         output_format=output_format,
         hooks=_hooks_for(role),
+        stderr=_stderr_sink(run_dir, role),
     )
 
 
 async def _drain(prompt: str, options: ClaudeAgentOptions, role: str) -> ResultMessage:
     final: ResultMessage | None = None
-    async for msg in query(prompt=prompt, options=options):
-        if isinstance(msg, ResultMessage):
-            final = msg
+    try:
+        async for msg in query(prompt=prompt, options=options):
+            if isinstance(msg, ResultMessage):
+                final = msg
+    except Exception as exc:
+        log_event(role, "error", note=f"sdk_exception={exc!s}")
+        raise
     if final is None:
         log_event(role, "error", note="no ResultMessage")
         raise RuntimeError(f"{role}: no ResultMessage from query()")
@@ -109,7 +135,7 @@ async def _drain(prompt: str, options: ClaudeAgentOptions, role: str) -> ResultM
 async def run_planner(run_dir: Path, slug: str, ts: str) -> Methbook:
     prompt = _load_role_prompt("planner", slug, ts)
     options = _make_options(
-        PLANNER, "planner",
+        PLANNER, "planner", run_dir,
         allowed_tools=["Read", "Glob", "Grep", "mcp__methbooks__list_existing_rules"],
         output_format={"type": "json_schema", "schema": Methbook.model_json_schema()},
         include_mcp=True,
@@ -134,7 +160,7 @@ async def run_planner(run_dir: Path, slug: str, ts: str) -> Methbook:
 async def run_critique(run_dir: Path, slug: str, ts: str) -> Methbook:
     prompt = _load_role_prompt("critique", slug, ts)
     options = _make_options(
-        CRITIQUE, "critique",
+        CRITIQUE, "critique", run_dir,
         allowed_tools=["Read", "Glob", "Grep", "mcp__methbooks__list_existing_rules"],
         output_format={"type": "json_schema", "schema": Methbook.model_json_schema()},
         include_mcp=True,
@@ -159,7 +185,7 @@ async def run_critique(run_dir: Path, slug: str, ts: str) -> Methbook:
 async def run_implementer(run_dir: Path, slug: str, ts: str) -> None:
     prompt = _load_role_prompt("implementer", slug, ts)
     options = _make_options(
-        IMPLEMENTER, "implementer",
+        IMPLEMENTER, "implementer", run_dir,
         allowed_tools=[
             "Read", "Glob", "Grep", "Write", "Edit", "Bash",
             "mcp__methbooks__list_existing_rules",
@@ -203,7 +229,7 @@ async def run_semantic_verifier(
 ) -> dict[str, Any]:
     prompt = _load_role_prompt("semantic_verifier", slug, ts)
     options = _make_options(
-        SEMANTIC_VERIFIER, "semantic_verifier",
+        SEMANTIC_VERIFIER, "semantic_verifier", run_dir,
         allowed_tools=["Read", "Glob", "Grep", "Write", "Edit", "Bash"],
         output_format={"type": "json_schema", "schema": _SEMANTIC_REPORT_SCHEMA},
         include_mcp=False,

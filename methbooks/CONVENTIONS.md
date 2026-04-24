@@ -159,10 +159,14 @@ weight,Initial weight from base universe normalised to sum to 1.,methbooks/mock_
 
 ## 7. Graphify invocation
 
-Run `graphify methbooks/` from r2 root. `methbooks/.graphifyignore`
-(gitignore syntax, paths relative to that file) excludes
-`methbooks/data/`, `methbooks/pipeline/`, `methbooks/CONVENTIONS.md`,
-and `methbooks/AGENT_GUIDELINES.md` so detection
-sees only code. With zero docs, papers, or images in the corpus,
-graphify skips its semantic pass and runs only AST extraction plus
-clustering (deterministic, no LLM tokens).
+Always run `make graph` from r2 root. It chains `graphify update
+methbooks/` -> `make index` -> `make enrich-graph` (enrich_graph folds
+methodology->rule import edges into graphify's graph.json). Invoking
+`graphify` directly overwrites `graph.json` and drops the import edges.
+
+`methbooks/.graphifyignore` (gitignore syntax, paths relative to that
+file) excludes `methbooks/data/`, `methbooks/pipeline/`,
+`methbooks/CONVENTIONS.md`, and `methbooks/AGENT_GUIDELINES.md` so
+detection sees only code. With zero docs, papers, or images in the
+corpus, graphify skips its semantic pass and runs only AST extraction
+plus clustering (deterministic, no LLM tokens).

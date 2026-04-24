@@ -1,30 +1,30 @@
 datapoint,description,source
 security_id,Random 6-character security identifier.,methbooks/mock_universe.py
 weight,Initial weight from base universe normalised to sum to 1.,methbooks/mock_universe.py
-affected_security_count,TODO,TODO
-change_announcement_date,TODO,TODO
-change_effective_date,TODO,TODO
-closing_price,TODO,TODO
-component_availability_flag,TODO,TODO
-component_index_level,TODO,TODO
-correction_eligible_flag,TODO,TODO
-discontinued_flag,TODO,TODO
-eic_fast_track_flag,TODO,TODO
-eligible_security_count,TODO,TODO
-error_discovery_date,TODO,TODO
-error_impact_bps,TODO,TODO
-error_occurrence_date,TODO,TODO
-error_type,TODO,TODO
-index_level_scope,TODO,TODO
-intraday_price,TODO,TODO
-is_constituent_omission,TODO,TODO
-is_provisional_index,TODO,TODO
-is_trading,TODO,TODO
-market_outage_timestamp,TODO,TODO
-market_status,TODO,TODO
-methodology_minimum_securities,TODO,TODO
-restatement_flag,TODO,TODO
-termination_announcement_date,TODO,TODO
-termination_cause,TODO,TODO
-termination_effective_date,TODO,TODO
-total_market_security_count,TODO,TODO
+affected_security_count,Number of securities in a market whose prices are in error.,methbooks/data/markdown/MSCI_Index_Policies.md section "Corrections Policy" near line 489
+change_announcement_date,Date on which a methodology change was publicly announced.,methbooks/data/markdown/MSCI_Index_Policies.md section "Methodology and Index Consultation Process" near line 372
+change_effective_date,Date on which a methodology change takes effect.,methbooks/data/markdown/MSCI_Index_Policies.md section "Methodology and Index Consultation Process" near line 372
+closing_price,Latest available closing price for a security; carried forward when a market is closed or a security does not trade.,methbooks/data/markdown/MSCI_Index_Policies.md section "Index Calculation and Discretion" near line 533
+component_availability_flag,Boolean indicating whether a component index level is available for calculation on a given day.,methbooks/data/markdown/MSCI_Index_Policies.md section "Index Calculation and Discretion" near line 537
+component_index_level,Latest available level of a component index used in blended, digital assets, or ETF-linked index calculation.,methbooks/data/markdown/MSCI_Index_Policies.md section "Index Calculation and Discretion" near line 537
+correction_eligible_flag,Boolean indicating whether an error is eligible for correction under the standard 12-month correction process.,methbooks/data/markdown/MSCI_Index_Policies.md section "Corrections Policy" near line 493
+discontinued_flag,Boolean indicating that an index has been discontinued due to insufficient eligible securities.,methbooks/data/markdown/MSCI_Index_Policies.md section "Index Termination Policy" near line 463
+eic_fast_track_flag,Boolean indicating that the EIC has determined a faster implementation timeline is required for a methodology change.,methbooks/data/markdown/MSCI_Index_Policies.md section "Methodology and Index Consultation Process" near line 372
+eligible_security_count,Number of securities eligible for inclusion in an index under the applicable methodology.,methbooks/data/markdown/MSCI_Index_Policies.md section "Index Termination Policy" near line 463
+error_discovery_date,Date on which an index data error was discovered.,methbooks/data/markdown/MSCI_Index_Policies.md section "Corrections Policy" near line 493
+error_impact_bps,Performance impact in basis points of a data error at the country or regional index level.,methbooks/data/markdown/MSCI_Index_Policies.md section "Corrections Policy" near line 485
+error_occurrence_date,Date on which an index data error occurred.,methbooks/data/markdown/MSCI_Index_Policies.md section "Corrections Policy" near line 493
+error_type,Classification of the data error (e.g., constituent_omission, price_error).,methbooks/data/markdown/MSCI_Index_Policies.md section "Corrections Policy" near line 488
+index_level_scope,Scope at which error impact is measured (e.g., country, regional, global).,methbooks/data/markdown/MSCI_Index_Policies.md section "Corrections Policy" near line 485
+intraday_price,Last traded price for a security observed up to the point of a market outage.,methbooks/data/markdown/MSCI_Index_Policies.md section "Index Calculation and Discretion" near line 535
+is_constituent_omission,Boolean indicating that an error involved a security being unintentionally omitted from the index constituent list.,methbooks/data/markdown/MSCI_Index_Policies.md section "Corrections Policy" near line 488
+is_provisional_index,Boolean indicating that an index was created on a provisional basis to reflect a future methodology change.,methbooks/data/markdown/MSCI_Index_Policies.md section "Index Termination Policy" near line 460
+is_trading,Boolean indicating whether a security traded on a given day.,methbooks/data/markdown/MSCI_Index_Policies.md section "Index Calculation and Discretion" near line 533
+market_outage_timestamp,Timestamp at which a market outage began; null when no outage occurred.,methbooks/data/markdown/MSCI_Index_Policies.md section "Index Calculation and Discretion" near line 535
+market_status,Status of the market on a given day (e.g., open, closed).,methbooks/data/markdown/MSCI_Index_Policies.md section "Index Calculation and Discretion" near line 533
+methodology_minimum_securities,Minimum number of eligible securities required to calculate a given index in accordance with its methodology.,methbooks/data/markdown/MSCI_Index_Policies.md section "Index Termination Policy" near line 463
+restatement_flag,Boolean indicating that an index should be restated historically to correct a data error.,methbooks/data/markdown/MSCI_Index_Policies.md section "Corrections Policy" near line 485
+termination_announcement_date,Date on which the termination of an index was publicly announced.,methbooks/data/markdown/MSCI_Index_Policies.md section "Index Termination Policy" near line 437
+termination_cause,Reason for index termination (e.g., standard, eic_exception).,methbooks/data/markdown/MSCI_Index_Policies.md section "Index Termination Policy" near line 437
+termination_effective_date,Date on which an index termination takes effect.,methbooks/data/markdown/MSCI_Index_Policies.md section "Index Termination Policy" near line 437
+total_market_security_count,Total number of securities in a given market used as the denominator when assessing large-scale errors.,methbooks/data/markdown/MSCI_Index_Policies.md section "Corrections Policy" near line 489

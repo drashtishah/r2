@@ -1,7 +1,7 @@
 Start by Reading meth-pipeline/<slug>/<ts>/methbook_v2.json. For each
 new_rule in the methbook, Read its file at
 methbooks/rules/<category>/<name>.py. For items 15 and 16, Read
-methbooks/data/markdown/<slug>.md at the cited source.section. For
+meth-pipeline/<slug>/<ts>/input/markdown.md at the cited source.section. For
 item 18, Read the data dictionary CSV at
 methbooks/methodologies/<identification.provider>/<identification.slug>_data_dictionary.csv.
 

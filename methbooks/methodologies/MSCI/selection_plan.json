@@ -1,0 +1,1151 @@
+{
+  "identification": {
+    "provider": "MSCI",
+    "family": "Selection",
+    "slug": "selection",
+    "version_date": "2025-12-11",
+    "index_type": "esg_selection",
+    "base_methbook": null,
+    "regulatory_framework": null
+  },
+  "document_metadata": {
+    "title": "MSCI Selection Indexes Methodology",
+    "publication_month": "December 2025",
+    "formerly_known_as": "MSCI ESG Leaders Indexes Methodology",
+    "renamed_effective": "February 3, 2025",
+    "source_url": "https://www.msci.com/index-methodology"
+  },
+  "universe": {
+    "applicable_universe": {
+      "methbook": "gimi"
+    },
+    "reference_index": null,
+    "eligibility_scope": "MSCI Global Investable Market Indexes (GIMI) constituents; Standard size-segment in all Developed and Emerging Markets, and Small Cap size-segment in the USA"
+  },
+  "unrated_treatment": {
+    "policy": "exclude",
+    "details": {
+      "covered_products": [
+        "MSCI ESG Ratings",
+        "MSCI Controversies",
+        "MSCI Climate Change Metrics",
+        "MSCI Business Involvement Screening Research (BISR)"
+      ],
+      "condition": "Companies not assessed by MSCI Solutions on data for any of these products are not eligible for inclusion"
+    }
+  },
+  "new_rules": [
+    {
+      "category": "eligibility",
+      "name": "require_esg_rating_bb_or_above",
+      "purpose": "Restrict the index to companies that have demonstrated an ability to manage ESG risks and opportunities by requiring a minimum MSCI ESG Rating of BB; applies to both new candidates and existing constituents at each Annual Index Review.",
+      "source": {
+        "markdown": "Companies are required to have an MSCI ESG Rating of 'BB' or above to be eligible for inclusion in the Indexes.",
+        "section": "2.2.1 ESG Ratings Eligibility",
+        "line": 141
+      },
+      "datapoints": [
+        "msci_esg_rating"
+      ],
+      "thresholds": {
+        "MIN_ESG_RATING": "BB"
+      },
+      "canonical_concept": "msci_esg_rating_minimum_eligibility",
+      "asserts": {
+        "technical": [
+          "msci_esg_rating column present after filter",
+          "no null values in msci_esg_rating after filter"
+        ],
+        "business": [
+          "all remaining rows have msci_esg_rating in {AAA, AA, A, BBB, BB}; no row with msci_esg_rating in {B, CCC} survives"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "require_controversies_score_3_or_above",
+      "purpose": "Exclude new index candidates that are involved in very serious controversies by requiring an MSCI Controversies Score of 3 or above; applies to securities not currently in the index.",
+      "source": {
+        "markdown": "Companies are required to have an MSCI Controversies Score of 3 or above to be eligible for inclusion in the Indexes.",
+        "section": "2.2.2 Controversies Score Eligibility",
+        "line": 149
+      },
+      "datapoints": [
+        "msci_controversies_score",
+        "is_current_constituent"
+      ],
+      "thresholds": {
+        "MIN_CONTROVERSIES_SCORE_NEW": 3
+      },
+      "canonical_concept": "msci_controversies_score_eligibility",
+      "asserts": {
+        "technical": [
+          "msci_controversies_score column present",
+          "is_current_constituent column present"
+        ],
+        "business": [
+          "all non-constituent rows have msci_controversies_score >= 3; no non-constituent with score < 3 survives"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "retain_existing_if_controversies_score_1_or_above",
+      "purpose": "Maintain existing index constituents in the Eligible Universe at each Annual Index Review if their Controversies Score is 1 or above, providing a buffer relative to the stricter threshold applied to new additions.",
+      "source": {
+        "markdown": "Existing constituents of the Indexes are maintained in the Eligible Universe if they meet all the following conditions: ... MSCI Controversies Score of 1 or above",
+        "section": "3.1.1 Updating the Eligible Universe",
+        "line": 353
+      },
+      "datapoints": [
+        "msci_controversies_score",
+        "is_current_constituent"
+      ],
+      "thresholds": {
+        "MIN_CONTROVERSIES_SCORE_EXISTING": 1
+      },
+      "canonical_concept": "msci_controversies_score_eligibility",
+      "asserts": {
+        "technical": [
+          "msci_controversies_score column present",
+          "is_current_constituent column present"
+        ],
+        "business": [
+          "all existing-constituent rows surviving have msci_controversies_score >= 1; no existing constituent with score = 0 survives"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_civilian_firearms_producer",
+      "purpose": "Exclude companies classified as 'Producer' of firearms and small arms ammunition for civilian markets, under the Highly Restrictive business involvement screen. Producer classification triggers exclusion regardless of revenue share; companies catering exclusively to military, government, and law enforcement markets are not in scope.",
+      "source": {
+        "markdown": "All companies classified as \"Producer\" of firearms and small arms ammunitions for civilian markets. It does not include companies that cater to the military, government, and law enforcement markets.",
+        "section": "Appendix II: Controversial Business Involvement Criteria",
+        "line": 674
+      },
+      "datapoints": [
+        "civilian_firearms_producer_flag"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "civilian_firearms_producer_flag column present after filter"
+        ],
+        "business": [
+          "no surviving row has civilian_firearms_producer_flag = True"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_civilian_firearms_revenue_above_5pct",
+      "purpose": "Exclude companies deriving 5% or more aggregate revenue from the production and distribution (wholesale or retail) of firearms or small arms ammunition intended for civilian use, under the Highly Restrictive business involvement screen.",
+      "source": {
+        "markdown": "All companies deriving 5% or more aggregate revenue from the production and distribution (wholesale or retail) of firearms or small arms ammunition intended for civilian use",
+        "section": "Appendix II: Controversial Business Involvement Criteria",
+        "line": 678
+      },
+      "datapoints": [
+        "civilian_firearms_revenue_pct"
+      ],
+      "thresholds": {
+        "REVENUE_THRESHOLD": 0.05
+      },
+      "asserts": {
+        "technical": [
+          "civilian_firearms_revenue_pct column present after filter"
+        ],
+        "business": [
+          "no surviving row has civilian_firearms_revenue_pct >= 0.05"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_tobacco_producer",
+      "purpose": "Exclude companies that manufacture tobacco products (cigars, cigarettes, e-cigarettes, smokeless tobacco, etc.) or grow or process raw tobacco leaves, under the Highly Restrictive business involvement screen.",
+      "source": {
+        "markdown": "All companies that manufacture tobacco products, such as cigars, blunts, cigarettes, e-cigarettes, inhalers, beedis, kreteks, smokeless tobacco, snuff, snus, dissolvable and chewing tobacco. This also includes companies that grow or process raw tobacco leaves.",
+        "section": "Appendix II: Controversial Business Involvement Criteria",
+        "line": 684
+      },
+      "datapoints": [
+        "tobacco_producer_flag"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "tobacco_producer_flag column present after filter"
+        ],
+        "business": [
+          "no surviving row has tobacco_producer_flag = True"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_tobacco_revenue_above_5pct",
+      "purpose": "Exclude companies deriving 5% or more aggregate revenue from the production, distribution, retail, supply, and licensing of tobacco-related products, under the Highly Restrictive business involvement screen.",
+      "source": {
+        "markdown": "All companies deriving 5% or more aggregate revenue from the production, distribution, retail, supply and licensing of tobacco-related products",
+        "section": "Appendix II: Controversial Business Involvement Criteria",
+        "line": 694
+      },
+      "datapoints": [
+        "tobacco_revenue_pct"
+      ],
+      "thresholds": {
+        "REVENUE_THRESHOLD": 0.05
+      },
+      "asserts": {
+        "technical": [
+          "tobacco_revenue_pct column present after filter"
+        ],
+        "business": [
+          "no surviving row has tobacco_revenue_pct >= 0.05"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_alcohol_above_10pct",
+      "purpose": "Exclude companies deriving 10% or more revenue from the production of alcohol-related products, under the Least Restrictive business involvement screen.",
+      "source": {
+        "markdown": "All companies deriving 10% or more revenue from the production of alcohol-related products",
+        "section": "Appendix II: Controversial Business Involvement Criteria",
+        "line": 702
+      },
+      "datapoints": [
+        "alcohol_revenue_pct"
+      ],
+      "thresholds": {
+        "REVENUE_THRESHOLD": 0.1
+      },
+      "asserts": {
+        "technical": [
+          "alcohol_revenue_pct column present after filter"
+        ],
+        "business": [
+          "no surviving row has alcohol_revenue_pct >= 0.10"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_conventional_weapons_above_10pct",
+      "purpose": "Exclude companies deriving 10% or more revenue from the production of conventional weapons and components, under the Least Restrictive business involvement screen.",
+      "source": {
+        "markdown": "All companies deriving 10% or more revenue from the production of conventional weapons and components",
+        "section": "Appendix II: Controversial Business Involvement Criteria",
+        "line": 707
+      },
+      "datapoints": [
+        "conventional_weapons_revenue_pct"
+      ],
+      "thresholds": {
+        "REVENUE_THRESHOLD": 0.1
+      },
+      "asserts": {
+        "technical": [
+          "conventional_weapons_revenue_pct column present after filter"
+        ],
+        "business": [
+          "no surviving row has conventional_weapons_revenue_pct >= 0.10"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_gambling_above_10pct",
+      "purpose": "Exclude companies deriving 10% or more revenue from ownership or operation of gambling-related business activities, under the Least Restrictive business involvement screen.",
+      "source": {
+        "markdown": "All companies deriving 10% or more revenue from ownership of operation of gambling-related business activities",
+        "section": "Appendix II: Controversial Business Involvement Criteria",
+        "line": 712
+      },
+      "datapoints": [
+        "gambling_revenue_pct"
+      ],
+      "thresholds": {
+        "REVENUE_THRESHOLD": 0.1
+      },
+      "asserts": {
+        "technical": [
+          "gambling_revenue_pct column present after filter"
+        ],
+        "business": [
+          "no surviving row has gambling_revenue_pct >= 0.10"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_nuclear_power_above_10pct",
+      "purpose": "Exclude companies deriving 10% or more revenue from the ownership or operation of nuclear power plants, under the Least Restrictive business involvement screen.",
+      "source": {
+        "markdown": "All companies deriving 10% or more revenue from the ownership or operation of nuclear power plants",
+        "section": "Appendix II: Controversial Business Involvement Criteria",
+        "line": 718
+      },
+      "datapoints": [
+        "nuclear_power_revenue_pct"
+      ],
+      "thresholds": {
+        "REVENUE_THRESHOLD": 0.1
+      },
+      "asserts": {
+        "technical": [
+          "nuclear_power_revenue_pct column present after filter"
+        ],
+        "business": [
+          "no surviving row has nuclear_power_revenue_pct >= 0.10"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_fossil_fuel_extraction_above_5pct",
+      "purpose": "Exclude companies deriving 5% or more aggregate revenue (reported or estimated) from thermal coal mining and unconventional oil and gas extraction, as a combined Fossil Fuel Extraction screen with no assigned restrictiveness level.",
+      "source": {
+        "markdown": "All companies deriving 5% or more aggregate revenue (either reported or estimated) from thermal coal mining and unconventional oil and gas extraction.",
+        "section": "Appendix II: Controversial Business Involvement Criteria",
+        "line": 727
+      },
+      "datapoints": [
+        "thermal_coal_mining_revenue_pct",
+        "unconventional_oil_gas_revenue_pct"
+      ],
+      "thresholds": {
+        "REVENUE_THRESHOLD": 0.05
+      },
+      "asserts": {
+        "technical": [
+          "thermal_coal_mining_revenue_pct and unconventional_oil_gas_revenue_pct columns present after filter"
+        ],
+        "business": [
+          "no surviving row has (thermal_coal_mining_revenue_pct + unconventional_oil_gas_revenue_pct) >= 0.05"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_thermal_coal_power_above_5pct",
+      "purpose": "Exclude companies deriving 5% or more revenue (reported or estimated) from thermal coal-based power generation, as a screen with no assigned restrictiveness level.",
+      "source": {
+        "markdown": "All companies deriving 5% or more revenue (either reported or estimated) from thermal coal-based power generation.",
+        "section": "Appendix II: Controversial Business Involvement Criteria",
+        "line": 743
+      },
+      "datapoints": [
+        "thermal_coal_power_revenue_pct"
+      ],
+      "thresholds": {
+        "REVENUE_THRESHOLD": 0.05
+      },
+      "asserts": {
+        "technical": [
+          "thermal_coal_power_revenue_pct column present after filter"
+        ],
+        "business": [
+          "no surviving row has thermal_coal_power_revenue_pct >= 0.05"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_palm_oil_above_5pct",
+      "purpose": "Exclude companies deriving 5% or more revenue from the production of Palm Oil.",
+      "source": {
+        "markdown": "All companies deriving 5% or more revenue from the production of Palm Oil",
+        "section": "Appendix II: Controversial Business Involvement Criteria",
+        "line": 749
+      },
+      "datapoints": [
+        "palm_oil_revenue_pct"
+      ],
+      "thresholds": {
+        "REVENUE_THRESHOLD": 0.05
+      },
+      "asserts": {
+        "technical": [
+          "palm_oil_revenue_pct column present after filter"
+        ],
+        "business": [
+          "no surviving row has palm_oil_revenue_pct >= 0.05"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_arctic_oil_gas_above_5pct",
+      "purpose": "Exclude companies deriving 5% or more aggregate revenue from arctic oil and arctic gas production north of 66.5 degrees latitude, covering offshore and onshore production.",
+      "source": {
+        "markdown": "All companies deriving 5% or more aggregate revenue from arctic oil and arctic gas production. The definition of Arctic is geographical and includes production activities north of the 66.5 latitude.",
+        "section": "Appendix II: Controversial Business Involvement Criteria",
+        "line": 753
+      },
+      "datapoints": [
+        "arctic_oil_gas_revenue_pct"
+      ],
+      "thresholds": {
+        "REVENUE_THRESHOLD": 0.05,
+        "ARCTIC_LATITUDE_THRESHOLD_DEGREES_NORTH": 66.5
+      },
+      "asserts": {
+        "technical": [
+          "arctic_oil_gas_revenue_pct column present after filter"
+        ],
+        "business": [
+          "no surviving row has arctic_oil_gas_revenue_pct >= 0.05"
+        ]
+      }
+    },
+    {
+      "category": "ranking",
+      "name": "rank_by_esg_rating_membership_industry_score_ff_mcap",
+      "purpose": "Rank eligible securities within each GICS sector by ESG Rating (highest first), then by current Selection Index membership (existing constituents above non-constituents), then by industry-adjusted ESG score (highest first), then by free float-adjusted market capitalization (largest first), to achieve stable, ESG-quality-led ordering before coverage selection.",
+      "source": {
+        "markdown": "For each sector, eligible securities of the regional Parent Index as described in Section 2.2 are ranked based on the following criteria: ESG Rating; Current Index membership (existing constituents above non-constituents of the Indexes); Industry-adjusted ESG scores; Decreasing free float-adjusted market capitalization",
+        "section": "3.1.2 Ranking of Eligible Securities",
+        "line": 362
+      },
+      "datapoints": [
+        "msci_esg_rating",
+        "is_current_constituent",
+        "industry_adjusted_esg_score",
+        "ff_market_cap",
+        "gics_sector"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "rank column added; no null ranks; rank is unique within (gics_sector, security_id)"
+        ],
+        "business": [
+          "within a sector, any row with a higher ESG rating has a strictly lower rank number than any row with a lower ESG rating",
+          "within the same ESG rating, current constituent rows have lower rank numbers than non-constituent rows",
+          "within the same ESG rating and membership status, higher industry_adjusted_esg_score implies lower rank number"
+        ]
+      }
+    },
+    {
+      "category": "selection",
+      "name": "select_by_sector_coverage_tiers",
+      "purpose": "Select securities per sector from the ranked Eligible Universe using four sequential tiers until 50% cumulative free float-adjusted market capitalization coverage is reached; apply marginal-company logic and a 45% floor guarantee per Appendix I.",
+      "source": {
+        "markdown": "For each sector, eligible securities of the regional Parent Index are then selected from the ranked Eligible Universe in the following order until the target 50% coverage by cumulative free float-adjusted market capitalization is reached: Securities in the top 35% ... 'AAA' rated securities in the top 50% ... Current Index constituents in the top 65% ... Remaining eligible securities",
+        "section": "3.1.3 Selection of Eligible Securities",
+        "line": 382
+      },
+      "datapoints": [
+        "ff_market_cap",
+        "msci_esg_rating",
+        "is_current_constituent",
+        "gics_sector",
+        "rank"
+      ],
+      "thresholds": {
+        "TARGET_COVERAGE": 0.5,
+        "TIER1_CUMULATIVE_THRESHOLD": 0.35,
+        "TIER2_CUMULATIVE_THRESHOLD": 0.5,
+        "TIER3_CUMULATIVE_THRESHOLD": 0.65,
+        "MIN_COVERAGE_FLOOR": 0.45
+      },
+      "asserts": {
+        "technical": [
+          "selected column added as boolean; no null values",
+          "only rows with selected=True appear in downstream pipeline"
+        ],
+        "business": [
+          "cumulative ff_market_cap coverage per gics_sector is >= 0.45 whenever at least one eligible security exists in that sector",
+          "no ineligible security (per section 3.1.1) is selected even if sector coverage remains below 0.50",
+          "if the marginal company is a current constituent, it is always included",
+          "if the marginal company is not a current constituent, it is included only if coverage with it is closer to 0.50 than coverage without it"
+        ]
+      }
+    },
+    {
+      "category": "event_handling",
+      "name": "add_new_parent_addition_if_eligible_and_sector_below_45pct",
+      "purpose": "Add a security newly included in the Parent Index (IPO, early inclusion, size-segment migration) to the Selection Index on the date of its Parent Index inclusion if it meets the Section 2.2 eligibility criteria and the cumulative ff-mcap coverage of its sector is currently below 45%.",
+      "source": {
+        "markdown": "New securities added to the Parent Index (such as IPOs, other early inclusions and migrations from a different size-segment) will be added to the Indexes on the date of security inclusion only if they meet the eligibility criteria described in Section 2.2 and the market capitalization coverage of the sector to which the security belongs is less than 45%.",
+        "section": "3.3 Ongoing Event-Related Maintenance",
+        "line": 460
+      },
+      "datapoints": [
+        "is_eligible_section_2_2",
+        "sector_current_ff_mcap_coverage",
+        "gics_sector"
+      ],
+      "thresholds": {
+        "SECTOR_COVERAGE_ADDITION_THRESHOLD": 0.45
+      },
+      "asserts": {
+        "technical": [
+          "is_eligible_section_2_2 and sector_current_ff_mcap_coverage columns present"
+        ],
+        "business": [
+          "no security is added between reviews to a sector where current coverage >= 0.45",
+          "no ineligible security is added even if sector coverage < 0.45"
+        ]
+      }
+    },
+    {
+      "category": "event_handling",
+      "name": "delete_quarterly_if_fails_annual_eligibility",
+      "purpose": "Delete existing Selection Index constituents at each Quarterly Index Review (February, August, November) if they no longer meet the eligibility criteria defined in Section 3.1.1 (ESG rating, Controversies Score, CBI screens).",
+      "source": {
+        "markdown": "At the Quarterly Index Reviews, existing constituents are deleted from the Indexes if they do not meet the eligibility criteria described in Section 3.1.1. Existing constituents that meet the eligibility criteria are retained in the index.",
+        "section": "3.2 Quarterly Index Reviews",
+        "line": 418
+      },
+      "datapoints": [
+        "msci_esg_rating",
+        "msci_controversies_score",
+        "is_current_constituent",
+        "cbi_screen_flag"
+      ],
+      "thresholds": {
+        "MIN_ESG_RATING_EXISTING": "BB",
+        "MIN_CONTROVERSIES_SCORE_EXISTING": 1
+      },
+      "asserts": {
+        "technical": [
+          "cbi_screen_flag column present"
+        ],
+        "business": [
+          "no surviving constituent has msci_esg_rating below BB after quarterly deletion",
+          "no surviving constituent has msci_controversies_score < 1 after quarterly deletion",
+          "no surviving constituent has cbi_screen_flag = True after quarterly deletion"
+        ]
+      }
+    },
+    {
+      "category": "event_handling",
+      "name": "add_quarterly_if_eligible_and_sector_below_45pct",
+      "purpose": "Make additions at each Quarterly Index Review only to sectors where cumulative ff-mcap coverage has fallen below 45% (using a 10% buffer on the 50% target), selecting from eligible securities per Section 2.2 until 50% coverage is restored.",
+      "source": {
+        "markdown": "Additions, from the eligible securities as per Section 2.2, are made only to those sectors where the current market capitalization coverage is less than 45%, until the 50% target is reached. Market price movements may cause small deviations in the sector coverage between two Index Reviews. Therefore, in order to minimize turnover, a buffer of 10% is used on the target coverage of 50% to define under-representation.",
+        "section": "3.2 Quarterly Index Reviews",
+        "line": 421
+      },
+      "datapoints": [
+        "is_eligible_section_2_2",
+        "sector_current_ff_mcap_coverage",
+        "gics_sector"
+      ],
+      "thresholds": {
+        "SECTOR_COVERAGE_ADDITION_THRESHOLD": 0.45,
+        "TARGET_COVERAGE": 0.5,
+        "BUFFER_PCT": 0.1
+      },
+      "asserts": {
+        "technical": [
+          "sector_current_ff_mcap_coverage column present"
+        ],
+        "business": [
+          "no additions are made to a sector with current coverage >= 0.45",
+          "no ineligible security is added at quarterly review"
+        ]
+      }
+    }
+  ],
+  "reused_rules": [
+    {
+      "methbook": "xcw",
+      "name": "exclude_controversial_weapons_involvement",
+      "justification": "Most Restrictive screen: all companies with any tie to Controversial Weapons (cluster munitions, landmines, depleted uranium, biological/chemical, blinding lasers, non-detectable fragments, incendiary weapons) as defined by the XCW methodology. Appendix II cites the XCW methodology URL directly."
+    },
+    {
+      "methbook": "xcw",
+      "name": "exclude_nuclear_weapons",
+      "justification": "Highly Restrictive screen covering manufacturers of warheads, missiles, components developed for exclusive nuclear use, delivery platforms, auxiliary service providers, and manufacturers of dual-use components. Appendix II lists the same criteria."
+    },
+    {
+      "methbook": "corporate_events",
+      "name": "spinoff_deferred_to_review",
+      "justification": "Section 3.3 states all spin-off securities from an existing constituent will not be added at event implementation; reevaluation occurs at the subsequent Index Review. Section 3.3 explicitly defers further detail to the MSCI Corporate Events Methodology book."
+    },
+    {
+      "methbook": "corporate_events",
+      "name": "ma_delete_acquired_constituent",
+      "justification": "Section 3.3 states if an existing constituent is acquired by a non-constituent, the constituent is deleted from the index. Standard corporate-events treatment; Section 3.3 defers further detail to the MSCI Corporate Events Methodology book."
+    },
+    {
+      "methbook": "corporate_events",
+      "name": "ma_no_add_nonconstituent_acquirer",
+      "justification": "Section 3.3 states the acquiring non-constituent will not be added to the index following an M&A event. Section 3.3 defers further detail to the MSCI Corporate Events Methodology book."
+    },
+    {
+      "methbook": "corporate_events",
+      "name": "characteristics_change_no_deletion",
+      "justification": "Section 3.3 states a security continues as a constituent if there are changes in characteristics (country, sector, size segment); reevaluation occurs at subsequent Index Review. Section 3.3 defers further detail to the MSCI Corporate Events Methodology book."
+    },
+    {
+      "methbook": "corporate_events",
+      "name": "parent_deletion_propagates",
+      "justification": "Section 3.3 states Parent Index deletions will be reflected simultaneously in the Selection Indexes. Section 3.3 defers further detail to the MSCI Corporate Events Methodology book."
+    }
+  ],
+  "eligibility": {
+    "rule_names": [
+      "require_esg_rating_bb_or_above",
+      "require_controversies_score_3_or_above",
+      "retain_existing_if_controversies_score_1_or_above",
+      "exclude_controversial_weapons_involvement",
+      "exclude_nuclear_weapons",
+      "exclude_civilian_firearms_producer",
+      "exclude_civilian_firearms_revenue_above_5pct",
+      "exclude_tobacco_producer",
+      "exclude_tobacco_revenue_above_5pct",
+      "exclude_alcohol_above_10pct",
+      "exclude_conventional_weapons_above_10pct",
+      "exclude_gambling_above_10pct",
+      "exclude_nuclear_power_above_10pct",
+      "exclude_fossil_fuel_extraction_above_5pct",
+      "exclude_thermal_coal_power_above_5pct",
+      "exclude_palm_oil_above_5pct",
+      "exclude_arctic_oil_gas_above_5pct"
+    ]
+  },
+  "selection": {
+    "method": "tiered_sector_coverage_cutoff",
+    "content": {
+      "target_coverage_pct": 50,
+      "min_coverage_floor_pct": 45,
+      "tier1": "All securities in top 35% cumulative ff-mcap of ranked universe (including security that pushes coverage above 35%)",
+      "tier2": "AAA-rated securities in top 50% cumulative ff-mcap of ranked universe (including security that pushes coverage above 50%)",
+      "tier3": "Current index constituents in top 65% cumulative ff-mcap of ranked universe (including security that pushes coverage above 65% if that security is a current constituent)",
+      "tier4": "Remaining eligible securities in ranked universe",
+      "marginal_company_logic": "If marginal company is a current constituent, always selected. If not a current constituent, selected only if coverage with it is closer to 50% than coverage without it. Always selected if required to achieve 45% floor.",
+      "constructed_at": "regional level for Standard size-segment; at USA level for Small Cap"
+    }
+  },
+  "weighting": {
+    "method": "ff_mcap",
+    "caps": [],
+    "floors": [],
+    "buffers": []
+  },
+  "event_handling": {
+    "rule_names": [
+      "add_new_parent_addition_if_eligible_and_sector_below_45pct",
+      "delete_quarterly_if_fails_annual_eligibility",
+      "add_quarterly_if_eligible_and_sector_below_45pct",
+      "spinoff_deferred_to_review",
+      "ma_delete_acquired_constituent",
+      "ma_no_add_nonconstituent_acquirer",
+      "characteristics_change_no_deletion",
+      "parent_deletion_propagates"
+    ],
+    "defers_to": {
+      "methbook": "corporate_events"
+    },
+    "intra_review_invariants": [
+      {
+        "quote": "No new securities will be added (except where noted below) to the Index between Index Reviews. For cases where additions are noted below, securities will be added to the index only if added to the Parent Index.",
+        "concern": "General no-add policy between reviews; the only intra-review additions are those explicitly enumerated in the corporate-events table (new Parent Index additions subject to the section-2.2 + sector-coverage<45% gates). Spin-offs and M&A acquirers are explicitly excluded from intra-review addition."
+      },
+      {
+        "quote": "There are no deletions from the Indexes between Index Reviews on account of a security becoming ineligible because of MSCI ESG Rating downgrade and/or decrease in MSCI Controversies Score and/or change in business involvement.",
+        "concern": "Negative ESG or CBI changes between reviews do not trigger mid-cycle deletion; only quarterly and annual reviews can remove a security on ESG/CBI grounds."
+      },
+      {
+        "quote": "Parent Index deletions will be reflected simultaneously.",
+        "concern": "Parent Index deletions are the one class of intra-review removal that does propagate immediately, independent of ESG/CBI status."
+      }
+    ]
+  },
+  "review_cadence": {
+    "schedules": [
+      {
+        "name": "Annual Index Review",
+        "frequency": "annual",
+        "months": [
+          "May"
+        ],
+        "data_cutoff": "end of April (month preceding the Index Review); late-published data accepted when available after month-end",
+        "announcement_lead": "nine business days before effective date"
+      },
+      {
+        "name": "Quarterly Index Review",
+        "frequency": "quarterly",
+        "months": [
+          "February",
+          "August",
+          "November"
+        ],
+        "data_cutoff": "end of January, July, and October respectively; late-published data accepted when available after month-end",
+        "announcement_lead": "nine business days before effective date"
+      }
+    ]
+  },
+  "data_requirements": {
+    "mandatory_products": [
+      {
+        "methbook": "esg_ratings",
+        "item": "MSCI ESG Ratings"
+      },
+      {
+        "methbook": "controversies",
+        "item": "MSCI Controversies"
+      },
+      {
+        "methbook": "bisr",
+        "item": "MSCI Business Involvement Screening Research"
+      },
+      {
+        "methbook": "climate_metrics",
+        "item": "MSCI Climate Change Metrics"
+      }
+    ],
+    "mandatory_fields": [
+      {
+        "name": "msci_esg_rating",
+        "type": "categorical",
+        "values": "AAA AA A BBB BB B CCC"
+      },
+      {
+        "name": "msci_controversies_score",
+        "type": "integer",
+        "range": "0-10"
+      },
+      {
+        "name": "industry_adjusted_esg_score",
+        "type": "float",
+        "range": "0-10"
+      },
+      {
+        "name": "ff_market_cap",
+        "type": "float",
+        "unit": "USD"
+      },
+      {
+        "name": "gics_sector",
+        "type": "categorical"
+      },
+      {
+        "name": "is_current_constituent",
+        "type": "boolean"
+      },
+      {
+        "name": "civilian_firearms_producer_flag",
+        "type": "boolean"
+      },
+      {
+        "name": "civilian_firearms_revenue_pct",
+        "type": "float"
+      },
+      {
+        "name": "tobacco_producer_flag",
+        "type": "boolean"
+      },
+      {
+        "name": "tobacco_revenue_pct",
+        "type": "float"
+      },
+      {
+        "name": "alcohol_revenue_pct",
+        "type": "float"
+      },
+      {
+        "name": "conventional_weapons_revenue_pct",
+        "type": "float"
+      },
+      {
+        "name": "gambling_revenue_pct",
+        "type": "float"
+      },
+      {
+        "name": "nuclear_power_revenue_pct",
+        "type": "float"
+      },
+      {
+        "name": "thermal_coal_mining_revenue_pct",
+        "type": "float"
+      },
+      {
+        "name": "unconventional_oil_gas_revenue_pct",
+        "type": "float"
+      },
+      {
+        "name": "thermal_coal_power_revenue_pct",
+        "type": "float"
+      },
+      {
+        "name": "palm_oil_revenue_pct",
+        "type": "float"
+      },
+      {
+        "name": "arctic_oil_gas_revenue_pct",
+        "type": "float"
+      }
+    ],
+    "preprocessing": [
+      {
+        "step": "Use end-of-preceding-month ESG data; substitute later-published data for securities where month-end data is unavailable"
+      }
+    ]
+  },
+  "mock_datapoints": [
+    {
+      "name": "msci_esg_rating",
+      "type": "categorical",
+      "distribution": "choices(['AAA','AA','A','BBB','BB','B','CCC'], weights=[0.05,0.10,0.15,0.25,0.20,0.15,0.10])",
+      "description": "MSCI ESG Rating on a seven-point scale from AAA (best) to CCC (worst), reflecting company management of ESG risks and opportunities relative to industry peers.",
+      "canonical_concept": "msci_esg_rating",
+      "definition_notes": [
+        "Derived from industry-adjusted ESG score (0-10) via a mapping to the letter scale",
+        "Industry-normalized: same numeric score may yield different letter rating across sectors"
+      ],
+      "semantic_threshold": "'BB' or above to be eligible for inclusion in the Indexes",
+      "source_section": "2.2.1 ESG Ratings Eligibility",
+      "taxonomy": "MSCI ESG Rating seven-point letter scale (AAA, AA, A, BBB, BB, B, CCC)"
+    },
+    {
+      "name": "msci_controversies_score",
+      "type": "integer",
+      "distribution": "randint(0, 11)",
+      "description": "MSCI Controversies Score on a 0-10 scale; 0 represents the most severe controversy, aligned with UN Declaration of Human Rights, ILO Fundamental Principles, and UN Global Compact.",
+      "canonical_concept": "msci_controversies_score",
+      "definition_notes": [
+        "MSCI Controversies Score falls on a 0-10 scale, with '0' being the most severe controversy",
+        "Used at two thresholds in this methodology: 3 or above for new additions, 1 or above for existing constituents at Annual Review"
+      ],
+      "semantic_threshold": "MSCI Controversies Score of 3 or above to be eligible for inclusion in the Indexes; MSCI Controversies Score of 1 or above for existing constituents",
+      "source_section": "2.2.2 Controversies Score Eligibility",
+      "taxonomy": "MSCI Controversies Score 0-10 scale (0 = most severe)"
+    },
+    {
+      "name": "industry_adjusted_esg_score",
+      "type": "float",
+      "distribution": "uniform(0.0, 10.0)",
+      "description": "Numeric ESG score (0-10) normalized by industry, used as tiebreaker in sector ranking after ESG Rating and index membership.",
+      "canonical_concept": "msci_industry_adjusted_esg_score",
+      "definition_notes": [
+        "Produced by MSCI ESG Ratings methodology via weighted average key issue calculation, normalized by industry",
+        "Translated to the seven-point AAA-CCC letter scale"
+      ],
+      "source_section": "4.1 MSCI ESG Ratings",
+      "taxonomy": "MSCI industry-adjusted ESG numeric score (0-10)"
+    },
+    {
+      "name": "ff_market_cap",
+      "type": "float",
+      "distribution": "lognormal(mean=20.0, sigma=2.0)",
+      "description": "Free float-adjusted market capitalization in USD; used in sector coverage calculation, ranking tiebreaker, and as the basis for index weighting.",
+      "canonical_concept": "ff_adjusted_market_cap",
+      "definition_notes": [
+        "Used to compute cumulative sector coverage relative to the Parent Index",
+        "Basis of index weighting (free float-adjusted market capitalization-weighted)"
+      ],
+      "source_section": "2.3 Index Construction"
+    },
+    {
+      "name": "gics_sector",
+      "type": "categorical",
+      "distribution": "choices(['Energy','Materials','Industrials','Consumer Discretionary','Consumer Staples','Health Care','Financials','Information Technology','Communication Services','Utilities','Real Estate'])",
+      "description": "GICS sector classification used to group securities for sector-level coverage targeting (50% of Parent Index ff-mcap per sector).",
+      "canonical_concept": "gics_sector",
+      "source_section": "2.3 Index Construction",
+      "taxonomy": "GICS sector (Global Industry Classification Standard)"
+    },
+    {
+      "name": "is_current_constituent",
+      "type": "boolean",
+      "distribution": "bernoulli(p=0.6)",
+      "description": "Flag indicating whether the security is currently an index constituent; existing constituents receive priority in ranking and benefit from the relaxed Controversies Score threshold (>=1 vs. >=3) at Annual Review.",
+      "source_section": "3.1.1 Updating the Eligible Universe"
+    },
+    {
+      "name": "civilian_firearms_producer_flag",
+      "type": "boolean",
+      "distribution": "bernoulli(p=0.005)",
+      "description": "Flag for companies classified as 'Producer' of firearms and small arms ammunition for civilian markets (excludes companies catering exclusively to military, government, and law enforcement markets).",
+      "definition_notes": [
+        "It does not include companies that cater to the military, government, and law enforcement markets"
+      ],
+      "semantic_threshold": "All companies classified as \"Producer\" of firearms and small arms ammunitions for civilian markets",
+      "source_section": "Appendix II: Controversial Business Involvement Criteria",
+      "taxonomy": "MSCI CBI restrictiveness level: Highly Restrictive"
+    },
+    {
+      "name": "civilian_firearms_revenue_pct",
+      "type": "float",
+      "distribution": "beta(a=0.5, b=20.0)",
+      "description": "Aggregate revenue percentage from production and distribution (wholesale or retail) of firearms or small arms ammunition intended for civilian use.",
+      "semantic_threshold": "5% or more aggregate revenue from the production and distribution (wholesale or retail) of firearms or small arms ammunition intended for civilian use",
+      "source_section": "Appendix II: Controversial Business Involvement Criteria",
+      "taxonomy": "MSCI CBI restrictiveness level: Highly Restrictive"
+    },
+    {
+      "name": "tobacco_producer_flag",
+      "type": "boolean",
+      "distribution": "bernoulli(p=0.005)",
+      "description": "Flag for companies that manufacture tobacco products (cigars, cigarettes, e-cigarettes, smokeless tobacco, etc.) or grow or process raw tobacco leaves.",
+      "definition_notes": [
+        "Manufactured products covered: cigars, blunts, cigarettes, e-cigarettes, inhalers, beedis, kreteks, smokeless tobacco, snuff, snus, dissolvable and chewing tobacco",
+        "Also includes companies that grow or process raw tobacco leaves"
+      ],
+      "semantic_threshold": "All companies that manufacture tobacco products ... This also includes companies that grow or process raw tobacco leaves",
+      "source_section": "Appendix II: Controversial Business Involvement Criteria",
+      "taxonomy": "MSCI CBI restrictiveness level: Highly Restrictive"
+    },
+    {
+      "name": "tobacco_revenue_pct",
+      "type": "float",
+      "distribution": "beta(a=0.5, b=20.0)",
+      "description": "Aggregate revenue percentage from production, distribution, retail, supply, and licensing of tobacco-related products.",
+      "semantic_threshold": "5% or more aggregate revenue from the production, distribution, retail, supply and licensing of tobacco-related products",
+      "source_section": "Appendix II: Controversial Business Involvement Criteria",
+      "taxonomy": "MSCI CBI restrictiveness level: Highly Restrictive"
+    },
+    {
+      "name": "alcohol_revenue_pct",
+      "type": "float",
+      "distribution": "beta(a=0.5, b=15.0)",
+      "description": "Revenue percentage from the production of alcohol-related products.",
+      "semantic_threshold": "10% or more revenue from the production of alcohol-related products",
+      "source_section": "Appendix II: Controversial Business Involvement Criteria",
+      "taxonomy": "MSCI CBI restrictiveness level: Least Restrictive"
+    },
+    {
+      "name": "conventional_weapons_revenue_pct",
+      "type": "float",
+      "distribution": "beta(a=0.5, b=15.0)",
+      "description": "Revenue percentage from the production of conventional weapons and components.",
+      "semantic_threshold": "10% or more revenue from the production of conventional weapons and components",
+      "source_section": "Appendix II: Controversial Business Involvement Criteria",
+      "taxonomy": "MSCI CBI restrictiveness level: Least Restrictive"
+    },
+    {
+      "name": "gambling_revenue_pct",
+      "type": "float",
+      "distribution": "beta(a=0.5, b=15.0)",
+      "description": "Revenue percentage from ownership or operation of gambling-related business activities.",
+      "semantic_threshold": "10% or more revenue from ownership of operation of gambling-related business activities",
+      "source_section": "Appendix II: Controversial Business Involvement Criteria",
+      "taxonomy": "MSCI CBI restrictiveness level: Least Restrictive"
+    },
+    {
+      "name": "nuclear_power_revenue_pct",
+      "type": "float",
+      "distribution": "beta(a=0.5, b=15.0)",
+      "description": "Revenue percentage from ownership or operation of nuclear power plants.",
+      "semantic_threshold": "10% or more revenue from the ownership or operation of nuclear power plants",
+      "source_section": "Appendix II: Controversial Business Involvement Criteria",
+      "taxonomy": "MSCI CBI restrictiveness level: Least Restrictive"
+    },
+    {
+      "name": "thermal_coal_mining_revenue_pct",
+      "type": "float",
+      "distribution": "beta(a=0.5, b=20.0)",
+      "description": "Revenue from the mining of thermal coal (lignite, bituminous, anthracite, steam coal) and its sale to external parties.",
+      "definition_notes": [
+        "Does not cover revenue from metallurgical coal",
+        "Does not cover coal mined for internal power generation (e.g., vertically integrated power producers)",
+        "Does not cover intra-company sales of mined thermal coal",
+        "Does not cover revenue from coal trading"
+      ],
+      "semantic_threshold": "Combined with unconventional oil & gas extraction: 5% or more aggregate revenue (either reported or estimated) from thermal coal mining and unconventional oil and gas extraction",
+      "source_section": "Appendix II: Controversial Business Involvement Criteria",
+      "taxonomy": "MSCI CBI: Fossil Fuel Extraction (no specific restrictiveness level applied)"
+    },
+    {
+      "name": "unconventional_oil_gas_revenue_pct",
+      "type": "float",
+      "distribution": "beta(a=0.5, b=20.0)",
+      "description": "Revenue from oil sands, oil shale (kerogen-rich deposits), shale gas, shale oil, coal seam gas, and coal bed methane.",
+      "definition_notes": [
+        "Does not cover all types of conventional oil and gas production including Arctic onshore/offshore, deep water, shallow water and other onshore/offshore"
+      ],
+      "semantic_threshold": "Combined with thermal coal mining: 5% or more aggregate revenue (either reported or estimated) from thermal coal mining and unconventional oil and gas extraction",
+      "source_section": "Appendix II: Controversial Business Involvement Criteria",
+      "taxonomy": "MSCI CBI: Fossil Fuel Extraction (no specific restrictiveness level applied)"
+    },
+    {
+      "name": "thermal_coal_power_revenue_pct",
+      "type": "float",
+      "distribution": "beta(a=0.5, b=20.0)",
+      "description": "Revenue (reported or estimated) from thermal coal-based power generation.",
+      "semantic_threshold": "5% or more revenue (either reported or estimated) from thermal coal-based power generation",
+      "source_section": "Appendix II: Controversial Business Involvement Criteria",
+      "taxonomy": "MSCI CBI: Thermal Coal Power (no specific restrictiveness level applied)"
+    },
+    {
+      "name": "palm_oil_revenue_pct",
+      "type": "float",
+      "distribution": "beta(a=0.5, b=20.0)",
+      "description": "Revenue from the production of Palm Oil.",
+      "semantic_threshold": "5% or more revenue from the production of Palm Oil",
+      "source_section": "Appendix II: Controversial Business Involvement Criteria",
+      "taxonomy": "MSCI CBI: Palm Oil (no specific restrictiveness level applied)"
+    },
+    {
+      "name": "arctic_oil_gas_revenue_pct",
+      "type": "float",
+      "distribution": "beta(a=0.5, b=20.0)",
+      "description": "Aggregate revenue from arctic oil and arctic gas production north of 66.5 degrees latitude, including offshore and onshore production.",
+      "definition_notes": [
+        "The definition of Arctic is geographical and includes production activities north of the 66.5 latitude",
+        "Includes offshore or onshore oil and gas production"
+      ],
+      "semantic_threshold": "5% or more aggregate revenue from arctic oil and arctic gas production",
+      "source_section": "Appendix II: Controversial Business Involvement Criteria",
+      "taxonomy": "MSCI CBI: Arctic Oil & Gas (no specific restrictiveness level applied)"
+    },
+    {
+      "name": "sector_current_ff_mcap_coverage",
+      "type": "float",
+      "distribution": "uniform(0.3, 0.7)",
+      "description": "Current cumulative free float-adjusted market capitalization coverage of the GICS sector relative to the Parent Index sector; used to determine whether additions are permitted between reviews and at quarterly review.",
+      "source_section": "3.2 Quarterly Index Reviews"
+    },
+    {
+      "name": "is_eligible_section_2_2",
+      "type": "boolean",
+      "distribution": "bernoulli(p=0.7)",
+      "description": "Composite eligibility flag: True if the security passes all Section 2.2 criteria (ESG rating, Controversies Score, all CBI screens, and unrated treatment); used in event-driven addition checks (Section 3.3) and quarterly addition checks (Section 3.2).",
+      "source_section": "3.3 Ongoing Event-Related Maintenance"
+    },
+    {
+      "name": "cbi_screen_flag",
+      "type": "boolean",
+      "distribution": "bernoulli(p=0.05)",
+      "description": "True if the security is screened out by any of the controversial business involvement criteria in Section 2.2.3 and Appendix II; used in quarterly deletion check.",
+      "source_section": "3.1.1 Updating the Eligible Universe"
+    }
+  ],
+  "composition_order": [
+    "require_esg_rating_bb_or_above",
+    "require_controversies_score_3_or_above",
+    "retain_existing_if_controversies_score_1_or_above",
+    "exclude_controversial_weapons_involvement",
+    "exclude_nuclear_weapons",
+    "exclude_civilian_firearms_producer",
+    "exclude_civilian_firearms_revenue_above_5pct",
+    "exclude_tobacco_producer",
+    "exclude_tobacco_revenue_above_5pct",
+    "exclude_alcohol_above_10pct",
+    "exclude_conventional_weapons_above_10pct",
+    "exclude_gambling_above_10pct",
+    "exclude_nuclear_power_above_10pct",
+    "exclude_fossil_fuel_extraction_above_5pct",
+    "exclude_thermal_coal_power_above_5pct",
+    "exclude_palm_oil_above_5pct",
+    "exclude_arctic_oil_gas_above_5pct",
+    "rank_by_esg_rating_membership_industry_score_ff_mcap",
+    "select_by_sector_coverage_tiers"
+  ],
+  "final_asserts": [
+    "All selected securities have msci_esg_rating in {AAA, AA, A, BBB, BB}",
+    "All non-constituent selected securities have msci_controversies_score >= 3",
+    "All selected securities have msci_controversies_score >= 1",
+    "No selected security has any CBI flag triggered (producer flags, revenue thresholds)",
+    "Cumulative ff_market_cap coverage per gics_sector is between 0.45 and 1.0 for all sectors with at least one eligible security",
+    "Weights are all positive; weight sum across all selected securities equals 1.0 (or sums to 1.0 within each regional index)",
+    "No security absent from the Parent Index is selected"
+  ],
+  "external_references": [
+    {
+      "methbook": "methodology_set_readme",
+      "section": "Description of methodology set",
+      "item": "https://www.msci.com/index/methodology/latest/ReadMe"
+    },
+    {
+      "methbook": "corporate_events",
+      "section": "MSCI Corporate Events Methodology",
+      "item": "https://www.msci.com/index/methodology/latest/CE"
+    },
+    {
+      "methbook": "fundamental_data",
+      "section": "MSCI Fundamental Data Methodology",
+      "item": "https://www.msci.com/index/methodology/latest/FundData"
+    },
+    {
+      "methbook": "index_calculation",
+      "section": "MSCI Index Calculation Methodology",
+      "item": "https://www.msci.com/index/methodology/latest/IndexCalc"
+    },
+    {
+      "methbook": "index_glossary",
+      "section": "MSCI Index Glossary of Terms",
+      "item": "https://www.msci.com/index/methodology/latest/IndexGlossary"
+    },
+    {
+      "methbook": "index_policies",
+      "section": "MSCI Index Policies",
+      "item": "https://www.msci.com/index/methodology/latest/IndexPolicy"
+    },
+    {
+      "methbook": "gics",
+      "section": "MSCI Global Industry Classification Standard (GICS) Methodology",
+      "item": "https://www.msci.com/index/methodology/latest/GICS"
+    },
+    {
+      "methbook": "gimi",
+      "section": "MSCI Global Investable Market Indexes Methodology",
+      "item": "https://www.msci.com/index/methodology/latest/GIMI"
+    },
+    {
+      "methbook": "xcw",
+      "section": "MSCI Global ex Controversial Weapons Indexes Methodology",
+      "item": "https://www.msci.com/index/methodology/latest/XCW"
+    },
+    {
+      "methbook": "esg_factors_in_methodology",
+      "section": "ESG Factors In Methodology",
+      "item": "Listed in Appendix V Methodology Set; URL not provided in source"
+    }
+  ],
+  "clarifications_needed": [
+    {
+      "quote": "For some securities, such data may not be published by MSCI Solutions by the end of the month preceding the Index Review. For such securities, MSCI will use ESG data published after the end of month, when available, for the rebalancing of the Indexes.",
+      "concern": "The methodology does not specify a cutoff date for accepting late-published data (e.g., how many business days after month-end). It is unclear whether there is a hard deadline before the pro forma announcement or whether data published up to the announcement date is accepted."
+    },
+    {
+      "quote": "Fossil Fuel Extraction ... No specific restrictiveness level applied",
+      "concern": "Fossil Fuel Extraction, Thermal Coal Power, Palm Oil, and Arctic Oil & Gas are described as having 'No specific restrictiveness level applied', unlike the other eight CBI categories which map to Most/Highly/Least Restrictive levels. It is unclear whether this means they are excluded from the four-level framework entirely, or whether additional operational guidance exists for how these screens are classified internally by MSCI Solutions."
+    },
+    {
+      "quote": "the market capitalization coverage of the sector to which the security belongs is less than 45%",
+      "concern": "For intra-review event-driven additions (section 3.3), it is unclear whether the 45% sector coverage threshold is measured using current market prices (post-drift since last review) or using the end-of-month data used for the most recent review. The quarterly review text (section 3.2) implies current market cap is used (price movements cause deviations), but the event addition rule does not specify."
+    },
+    {
+      "quote": "Moderately Restrictive",
+      "concern": "Appendix II names four restrictiveness levels (Most, Highly, Moderately, Least) but no CBI screen in this methodology is assigned to 'Moderately Restrictive'. It is unclear whether the level is reserved for screens applied by other MSCI ESG indexes or is simply unused here."
+    }
+  ],
+  "scoped_out": [
+    {
+      "quote": "The MSCI Selection Indexes ('the Indexes') are free float-adjusted market capitalization-weighted indexes designed to represent the performance of companies that are selected from an underlying index based on Environmental, Social and Governance (ESG) criteria.",
+      "concern": "Section 1 (Introduction) provides index overview and context only; no transformation rules are defined. All substantive rules are captured in Sections 2 and 3 and the Appendices."
+    },
+    {
+      "quote": "The following regional Indexes are aggregated to construct the MSCI World Selection Index. ... The MSCI World Selection Index and the MSCI EM Selection Index are aggregated to construct the MSCI ACWI Selection Index. ... The MSCI USA IMI Selection Index is created by aggregating the MSCI USA Selection Index and the MSCI USA Small Cap Selection Index.",
+      "concern": "Section 2.3 describes the structural aggregation hierarchy (regional -> World/EM -> ACWI; USA + USA Small Cap -> USA IMI; ACWI subsets -> EAFE/China/etc.). These are index-aggregation rules, not per-security transformations. The construction-level distinction is captured in selection.content.constructed_at."
+    },
+    {
+      "quote": "The Large Cap and Mid Cap size-segments of the Indexes are derived from the Standard size-segment.",
+      "concern": "Section 2.3 describes derivation of size-segment subsets from the Standard Selection Index. No new selection or weighting transformation; size-segment partitioning is an aggregation operation outside the scope of this methbook."
+    },
+    {
+      "quote": "MSCI ESG Ratings aim to measure entities' management of environmental, social and governance risks and opportunities. MSCI ESG Ratings use a weighted average key issue calculation that is normalized by industry to arrive at an industry-adjusted ESG score (0-10)...",
+      "concern": "Section 4 (MSCI Solutions) describes external data products used as inputs; no index construction transformations are defined here. The data products are captured in data_requirements.mandatory_products."
+    },
+    {
+      "quote": "Prior to the May 2013 Index Review, the MSCI Selection Indexes were constructed using Global Socrates ESG Ratings.",
+      "concern": "Appendix III (Methodology Transition) documents historical methodology changes. The methbook captures the current live rules only; historical thresholds and transition events are not modeled."
+    },
+    {
+      "quote": "The MSCI Country and Region Selection Indexes are constructed by applying the index construction rules detailed in Section 2 at the level of the respective country or region covered by the index, instead of the specific regional level used in the construction of MSCI Selection Indexes.",
+      "concern": "Appendix IV (MSCI Country and Region Selection Indexes) describes a variant application of the same Section 2 and 3 rules at a different geographic granularity. No new transformations are defined; the variant follows the same rules and review cycle."
+    },
+    {
+      "quote": "The following sections have been modified as of November 2014...",
+      "concern": "Appendix VI (Changes to this Document) is a document changelog. No transformation rules are defined."
+    }
+  ]
+}

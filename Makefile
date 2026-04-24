@@ -1,5 +1,5 @@
 .PHONY: install update typecheck test report clean check \
-    setup planner critique implementer deterministic semantic index pr \
+    setup planner critique commit-plan implementer deterministic semantic index pr \
     methbook graph enrich-graph
 
 export PYTHONPATH := $(CURDIR)
@@ -36,6 +36,9 @@ planner:
 
 critique:
 	uv run python -m methbooks.pipeline.critique --run-dir "$(RUN_DIR)"
+
+commit-plan:
+	uv run python -m methbooks.pipeline.commit_plan --run-dir "$(RUN_DIR)"
 
 implementer:
 	uv run python -m methbooks.pipeline.implementer --run-dir "$(RUN_DIR)"

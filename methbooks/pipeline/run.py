@@ -1,10 +1,14 @@
 """End-to-end methbook pipeline driver.
 
-Chains setup -> planner -> critique -> implementer -> deterministic ->
-semantic -> rules_index -> pr as subprocess calls, replacing the Makefile
-`methbook` target's shell-glued chain. Using subprocess list-form
-eliminates the two-layer (make + shell) quoting that produced the GICS
-breakages (see PRs #14 and #21).
+Chains setup -> planner -> critique -> commit_plan -> implementer ->
+deterministic -> semantic -> rules_index -> pr as subprocess calls,
+replacing the Makefile `methbook` target's shell-glued chain. Using
+subprocess list-form eliminates the two-layer (make + shell) quoting
+that produced the GICS breakages (see PRs #14 and #21).
+
+commit_plan runs right after critique because the plan is stable
+there; implementer and later stages consume it but do not mutate it,
+so committing the sidecar early is safe.
 
 Usage:
     python -m methbooks.pipeline.run <path.pdf-or-md>
@@ -19,13 +23,12 @@ import argparse
 import subprocess
 from pathlib import Path
 
-_STAGES_WITH_RUN_DIR = (
-    "planner",
-    "critique",
-    "implementer",
-    "deterministic",
-    "semantic",
-)
+
+def _stage(module: str, run_dir: Path | None = None) -> None:
+    cmd = ["uv", "run", "python", "-m", f"methbooks.pipeline.{module}"]
+    if run_dir is not None:
+        cmd += ["--run-dir", str(run_dir)]
+    subprocess.check_call(cmd)
 
 
 def main() -> None:
@@ -41,18 +44,14 @@ def main() -> None:
     )
     run_dir = Path(result.stdout.strip())
 
-    for stage in _STAGES_WITH_RUN_DIR:
-        subprocess.check_call([
-            "uv", "run", "python", "-m", f"methbooks.pipeline.{stage}",
-            "--run-dir", str(run_dir),
-        ])
-
-    subprocess.check_call(["uv", "run", "python", "-m", "methbooks.pipeline.rules_index"])
-
-    subprocess.check_call([
-        "uv", "run", "python", "-m", "methbooks.pipeline.pr",
-        "--run-dir", str(run_dir),
-    ])
+    _stage("planner", run_dir)
+    _stage("critique", run_dir)
+    _stage("commit_plan", run_dir)
+    _stage("implementer", run_dir)
+    _stage("deterministic", run_dir)
+    _stage("semantic", run_dir)
+    _stage("rules_index")
+    _stage("pr", run_dir)
 
 
 if __name__ == "__main__":

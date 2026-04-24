@@ -2,8 +2,7 @@
 Purpose: Delete existing constituents outside of Index Reviews when they file for
 bankruptcy, face delisting, have FIF fall below 0.15, are subject to prolonged
 suspension, or are involved in corporate events that render them ineligible.
-Datapoints: bankruptcy_flag, delisting_flag, fif, suspension_flag,
-  corporate_event_type.
+Datapoints: bankruptcy_flag, delisting_flag, fif, suspension_flag.
 Thresholds: MIN_FIF_FOR_RETENTION=0.15.
 Source: meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md section "3.2.6 Early Deletions of Existing Index Constituents" near line 3115.
 See also: methbooks/rules/event_handling/prolonged_suspension_deletion.py (prolonged suspension sub-rule from corporate_events methbook).

@@ -27,19 +27,6 @@ def compute_roe(df: pl.DataFrame) -> pl.DataFrame:
             (pl.col("book_value_per_share") > 0)
             & (gap_days < _MAX_GAP_DAYS)
             & (bvp <= ep)
-            & (pl.col("consolidation_basis") == pl.col("consolidation_basis"))
-        )
-        .then(pl.col("trailing_12m_earnings_per_share") / pl.col("book_value_per_share"))
-        .otherwise(pl.lit(None).cast(pl.Float64))
-        .alias("roe")
-    )
-
-    # the consolidation check above is a tautology placeholder; apply the real check
-    out = out.with_columns(
-        pl.when(
-            (pl.col("book_value_per_share") > 0)
-            & ((pl.col("earnings_period_date").cast(pl.Date) - pl.col("book_value_period_date").cast(pl.Date)).dt.total_days().abs() < _MAX_GAP_DAYS)
-            & (pl.col("book_value_period_date").cast(pl.Date) <= pl.col("earnings_period_date").cast(pl.Date))
         )
         .then(pl.col("trailing_12m_earnings_per_share") / pl.col("book_value_per_share"))
         .otherwise(pl.lit(None).cast(pl.Float64))

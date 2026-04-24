@@ -80,12 +80,11 @@ def build_mock_data() -> pl.DataFrame:
 
     return df.with_columns(
         pl.Series(
-            "msci_controversies_score",
+            "msci_controversy_score",
             [0.0 if rng.random() < 0.8 else rng.uniform(0.01, 10) for _ in range(n)],
         ),
-        pl.Series("tobacco_producer_flag", [rng.random() < 0.05 for _ in range(n)]),
-        pl.Series("tobacco_revenue_pct", [rng.uniform(0, 30) for _ in range(n)]),
-        pl.Series("thermal_coal_mining_revenue_pct", [rng.uniform(0, 20) for _ in range(n)]),
+        pl.Series("bisr_tobacco_manufacturing_flag", [rng.random() < 0.05 for _ in range(n)]),
+        pl.Series("bisr_thermal_coal_mining_revenue_pct", [rng.uniform(0, 20) for _ in range(n)]),
         pl.Series("oil_sands_extraction_revenue_pct", [rng.uniform(0, 20) for _ in range(n)]),
         pl.Series("has_oil_sands_reserves", [rng.random() < 0.1 for _ in range(n)]),
         pl.Series("nuclear_weapons_flag", [rng.random() < 0.02 for _ in range(n)]),
@@ -182,8 +181,8 @@ def apply(df: pl.DataFrame) -> pl.DataFrame:
     assert MIN_ROWS <= out.height <= MAX_ROWS, (
         f"unexpected row count: {out.height} not in [{MIN_ROWS}, {MAX_ROWS}]"
     )
-    assert out.height == 0 or out["msci_controversies_score"].min() > 0, (
-        f"red flag (score==0) rows in output: min={out['msci_controversies_score'].min()}"
+    assert out.height == 0 or out["msci_controversy_score"].min() > 0, (
+        f"red flag (score==0) rows in output: min={out['msci_controversy_score'].min()}"
     )
     assert out["nuclear_weapons_flag"].sum() == 0, (
         f"nuclear weapons rows in output: {out['nuclear_weapons_flag'].sum()}"

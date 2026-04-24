@@ -1,0 +1,232 @@
+{
+  "methodologies": {
+    "MSCI/climate_action": [
+      "eligibility.exclude_bottom_quartile_climate_risk_management",
+      "eligibility.exclude_controversial_weapons_involvement",
+      "eligibility.exclude_high_emitters_without_sbti",
+      "eligibility.exclude_nuclear_weapons",
+      "eligibility.exclude_oil_sands",
+      "eligibility.exclude_red_flag_controversies",
+      "eligibility.exclude_thermal_coal_mining",
+      "eligibility.exclude_tobacco",
+      "event_handling.ma_acquirer_proportionate_weight",
+      "event_handling.quarterly_controversies_bisr_deletion",
+      "event_handling.spinoff_immediate_addition",
+      "ranking.rank_by_assessment_then_mcap",
+      "scoring.assess_credible_track_record",
+      "scoring.compute_security_level_assessment",
+      "scoring.score_climate_risk_management",
+      "scoring.score_emission_track_record",
+      "scoring.score_green_business_revenue",
+      "scoring.score_intensity",
+      "selection.select_top_50pct_with_buffer",
+      "weighting.apply_active_sector_weight_cap_floor",
+      "weighting.cap_issuer_weight_5pct",
+      "weighting.renormalize_parent_weights"
+    ],
+    "MSCI/corporate_events": [],
+    "MSCI/eu_ctb_pab_overlay": [
+      "eligibility.exclude_controversial_weapons_involvement",
+      "eligibility.exclude_fossil_fuel_power_generation_pab",
+      "eligibility.exclude_oil_gas_activities_pab",
+      "eligibility.exclude_red_flag_controversies",
+      "eligibility.exclude_red_orange_flag_environmental_controversies",
+      "eligibility.exclude_thermal_coal_distribution",
+      "eligibility.exclude_thermal_coal_mining",
+      "eligibility.exclude_tobacco",
+      "eligibility.exclude_unrated_msci_solutions",
+      "event_handling.block_non_spinoff_parent_additions",
+      "event_handling.neutralize_intermediate_parent_reviews",
+      "event_handling.reflect_parent_deletions",
+      "weighting.optimize_index_weights"
+    ],
+    "MSCI/global_ex_controversial_weapons": [
+      "eligibility.exclude_controversial_weapons_involvement",
+      "eligibility.exclude_unrated_capital_goods_materials"
+    ],
+    "MSCI/index_policies": []
+  },
+  "rules": {
+    "eligibility.exclude_bottom_quartile_climate_risk_management": [
+      "MSCI/climate_action"
+    ],
+    "eligibility.exclude_controversial_weapons_involvement": [
+      "MSCI/climate_action",
+      "MSCI/eu_ctb_pab_overlay",
+      "MSCI/global_ex_controversial_weapons"
+    ],
+    "eligibility.exclude_fossil_fuel_power_generation_pab": [
+      "MSCI/eu_ctb_pab_overlay"
+    ],
+    "eligibility.exclude_high_emitters_without_sbti": [
+      "MSCI/climate_action"
+    ],
+    "eligibility.exclude_nuclear_weapons": [
+      "MSCI/climate_action"
+    ],
+    "eligibility.exclude_oil_gas_activities_pab": [
+      "MSCI/eu_ctb_pab_overlay"
+    ],
+    "eligibility.exclude_oil_sands": [
+      "MSCI/climate_action"
+    ],
+    "eligibility.exclude_red_flag_controversies": [
+      "MSCI/climate_action",
+      "MSCI/eu_ctb_pab_overlay"
+    ],
+    "eligibility.exclude_red_orange_flag_environmental_controversies": [
+      "MSCI/eu_ctb_pab_overlay"
+    ],
+    "eligibility.exclude_thermal_coal_distribution": [
+      "MSCI/eu_ctb_pab_overlay"
+    ],
+    "eligibility.exclude_thermal_coal_mining": [
+      "MSCI/climate_action",
+      "MSCI/eu_ctb_pab_overlay"
+    ],
+    "eligibility.exclude_tobacco": [
+      "MSCI/climate_action",
+      "MSCI/eu_ctb_pab_overlay"
+    ],
+    "eligibility.exclude_unrated_capital_goods_materials": [
+      "MSCI/global_ex_controversial_weapons"
+    ],
+    "eligibility.exclude_unrated_msci_solutions": [
+      "MSCI/eu_ctb_pab_overlay"
+    ],
+    "event_handling.block_non_spinoff_parent_additions": [
+      "MSCI/eu_ctb_pab_overlay"
+    ],
+    "event_handling.ma_acquirer_proportionate_weight": [
+      "MSCI/climate_action"
+    ],
+    "event_handling.neutralize_intermediate_parent_reviews": [
+      "MSCI/eu_ctb_pab_overlay"
+    ],
+    "event_handling.quarterly_controversies_bisr_deletion": [
+      "MSCI/climate_action"
+    ],
+    "event_handling.reflect_parent_deletions": [
+      "MSCI/eu_ctb_pab_overlay"
+    ],
+    "event_handling.spinoff_immediate_addition": [
+      "MSCI/climate_action"
+    ],
+    "ranking.rank_by_assessment_then_mcap": [
+      "MSCI/climate_action"
+    ],
+    "scoring.assess_credible_track_record": [
+      "MSCI/climate_action"
+    ],
+    "scoring.compute_security_level_assessment": [
+      "MSCI/climate_action"
+    ],
+    "scoring.score_climate_risk_management": [
+      "MSCI/climate_action"
+    ],
+    "scoring.score_emission_track_record": [
+      "MSCI/climate_action"
+    ],
+    "scoring.score_green_business_revenue": [
+      "MSCI/climate_action"
+    ],
+    "scoring.score_intensity": [
+      "MSCI/climate_action"
+    ],
+    "selection.select_top_50pct_with_buffer": [
+      "MSCI/climate_action"
+    ],
+    "weighting.apply_active_sector_weight_cap_floor": [
+      "MSCI/climate_action"
+    ],
+    "weighting.cap_issuer_weight_5pct": [
+      "MSCI/climate_action"
+    ],
+    "weighting.optimize_index_weights": [
+      "MSCI/eu_ctb_pab_overlay"
+    ],
+    "weighting.renormalize_parent_weights": [
+      "MSCI/climate_action"
+    ]
+  },
+  "orphans": [
+    "event_handling.announcement_file_delivery",
+    "event_handling.announcement_status_policy",
+    "event_handling.bankruptcy_deletion_policy",
+    "event_handling.capital_repayment_paf",
+    "event_handling.capped_nonmcap_cf_calculation",
+    "event_handling.component_index_carryforward_on_unavailability",
+    "event_handling.country_classification_review_at_event",
+    "event_handling.delisting_price_source_change",
+    "event_handling.derived_index_suspension_treatment",
+    "event_handling.highly_dilutive_rights_issue",
+    "event_handling.index_review_delay_reverse_turnover",
+    "event_handling.ipo_early_inclusion_effective_date",
+    "event_handling.ipo_early_inclusion_standard_size_test",
+    "event_handling.large_secondary_offering_lead_time",
+    "event_handling.ma_advance_notification_minimum",
+    "event_handling.ma_country_specific_us_canada_uk_overrides",
+    "event_handling.ma_mutual_agreement_deletion_timing",
+    "event_handling.ma_target_deletion_price",
+    "event_handling.market_closure_price_carryforward",
+    "event_handling.market_outage_partial_day_prices",
+    "event_handling.merger_historical_link_paf",
+    "event_handling.nonindex_acquiring_index_early_inclusion",
+    "event_handling.nonindex_constituent_acquisition_threshold",
+    "event_handling.nonmcap_placement_vwf_recalculation",
+    "event_handling.nonmcap_vwf_recalculation_ma_spinoff",
+    "event_handling.nos_change_country_specifics",
+    "event_handling.nos_change_implementation_threshold",
+    "event_handling.nos_change_implementation_timing",
+    "event_handling.optional_dividend_cash_default",
+    "event_handling.optional_dividend_stock_default",
+    "event_handling.optional_dividend_us_trigger",
+    "event_handling.partial_tender_dutch_auction_no_paf",
+    "event_handling.partial_tender_fixed_price_paf",
+    "event_handling.partial_tender_nos_fif_update",
+    "event_handling.price_limit_postponement",
+    "event_handling.proforma_float_ma",
+    "event_handling.proforma_float_placements",
+    "event_handling.prolonged_suspension_deletion",
+    "event_handling.redemption_paf",
+    "event_handling.reverse_spinoff_history_link",
+    "event_handling.rights_issue_discount_nos",
+    "event_handling.rights_issue_discount_paf",
+    "event_handling.rights_issue_fully_underwritten_nos",
+    "event_handling.rights_issue_premium_nos_deferral",
+    "event_handling.rights_issue_premium_paf",
+    "event_handling.rights_issue_size_review_trigger",
+    "event_handling.share_class_conversion_mandatory",
+    "event_handling.share_class_conversion_voluntary_discretion",
+    "event_handling.share_freeze",
+    "event_handling.special_dividend_paf_threshold",
+    "event_handling.spinoff_capped_index_cf",
+    "event_handling.spinoff_exdate_inclusion",
+    "event_handling.spinoff_exdate_paf",
+    "event_handling.spinoff_no_exdate_detached_security",
+    "event_handling.split_consolidation_paf",
+    "event_handling.split_off_exchange_offer_paf_timing",
+    "event_handling.stock_connect_ashare_event_treatment",
+    "event_handling.stock_dividend_paf",
+    "event_handling.sunday_intermediary_index_events",
+    "event_handling.sunday_thursday_index_events",
+    "event_handling.suspension_price_carryforward",
+    "event_handling.tender_offer_friendly_deletion",
+    "event_handling.tender_offer_standard_size_override",
+    "event_handling.tender_offer_uncertain_results_decision",
+    "event_handling.xcw_characteristics_change_no_deletion",
+    "event_handling.xcw_ma_delete_acquired_constituent",
+    "event_handling.xcw_ma_no_add_nonconstituent_acquirer",
+    "event_handling.xcw_new_addition_deferred_to_review",
+    "event_handling.xcw_parent_deletion_propagates",
+    "event_handling.xcw_spinoff_deferred_to_review",
+    "maintenance.constituent_omission_restatement_override",
+    "maintenance.correction_restatement_threshold",
+    "maintenance.correction_window_12_month",
+    "maintenance.index_discontinued_minimum_securities",
+    "maintenance.index_termination_notice_provisional",
+    "maintenance.index_termination_notice_standard",
+    "maintenance.large_scale_error_restatement_override",
+    "maintenance.methodology_change_announcement_lead"
+  ]
+}

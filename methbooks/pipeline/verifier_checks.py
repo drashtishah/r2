@@ -83,6 +83,189 @@ def _read_dictionary(csv_path: Path) -> tuple[bool, list[dict[str, str]], str]:
     return True, rows, f"{len(rows)} rows"
 
 
+def _repair_assert_messages(rule_path: Path, rule_name: str) -> bool:
+    """Add a literal message to every bare `assert X` in rule_path.
+
+    Does not invent asserts; only fills missing messages with
+    `f"{rule_name}: assertion failed"`. Returns True if the file changed.
+    """
+    mod = _parse(rule_path)
+    if mod is None:
+        return False
+    changed = False
+    for node in ast.walk(mod):
+        if isinstance(node, ast.Assert) and node.msg is None:
+            node.msg = ast.Constant(value=f"{rule_name}: assertion failed")
+            changed = True
+    if changed:
+        ast.fix_missing_locations(mod)
+        rule_path.write_text(ast.unparse(mod))
+    return changed
+
+
+def _repair_dict_add_rows(csv_path: Path, missing: list[str]) -> bool:
+    if not missing:
+        return False
+    with csv_path.open("a", newline="") as f:
+        writer = csv.writer(f)
+        for d in sorted(missing):
+            writer.writerow([d, "TODO", "TODO"])
+    return True
+
+
+def _repair_dict_drop_rows(csv_path: Path, unused: set[str]) -> bool:
+    if not unused:
+        return False
+    with csv_path.open() as f:
+        reader = csv.DictReader(f)
+        header = reader.fieldnames
+        rows = [row for row in reader if row["datapoint"] not in unused]
+    with csv_path.open("w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=header)  # type: ignore[arg-type]
+        writer.writeheader()
+        writer.writerows(rows)
+    return True
+
+
+def _repair_mock_data_columns(meth_path: Path, missing_cols: set[str]) -> bool:
+    """Insert `<var> = <var>.with_columns(pl.lit(0.0).alias("<col>"), ...)`
+    immediately before the last `return <var>` statement of build_mock_data.
+    Only safe when the return value is a bare Name; other shapes are left alone.
+    """
+    if not missing_cols:
+        return False
+    mod = _parse(meth_path)
+    if mod is None:
+        return False
+    bmd = _module_func(mod, "build_mock_data")
+    if bmd is None:
+        return False
+    ret_idx: int | None = None
+    for i, stmt in enumerate(bmd.body):
+        if isinstance(stmt, ast.Return):
+            ret_idx = i
+    if ret_idx is None:
+        return False
+    ret = bmd.body[ret_idx]
+    assert isinstance(ret, ast.Return)
+    if not isinstance(ret.value, ast.Name):
+        return False
+    var = ret.value.id
+    aliases = [
+        ast.Call(
+            func=ast.Attribute(
+                value=ast.Call(
+                    func=ast.Attribute(value=ast.Name(id="pl"), attr="lit"),
+                    args=[ast.Constant(value=0.0)],
+                    keywords=[],
+                ),
+                attr="alias",
+            ),
+            args=[ast.Constant(value=col)],
+            keywords=[],
+        )
+        for col in sorted(missing_cols)
+    ]
+    assign = ast.Assign(
+        targets=[ast.Name(id=var)],
+        value=ast.Call(
+            func=ast.Attribute(value=ast.Name(id=var), attr="with_columns"),
+            args=aliases,  # type: ignore[arg-type]
+            keywords=[],
+        ),
+    )
+    bmd.body.insert(ret_idx, assign)
+    ast.fix_missing_locations(mod)
+    meth_path.write_text(ast.unparse(mod))
+    return True
+
+
+def _apply_mechanical_repairs(
+    plan: Methbook,
+    dict_path: Path,
+    methodology_path: Path,
+    rule_paths: dict[str, Path],
+) -> bool:
+    """Apply all deterministic repairs. Returns True if any file changed.
+
+    Order: CSV row add/drop first (changes the dictionary set), then
+    build_mock_data column inserts (which read the post-repair dict),
+    then rule assert messages (independent of the others).
+    """
+    changed = False
+
+    csv_ok, dict_rows, _ = _read_dictionary(dict_path)
+    dict_datapoints = {r["datapoint"] for r in dict_rows} if csv_ok else set()
+
+    rule_datapoints: set[str] = set()
+    for rule in plan.new_rules:
+        p = rule_paths.get(rule.name)
+        if p is None or not p.exists():
+            continue
+        mod = _parse(p)
+        if mod is None:
+            continue
+        for d in _datapoints(_docstring(mod)):
+            rule_datapoints.add(d)
+
+    if csv_ok:
+        missing = sorted(rule_datapoints - dict_datapoints)
+        if missing and _repair_dict_add_rows(dict_path, missing):
+            changed = True
+        base_columns = {"security_id", "weight"}
+        unused = dict_datapoints - rule_datapoints - base_columns
+        if unused and _repair_dict_drop_rows(dict_path, unused):
+            changed = True
+
+    csv_ok, dict_rows, _ = _read_dictionary(dict_path)
+    dict_datapoints = {r["datapoint"] for r in dict_rows} if csv_ok else set()
+
+    if methodology_path.exists():
+        meth_module = _parse(methodology_path)
+        if meth_module is not None:
+            bmd = _module_func(meth_module, "build_mock_data")
+            if bmd is not None:
+                non_base = dict_datapoints - {"security_id", "weight"}
+                src = ast.unparse(bmd)
+                missing_cols = {d for d in non_base if d not in src}
+                if missing_cols and _repair_mock_data_columns(
+                    methodology_path, missing_cols,
+                ):
+                    changed = True
+
+    for rule in plan.new_rules:
+        p = rule_paths.get(rule.name)
+        if p is None or not p.exists():
+            continue
+        mod = _parse(p)
+        if mod is None:
+            continue
+        funcs = [
+            n for n in mod.body
+            if isinstance(n, ast.FunctionDef) and n.name == rule.name
+        ]
+        if not funcs:
+            continue
+        ok, why = _has_messaged_assert(funcs[0].body)
+        if not ok and why == "assert without message":
+            if _repair_assert_messages(p, rule.name):
+                changed = True
+
+    return changed
+
+
+def _commit_repairs() -> None:
+    subprocess.check_call(["git", "add", "-A", "methbooks/"])
+    if subprocess.call(
+        ["git", "diff", "--cached", "--quiet"],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+    ) != 0:
+        subprocess.check_call(
+            ["git", "commit", "-m", "verifier: auto-repair mechanical drift"],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+
+
 def run_deterministic_checks(plan: Methbook, git_range: str) -> dict[str, Any]:
     items: list[dict[str, Any]] = []
     methodology_path = Path(
@@ -91,6 +274,13 @@ def run_deterministic_checks(plan: Methbook, git_range: str) -> dict[str, Any]:
     dict_path = Path(
         f"methbooks/methodologies/{plan.identification.provider}/{plan.identification.slug}_data_dictionary.csv"
     )
+    rule_paths: dict[str, Path] = {
+        rule.name: Path(f"methbooks/rules/{rule.category}/{rule.name}.py")
+        for rule in plan.new_rules
+    }
+
+    if _apply_mechanical_repairs(plan, dict_path, methodology_path, rule_paths):
+        _commit_repairs()
 
     # 1. scope of git diff
     changed = _changed_paths(git_range)
@@ -101,13 +291,7 @@ def run_deterministic_checks(plan: Methbook, git_range: str) -> dict[str, Any]:
     ))
 
     # 2. each new rule has a file
-    rule_paths: dict[str, Path] = {}
-    missing: list[str] = []
-    for rule in plan.new_rules:
-        p = Path(f"methbooks/rules/{rule.category}/{rule.name}.py")
-        rule_paths[rule.name] = p
-        if not p.exists():
-            missing.append(str(p))
+    missing = [str(p) for p in rule_paths.values() if not p.exists()]
     items.append(_result(
         2, not missing,
         f"missing: {missing}" if missing else f"{len(plan.new_rules)} rule files present",

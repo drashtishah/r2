@@ -55,14 +55,7 @@ pr:
 
 methbook:
 	@test -n "$(SRC)" || (echo "SRC=<pdf-or-md-path> required" && exit 1)
-	@RUN_DIR=$$(uv run python -m methbooks.pipeline.setup "$(SRC)") && \
-	  $(MAKE) planner RUN_DIR="$$RUN_DIR" && \
-	  $(MAKE) critique RUN_DIR="$$RUN_DIR" && \
-	  $(MAKE) implementer RUN_DIR="$$RUN_DIR" && \
-	  $(MAKE) deterministic RUN_DIR="$$RUN_DIR" && \
-	  $(MAKE) semantic RUN_DIR="$$RUN_DIR" && \
-	  $(MAKE) index && \
-	  $(MAKE) pr RUN_DIR="$$RUN_DIR"
+	uv run python -m methbooks.pipeline.run "$(SRC)"
 
 graph:
 	graphify update methbooks/

@@ -5,7 +5,7 @@ India Graded Surveillance Measure) from the Equity Universe; re-addition
 blocked for 12 months after deletion.
 Datapoints: alert_board_flag.
 Thresholds: READMISSION_LOCKOUT_MONTHS=12.
-Source: meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md section "Appendix I: Ineligible Alert Boards" near line 4064.
+Source: meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md section "Ineligible Alert Boards" near line 4062.
 See also: methbooks/rules/event_handling/early_deletion_policy.py (deletion trigger).
 """
 from __future__ import annotations

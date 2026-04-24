@@ -8,7 +8,7 @@ Thresholds: LIGHT_REBALANCING_LOWER_BUFFER_MULTIPLIER=0.5,
   LIGHT_REBALANCING_UPPER_BUFFER_MULTIPLIER=1.8,
   STANDARD_LOWER_BUFFER_MULTIPLIER=0.667,
   STANDARD_UPPER_BUFFER_MULTIPLIER=1.5.
-Source: meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md section "Appendix VIII: Market Monitoring Framework and Potential Switch to a Light Rebalancing under Conditions of Market Stress" near line 455.
+Source: meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md section "Appendix VIII: Market Monitoring Framework and Potential Switch to a Light Rebalancing under Conditions of Market Stress" near line 5475.
 See also: methbooks/rules/eligibility/apply_equity_universe_minimum_size_requirement.py (size-based eligibility rule).
 """
 from __future__ import annotations

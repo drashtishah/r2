@@ -22,7 +22,8 @@ def compute_dps_annualized(df: pl.DataFrame) -> pl.DataFrame:
         | pl.col("cash_distributions_last_6m").is_not_null()
     ).height
     assert have_distributions > 0, (
-        "no rows have cash_distributions_last_12m or cash_distributions_last_6m"
+        f"no rows have cash_distributions_last_12m or cash_distributions_last_6m: "
+        f"have_distributions={have_distributions}"
     )
 
     out = df.with_columns(

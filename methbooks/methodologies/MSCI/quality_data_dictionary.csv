@@ -23,4 +23,3 @@ earnings_variability_z_score,Negated standardized earnings variability: -((ev_wi
 composite_quality_z_score,Average of three variable z-scores; two-variable fallback when ev z-score is null,methbooks/rules/scoring/compute_composite_quality_z_score.py
 quality_score,Asymmetric transform of composite z-score: 1+Z if Z>0 else 1/(1-Z),methbooks/rules/scoring/compute_quality_score_from_z.py
 quality_rank,Descending rank by quality_score with parent_index_weight as tiebreaker,methbooks/rules/ranking/rank_by_quality_score_then_parent_weight.py
-parent_index_id (group key; mock,TODO,TODO

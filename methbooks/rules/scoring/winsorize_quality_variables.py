@@ -1,9 +1,7 @@
 """
 Purpose: Clip extreme values of ROE, D/E, and Earnings Variability at 5th/95th percentile
     within each Parent Index.
-Datapoints: roe, debt_to_equity, earnings_variability, parent_index_id (group key; mock
-    data uses a constant parent_index_id since we have one index; treat whole df as one
-    group).
+Datapoints: roe, debt_to_equity, earnings_variability.
 Thresholds: LOWER_PERCENTILE = 0.05, UPPER_PERCENTILE = 0.95.
 Source: methbooks/data/markdown/msci_quality_indexes_methodology_20250520.md section
     "2.2.1 Winsorizing The Variable" near line 143.

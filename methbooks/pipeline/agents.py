@@ -183,7 +183,7 @@ async def run_semantic_verifier(
     prompt = _load_role_prompt("semantic_verifier", slug, ts)
     options = _make_options(
         SEMANTIC_VERIFIER, "semantic_verifier",
-        allowed_tools=["Read", "Glob", "Grep"],
+        allowed_tools=["Read", "Glob", "Grep", "Write", "Edit", "Bash"],
         output_format=None,
         include_mcp=False,
     )

@@ -6,7 +6,14 @@ item 18, Read the data dictionary CSV at
 methbooks/methodologies/<identification.provider>/<identification.slug>_data_dictionary.csv.
 
 Items 1 to 14 are already computed by the driver; do not re-check them.
-Do not fix, only report.
+
+For items 15 to 18, fix what you can in place (Edit the offending file
+under methbooks/rules/, methbooks/methodologies/, or
+methbooks/mock_universe.py, then commit with Bash: `git add <path> &&
+git commit -m "semantic: fix <item> ..."`). After fixing, mark the
+item `pass: true` in the JSON report and cite the fix in the evidence
+string. If an item is not mechanically fixable, leave it `pass: false`
+with evidence explaining why.
 
 Return a single JSON object. No prose. No Markdown. No surrounding
 fences. The object must match this shape exactly:

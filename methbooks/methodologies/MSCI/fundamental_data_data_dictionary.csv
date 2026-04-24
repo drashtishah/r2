@@ -1,26 +1,56 @@
 datapoint,description,source
 security_id,Unique security identifier.,methbooks/mock_universe.py
 weight,Index weight from base universe normalised to sum to 1.,methbooks/mock_universe.py
-country_of_classification,Country of classification per GIMI Methodology; determines reporting currency and share-count methodology.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "1.1.3 Currency and Frequency"
-gics_industry_group,GICS Industry Group code; controls which per-share figures are published (Banks 4010: no SPS or CEPS; Insurance 4030: no CEPS).,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "1.2.1, 1.2.3"
-number_of_shares_outstanding,Total shares at company level at date of results; all classes including unlisted aggregated; stock options warrants and convertibles excluded; treasury shares excluded.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "1.1.1 Number of Shares"
-average_shares_outstanding,Average shares outstanding over the reporting period; used instead of period-end shares for EPS CEPS SPS in US Canada UK Ireland.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "1.1.1 Number of Shares"
-consolidation_basis,Basis on which fundamental data is reported; MSCI uses consolidated data by default non-consolidated only when consolidated is unavailable.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "1.1.2 Consolidation"
-trailing_12m_earnings,Net income from continuing operations available to all equity shareholders excluding extraordinary items minority interest and preferred dividends; adjusted for non-recurring items.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "1.2.2 Earnings Per Share (EPS)"
-trailing_12m_sales,Net operating revenues from all ongoing lines of business; excise tax deducted; Banks (GICS 4010) excluded; Insurance (4030) uses net premiums earned.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "1.2.1 Sales Per Share (SPS)"
-trailing_12m_cash_earnings,Earnings plus depreciation and amortization as reported; where amortization not reported only depreciation added; latest fiscal D&A used if not in interim statements.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "1.2.3 Cash Earnings Per Share (CEPS)"
-annualized_dps,Annualized dividend per share; gross before withholding tax; excludes special dividends unless paid three consecutive years; excludes extraordinary capital repayments.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "1.2.4 Dividends Per Share (DPS)"
-book_value_per_share,Shareholders equity at latest period end excluding minority interest treasury shares and preferred shares without equity-like characteristics.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "1.2.5 Book Value Per Share (BVPS)"
-financial_period_end_date,End date of the company's most recent reported financial period.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "1.2 Historical Per Share Data Calculations"
-calculation_date,Date on which per-share and ratio calculations are performed; used to measure the reporting gap against financial_period_end_date.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "1.2 Historical Per Share Data Calculations"
-eps1_consensus_forecast,Consensus analysts EPS estimate for the current fiscal year from Thomson I/B/E/S (Toyo Keizai for Japan securities not covered by I/B/E/S).,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "1.3 Forecasted Per Share Data"
-eps2_consensus_forecast,Consensus analysts EPS estimate for the next fiscal year from Thomson I/B/E/S.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "1.3 Forecasted Per Share Data"
-months_to_fiscal_year_end,Number of months remaining before the current fiscal year end (M in EPS12F/EPS12B formulas).,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "1.3 Forecasted Per Share Data"
-eps0_last_fiscal_year_eps,EPS from the last fully reported fiscal year; used as EPS0 in EPS12B calculation.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "1.3 Forecasted Per Share Data"
-egrlf_value,Long-term forward EPS growth rate; consensus of analysts estimates typically for 3 to 5 years; suppressed when outlier with single contributor.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "2.2.6 Long-Term Forward Earnings Per Share Growth Rate (EGRLF)"
-egrlf_contributor_count,Number of analyst contributors to the EGRLF consensus estimate.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "2.2.6 Long-Term Forward Earnings Per Share Growth Rate (EGRLF)"
-five_year_eps_history,List of up to 5 annual fiscal year-end EPS values used for EGRO and EVAR calculations.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "2.2.1, 2.2.7"
-five_year_sps_history,List of up to 5 annual fiscal year-end SPS values used for SGRO calculation.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "2.2.1"
-price_adjustment_factor,Price adjustment factor (PAF) applied at the ex-date of a capital structure event; ratio of ex-price to cum-price.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "4.1 Nominal Changes in Capital Structure"
-country_cumulative_inflation_3yr,Cumulative consumer price inflation for the country over the most recent 3-year period; triggers hyperinflationary treatment at or near 100%.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "6 Hyperinflationary Economies"
-property_revaluation_gain_loss,Gain or loss from revaluation of investment property reported by Real Estate companies (GICS Sector 60); excluded from MSCI trailing and historical EPS as a non-recurring item.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section "Appendix I: MSCI's Treatment of Some Specific Aspects of IFRS"
+country_of_classification,Country of classification per GIMI Methodology; determines reporting currency and share-count methodology.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section 1.1.3 Currency and Frequency
+gics_industry_group,GICS Industry Group code; controls which per-share figures are published (Banks 4010: no SPS or CEPS; Insurance 4030: no CEPS).,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section 1.2.1 and 1.2.3
+number_of_shares_outstanding,Total shares at company level at date of results; all classes aggregated; options/warrants/convertibles excluded; treasury shares excluded.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section 1.1.1 Number of Shares
+average_shares_outstanding,Average shares outstanding over the reporting period; used instead of period-end shares for EPS CEPS SPS in US Canada UK Ireland.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section 1.1.1 Number of Shares
+consolidation_basis,Basis on which fundamental data is reported; MSCI uses consolidated data by default.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section 1.1.2 Consolidation
+trailing_12m_earnings,Net income from continuing operations available to all equity shareholders excluding extraordinary items.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section 1.2.2 Earnings Per Share
+annualized_dps,Annualized dividend per share; gross before withholding tax.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section 1.2.4 Dividends Per Share
+book_value_per_share,Shareholders equity at latest period end excluding minority interest and treasury shares.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section 1.2.5 Book Value Per Share
+financial_period_end_date,End date of the company most recent reported financial period.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section 1.2 Historical Per Share Data Calculations
+calculation_date,Date on which per-share and ratio calculations are performed.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section 1.2 Historical Per Share Data Calculations
+eps1_consensus_forecast,Consensus analysts EPS estimate for the current fiscal year from Thomson I/B/E/S.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section 1.3 Forecasted Per Share Data
+eps2_consensus_forecast,Consensus analysts EPS estimate for the next fiscal year from Thomson I/B/E/S.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section 1.3 Forecasted Per Share Data
+months_to_fiscal_year_end,Number of months remaining before the current fiscal year end used in EPS12F and EPS12B formulas.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section 1.3 Forecasted Per Share Data
+eps0_last_fiscal_year_eps,EPS from the last fully reported fiscal year used as EPS0 in EPS12B calculation.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section 1.3 Forecasted Per Share Data
+egrlf_value,Long-term forward EPS growth rate; suppressed when outlier with single contributor.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section 2.2.6 Long-Term Forward Earnings Growth Rate
+egrlf_contributor_count,Number of analyst contributors to the EGRLF consensus estimate.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section 2.2.6 Long-Term Forward Earnings Growth Rate
+five_year_eps_history,List of up to 5 annual fiscal year-end EPS values used for EGRO and EVAR calculations.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section 2.2.1 and 2.2.7
+five_year_sps_history,List of up to 5 annual fiscal year-end SPS values used for SGRO calculation.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section 2.2.1 Long-Term Historical Growth Trends
+price_adjustment_factor,Price adjustment factor applied at the ex-date of a capital structure event.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section 4.1 Nominal Changes in Capital Structure
+country_cumulative_inflation_3yr,Cumulative consumer price inflation for the country over the most recent 3-year period.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section 6 Hyperinflationary Economies
+property_revaluation_gain_loss,Gain or loss from revaluation of investment property reported by Real Estate companies GICS Sector 60.,methbooks/data/markdown/MSCI_Fundamental_Data_Methodology_20240625.md section Appendix I MSCI Treatment of IFRS
+acquired_company_trailing_12m_losses_usd,TODO,TODO
+acquired_company_was_standard_constituent,TODO,TODO
+book_value_period_date,TODO,TODO
+cash_distributions_last_12m,TODO,TODO
+cash_distributions_last_6m,TODO,TODO
+earnings_period_date,TODO,TODO
+eps12b,TODO,TODO
+eps12f,TODO,TODO
+event_type_flag,TODO,TODO
+goodwill_amortization,TODO,TODO
+historical_earnings_ifrs,TODO,TODO
+historical_earnings_non_ifrs,TODO,TODO
+index_size_segment_post_event,TODO,TODO
+index_size_segment_pre_event,TODO,TODO
+index_yield_correct,TODO,TODO
+index_yield_incorrect,TODO,TODO
+issue_price,TODO,TODO
+latest_bvps,TODO,TODO
+market_cap_post_event,TODO,TODO
+market_cap_pre_event,TODO,TODO
+payment_frequency,TODO,TODO
+per_share_fundamental_data,TODO,TODO
+post_event_annual_sales,TODO,TODO
+pre_event_annual_sales,TODO,TODO
+prior_annualized_dps,TODO,TODO
+ratio_type,TODO,TODO
+security_yield_correct,TODO,TODO
+security_yield_incorrect,TODO,TODO
+shares_issued,TODO,TODO
+shares_outstanding_post_event,TODO,TODO
+shares_outstanding_pre_event,TODO,TODO
+trailing_12m_earnings_per_share,TODO,TODO

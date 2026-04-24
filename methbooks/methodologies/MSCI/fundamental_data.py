@@ -26,10 +26,11 @@ def build_mock_data() -> pl.DataFrame:
 
     today = datetime.date(2026, 4, 24)
     calculation_dates = [today] * ROWS
-    # financial_period_end_date: within past 24 months; some > 18m gap to allow filtering
+    # financial_period_end_date: within past 18 months so all rows satisfy the reporting gap invariant
+    _max_gap_days = int(18 * 30.4375) - 1
     fp_end_dates = [
         today - datetime.timedelta(days=int(d))
-        for d in rng.integers(30, 730, ROWS)
+        for d in rng.integers(30, _max_gap_days, ROWS)
     ]
 
     five_year_eps = [

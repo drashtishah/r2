@@ -34,13 +34,18 @@ def apply_proforma_fundamental_business_structure_change(df: pl.DataFrame) -> pl
         (pl.col("shares_outstanding_post_event") - pl.col("shares_outstanding_pre_event"))
         / pl.col("shares_outstanding_pre_event")
     )
-    out = df.with_columns(
-        pl.when(
-            (
-                (mcap_change >= MCAP_INCREASE_THRESHOLD) | (mcap_change <= -MCAP_DECREASE_THRESHOLD)
-                | (shares_change >= SHARES_INCREASE_THRESHOLD) | (shares_change <= -SHARES_DECREASE_THRESHOLD)
-            )
+    threshold_breached = (
+        (mcap_change >= MCAP_INCREASE_THRESHOLD) | (mcap_change <= -MCAP_DECREASE_THRESHOLD)
+        | (shares_change >= SHARES_INCREASE_THRESHOLD) | (shares_change <= -SHARES_DECREASE_THRESHOLD)
+    )
+    segment_transition = pl.lit(False)
+    for pre, post in _SEGMENT_TRANSITIONS:
+        segment_transition = segment_transition | (
+            (pl.col("index_size_segment_pre_event") == pre)
+            & (pl.col("index_size_segment_post_event") == post)
         )
+    out = df.with_columns(
+        pl.when(threshold_breached & segment_transition)
         .then(pl.lit(True))
         .otherwise(pl.lit(False))
         .alias("proforma_style_review_flag")
@@ -60,5 +65,10 @@ def apply_proforma_fundamental_business_structure_change(df: pl.DataFrame) -> pl
             assert mcap_ok or shares_ok, (
                 f"proforma_style_review_flag set but neither mcap nor shares threshold met: "
                 f"mcap_change={(post-pre)/pre:.3f}, shares_change={(s_post-s_pre)/s_pre:.3f}"
+            )
+            transition = (row["index_size_segment_pre_event"], row["index_size_segment_post_event"])
+            assert transition in _SEGMENT_TRANSITIONS, (
+                f"proforma_style_review_flag set but segment transition not permitted: "
+                f"transition={transition}"
             )
     return out

@@ -1,5 +1,5 @@
 .PHONY: install update typecheck test report clean check \
-    setup planner critique implementer deterministic semantic pr \
+    setup planner critique implementer deterministic semantic index pr \
     methbook graph
 
 export PYTHONPATH := $(CURDIR)
@@ -46,6 +46,9 @@ deterministic:
 semantic:
 	uv run python -m methbooks.pipeline.semantic --run-dir $(RUN_DIR)
 
+index:
+	uv run python -m methbooks.pipeline.rules_index
+
 pr:
 	@test -n "$(RUN_DIR)" || (echo "RUN_DIR=<path> required" && exit 1)
 	@SLUG=$$(basename $$(dirname $(RUN_DIR))); \
@@ -61,6 +64,7 @@ methbook:
 	  $(MAKE) implementer RUN_DIR=$$RUN_DIR && \
 	  $(MAKE) deterministic RUN_DIR=$$RUN_DIR && \
 	  $(MAKE) semantic RUN_DIR=$$RUN_DIR && \
+	  $(MAKE) index && \
 	  $(MAKE) pr RUN_DIR=$$RUN_DIR
 
 graph:

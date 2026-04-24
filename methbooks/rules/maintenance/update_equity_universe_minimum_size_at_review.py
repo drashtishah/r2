@@ -46,4 +46,20 @@ def update_equity_universe_minimum_size_at_review(df: pl.DataFrame) -> pl.DataFr
     assert "equity_universe_min_size_usd" in out.columns, (
         f"equity_universe_min_size_usd column missing after update: {out.columns}"
     )
+    # Business assert: threshold must be strictly positive and finite after update.
+    min_size = float(out["equity_universe_min_size_usd"].min())
+    assert min_size > 0, (
+        f"equity_universe_min_size_usd is non-positive after review update: {min_size}"
+    )
+    # Business assert: when coverage was in band, threshold was left unchanged.
+    if at_prior_rank.height > 0:
+        coverage = float(at_prior_rank["cumulative_ff_mcap_coverage_pct"].item(0))
+        if LOWER_BAND_PCT <= coverage <= UPPER_BAND_PCT:
+            before = float(df["equity_universe_min_size_usd"].min())
+            after = min_size
+            assert abs(after - before) < 1e-6, (
+                f"equity_universe_min_size_usd changed despite coverage {coverage}"
+                f" being within [{LOWER_BAND_PCT}, {UPPER_BAND_PCT}]:"
+                f" before={before} after={after}"
+            )
     return out

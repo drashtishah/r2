@@ -1,7 +1,7 @@
 datapoint,description,source
 security_id,Random 6-character security identifier.,methbooks/mock_universe.py
 weight,Portfolio weight after all weighting rules applied; sums to 1.,methbooks/mock_universe.py
-msci_controversies_score,MSCI controversies score; companies with score > 0 are excluded (red flag).,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Eligibility Criteria"""
+msci_controversies_score,MSCI Controversies Score (0-10); companies with score == 0 (Red Flag) are excluded.,"methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section ""2.2.1 Controversies Score Eligibility"""
 tobacco_producer_flag,True if the company is a tobacco producer per MSCI BISR.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Eligibility Criteria"""
 tobacco_revenue_pct,Percentage of revenue derived from tobacco products.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Eligibility Criteria"""
 thermal_coal_mining_revenue_pct,Percentage of revenue from thermal coal mining.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Eligibility Criteria"""
@@ -11,6 +11,7 @@ nuclear_weapons_flag,True if the company is involved in nuclear weapons.,"meth-p
 emission_intensity,Carbon emission intensity (tCO2e per unit of revenue or output).,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Eligibility Criteria"""
 has_emission_intensity_data,True if MSCI can calculate emission intensity for this company.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Eligibility Criteria"""
 fossil_fuel_reserves_energy_application,True if the company has fossil fuel reserves with energy application.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Eligibility Criteria"""
+total_potential_carbon_emissions_ex_met_coal,Total Potential Carbon Emissions excluding Metallurgical Coal; sum of potential carbon emissions from thermal coal total oil and total gas reserves owned by the company.,"methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section ""2.2.3 Emission Eligibility"""
 approved_sbti,True if the company has an approved Science-Based Target initiative (SBTi) commitment.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Eligibility Criteria"""
 crm_weighted_avg_score,Weighted average Climate Risk Management score (0-10).,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Scoring"""
 green_business_revenue_pct,Percentage of revenue from green business activities per MSCI Sustainable Impact Metrics.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Scoring"""
@@ -22,6 +23,7 @@ parent_index_weight,Weight of the security in the parent index.,"meth-pipeline/M
 issuer_id,Issuer-level identifier; multiple securities may share an issuer.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Weighting"""
 intensity_score,Sector-relative quartile (1-4) by emission intensity; 4 = highest intensity.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Scoring"""
 climate_risk_management_score,Sector-relative quartile (1-4) by CRM weighted average score; 4 = best CRM.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Scoring"""
+green_business_score,Sector-relative quartile (1-4) by green business revenue pct; 4 = highest green revenue in sector.,"methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section ""Appendix II: Calculation of Security Level Scores"""
 track_record_score,Sector-relative quartile (1-4) by emission track record; 1 = strongest reduction; null if no track record.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Scoring"""
 credible_track_record,True if track_record_score == 1 (strongest sector reduction); null if no track record.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Scoring"""
 security_level_assessment,Security-level assessment (1-4) combining intensity score with SBTi/track record and CRM/green business adjustments.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Scoring"""

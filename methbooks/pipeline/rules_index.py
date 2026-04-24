@@ -1,10 +1,17 @@
-"""Regenerate methbooks/rules_index.json from methodology imports.
+"""Regenerate methbooks/rules_index.json from methodology imports + plan sidecars.
 
-Walks methbooks/methodologies/**/*.py, collects `from methbooks.rules.<cat>.<rule>
-import ...` statements via the ast module, and writes an index mapping every
-methodology slug to the rules it imports, plus an inverse rule-to-methodologies
-map and a list of orphan rule files not imported anywhere. Commits the update
-when the file changes (same pattern as verifier auto-repairs).
+Primary source: each methodology module's `from methbooks.rules.<cat>.<rule>
+import ...` statements (walked with ast). Secondary source: each methodology's
+`<slug>_plan.json` sidecar (written by methbooks.pipeline.commit_plan); its
+`reused_rules` entries cover cross-methbook reuse that does not produce an
+import, e.g. event_handling rules referenced but applied out-of-band rather
+than called from apply(). Both sources are unioned so the index reflects the
+full reuse picture.
+
+Writes: mapping from methodology slug to rules it uses, inverse rule-to-
+methodologies map, and the list of orphan rule files not referenced anywhere.
+Commits the update when the file changes (same pattern as verifier auto-
+repairs).
 
 Usage:
     python -m methbooks.pipeline.rules_index
@@ -40,14 +47,28 @@ def _slug(path: Path) -> str:
     return str(path.relative_to(METHODOLOGIES).with_suffix(""))
 
 
-def _present_rules() -> set[str]:
-    found: set[str] = set()
+def _present_rules() -> dict[str, str]:
+    """Map rule name -> 'category.name' for every rule file on disk."""
+    found: dict[str, str] = {}
     for p in RULES_DIR.rglob("*.py"):
         if p.name == "__init__.py":
             continue
         rel = p.relative_to(RULES_DIR)
-        found.add(f"{rel.parent}.{rel.stem}")
+        found[rel.stem] = f"{rel.parent}.{rel.stem}"
     return found
+
+
+def _plan_reused(methodology_py: Path, rule_locations: dict[str, str]) -> list[str]:
+    plan_path = methodology_py.parent / f"{methodology_py.stem}_plan.json"
+    if not plan_path.exists():
+        return []
+    plan = json.loads(plan_path.read_text())
+    resolved: list[str] = []
+    for entry in plan.get("reused_rules", []):
+        name = entry.get("name")
+        if name and name in rule_locations:
+            resolved.append(rule_locations[name])
+    return resolved
 
 
 class Index(TypedDict):
@@ -57,11 +78,14 @@ class Index(TypedDict):
 
 
 def build_index() -> Index:
+    rule_locations = _present_rules()
     by_meth: dict[str, list[str]] = {}
     for p in sorted(METHODOLOGIES.rglob("*.py")):
         if p.name == "__init__.py":
             continue
-        by_meth[_slug(p)] = _rule_imports(p)
+        imported = _rule_imports(p)
+        reused = _plan_reused(p, rule_locations)
+        by_meth[_slug(p)] = sorted(set(imported) | set(reused))
 
     by_rule: dict[str, list[str]] = {}
     for meth, rules in by_meth.items():
@@ -69,7 +93,7 @@ def build_index() -> Index:
             by_rule.setdefault(r, []).append(meth)
     by_rule = {k: sorted(v) for k, v in sorted(by_rule.items())}
 
-    orphans = sorted(_present_rules() - by_rule.keys())
+    orphans = sorted(set(rule_locations.values()) - by_rule.keys())
 
     return {"methodologies": by_meth, "rules": by_rule, "orphans": orphans}
 

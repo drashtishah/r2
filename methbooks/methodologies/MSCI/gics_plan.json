@@ -1,0 +1,891 @@
+{
+  "identification": {
+    "provider": "MSCI",
+    "family": "GICS",
+    "slug": "gics",
+    "version_date": "2026-04-01",
+    "index_type": "reference",
+    "base_methbook": null,
+    "regulatory_framework": null
+  },
+  "document_metadata": {
+    "title": "Global Industry Classification Standard (GICS) Methodology",
+    "subtitle": "Guiding Principles and Methodology for GICS",
+    "published": "April 2026",
+    "pdf_filename_date": "20250220",
+    "last_updated": "April 2026",
+    "first_published": "7 January 2020",
+    "co_publisher": "S&P Dow Jones Indices"
+  },
+  "new_rules": [
+    {
+      "category": "eligibility",
+      "name": "gics_equity_issuer_eligibility",
+      "purpose": "Restrict GICS classification to equity-issuing companies and exclude non-corporate entity types.",
+      "source": {
+        "markdown": "Companies that have issued equity securities are eligible for a GICS classification. If a company's subsidiary files separate financials to its reporting government agency, that subsidiary is considered a separate entity and classified independently under the GICS Methodology. GICS is not assigned to supranationals, municipals, sovereigns, shell companies, mutual funds, or exchange traded funds.",
+        "section": "Section 2: Companies Eligible for GICS Classification",
+        "line": 762
+      },
+      "datapoints": [
+        "entity_type",
+        "is_equity_issuer",
+        "is_subsidiary_with_separate_financials"
+      ],
+      "thresholds": {},
+      "canonical_concept": "gics_equity_eligibility",
+      "asserts": {
+        "technical": [
+          "entity_type column present after filter",
+          "is_equity_issuer column present after filter"
+        ],
+        "business": [
+          "No supranational, municipal, sovereign, shell company, mutual fund, or ETF survives filter: offending entity_type={entity_type}",
+          "All surviving rows have is_equity_issuer == True"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "classify_tracking_stock_by_underlying",
+      "purpose": "Classify a tracking stock based on the underlying business it tracks rather than the issuing parent company.",
+      "source": {
+        "markdown": "A tracking stock issued by a parent company is classified based on its underlying business.",
+        "section": "Section 3.2: Propagation of GICS from company level to security level",
+        "line": 819
+      },
+      "datapoints": [
+        "is_tracking_stock",
+        "underlying_business_gics_sub_industry_code"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "is_tracking_stock column present",
+          "underlying_business_gics_sub_industry_code non-null for all rows where is_tracking_stock == True"
+        ],
+        "business": [
+          "Every row with is_tracking_stock == True has gics_sub_industry_code equal to underlying_business_gics_sub_industry_code"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "classify_by_primary_revenue",
+      "purpose": "Assign a company to the Sub-Industry whose definition most accurately reflects the activity generating more than 60% of total revenues.",
+      "source": {
+        "markdown": "A company is initially classified into the GICS Sub-Industry whose definition most accurately reflects the business activity that generates more than 60% of the company's total revenues.",
+        "section": "Section 3.1: Classification by revenue and earnings",
+        "line": 791
+      },
+      "datapoints": [
+        "primary_activity_revenue_pct"
+      ],
+      "thresholds": {
+        "primary_revenue_threshold": 0.6
+      },
+      "canonical_concept": "gics_primary_revenue_classification",
+      "asserts": {
+        "technical": [
+          "primary_activity_revenue_pct column present and in [0, 1]"
+        ],
+        "business": [
+          "All rows assigned via this rule have primary_activity_revenue_pct > 0.60: min observed={min_pct}"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "classify_by_majority_revenue_and_earnings",
+      "purpose": "When no single activity exceeds the 60% revenue threshold, assign the Sub-Industry that accounts for at least 50% of both revenues and earnings.",
+      "source": {
+        "markdown": "If a company is engaged in two or more distinct business activities and no single activity contributes 60% or more of total revenues, the company is initially classified in the Sub-Industry that accounts for the largest share (at least 50%) of both revenues and earnings.",
+        "section": "Section 3.1: Classification by revenue and earnings",
+        "line": 793
+      },
+      "datapoints": [
+        "primary_activity_revenue_pct",
+        "primary_activity_earnings_pct"
+      ],
+      "thresholds": {
+        "secondary_threshold": 0.5
+      },
+      "asserts": {
+        "technical": [
+          "primary_activity_revenue_pct and primary_activity_earnings_pct present and in [0, 1]"
+        ],
+        "business": [
+          "All rows assigned via this rule have primary_activity_revenue_pct >= 0.50 and primary_activity_earnings_pct >= 0.50"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "classify_by_largest_combined_contribution",
+      "purpose": "When no single activity reaches 50% of both revenues and earnings, assign the Sub-Industry representing the largest combined contribution to revenues and earnings.",
+      "source": {
+        "markdown": "Where no single business activity represents at least 50% of both revenues and earnings, the company is initially classified in the Sub-Industry representing the activity that provides the largest combined contribution to revenues and earnings.",
+        "section": "Section 3.1: Classification by revenue and earnings",
+        "line": 796
+      },
+      "datapoints": [
+        "primary_activity_revenue_pct",
+        "primary_activity_earnings_pct"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "primary_activity_revenue_pct and primary_activity_earnings_pct present"
+        ],
+        "business": [
+          "Assigned Sub-Industry corresponds to activity with highest sum of revenue_pct + earnings_pct across all candidate activities"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "classify_by_qualitative_research",
+      "purpose": "When none of the quantitative revenue or earnings thresholds are met, determine GICS classification through additional research and analysis.",
+      "source": {
+        "markdown": "If none of the above quantitative thresholds are met, the company's initial classification is determined based on additional research and analysis.",
+        "section": "Section 3.1: Classification by revenue and earnings",
+        "line": 800
+      },
+      "datapoints": [
+        "primary_activity_revenue_pct",
+        "primary_activity_earnings_pct",
+        "qualitative_classification_flag"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "qualitative_classification_flag present and boolean"
+        ],
+        "business": [
+          "All rows assigned via this rule have qualitative_classification_flag == True",
+          "gics_sub_industry_code non-null after qualitative assignment"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "classify_diversified_conglomerate",
+      "purpose": "Assign companies significantly diversified across three or more sectors with no majority activity to Industrial Conglomerates or Multi-Sector Holdings.",
+      "source": {
+        "markdown": "Companies that are significantly diversified across three or more Sectors, with no single Sector contributing a majority of revenues or earnings, are classified either in the Industrial Conglomerates Sub-Industry (within the Industrial Sector) or in the Multi-Sector Holdings Sub-Industry (within the Financials Sector).",
+        "section": "Section 3.1: Classification by revenue and earnings",
+        "line": 806
+      },
+      "datapoints": [
+        "num_distinct_active_sectors",
+        "primary_activity_revenue_pct"
+      ],
+      "thresholds": {
+        "min_sectors_for_conglomerate": 3
+      },
+      "asserts": {
+        "technical": [
+          "num_distinct_active_sectors column present and integer >= 0"
+        ],
+        "business": [
+          "All rows assigned via this rule have num_distinct_active_sectors >= 3: min observed={min_sectors}",
+          "Assigned gics_sub_industry_code is 20105010 (Industrial Conglomerates) or 40201030 (Multi-Sector Holdings)"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "restrict_reclassification_to_sustained_60pct",
+      "purpose": "Limit GICS Sub-Industry changes to cases where a different business activity accounts for at least 60% of revenues over a sustained period, preventing unnecessary turnover.",
+      "source": {
+        "markdown": "To ensure consistency and limit unnecessary turnover, changes to a company's GICS Sub-Industry are generally considered only when a different business activity accounts for at least 60% of total revenues over a sustained period.",
+        "section": "Section 3.1: Classification by revenue and earnings",
+        "line": 811
+      },
+      "datapoints": [
+        "primary_activity_revenue_pct",
+        "current_gics_sub_industry_code"
+      ],
+      "thresholds": {
+        "reclassification_revenue_threshold": 0.6
+      },
+      "asserts": {
+        "technical": [
+          "current_gics_sub_industry_code and primary_activity_revenue_pct present"
+        ],
+        "business": [
+          "No reclassification applied where new activity revenue_pct < 0.60: offending pct={pct}"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "minimize_reclassification_on_temporary_fluctuations",
+      "purpose": "Preserve existing GICS classification during review by disregarding temporary fluctuations in results of a company's different activities.",
+      "source": {
+        "markdown": "In order to provide a stable Sub-Industry classification, when reviewing a company's classification, changes will be minimized in the Sub-Industry classification to the extent possible by disregarding temporary fluctuations in the results of a company's different activities.",
+        "section": "Section 4: Review of GICS Classification",
+        "line": 843
+      },
+      "datapoints": [
+        "primary_activity_revenue_pct",
+        "current_gics_sub_industry_code",
+        "revenue_trend_flag"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "revenue_trend_flag column present and boolean"
+        ],
+        "business": [
+          "No classification change applied where revenue_trend_flag indicates temporary fluctuation"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "propagate_gics_from_company_to_equity_securities",
+      "purpose": "Assign the company's GICS classification to all its equity securities, including ADRs and GDRs, so all securities from the same company share a single classification.",
+      "source": {
+        "markdown": "GICS is assigned at the company level. Thus, all equity securities including ADRs and GDRs issued by a company have the same classification as the company.",
+        "section": "Section 3.2: Propagation of GICS from company level to security level",
+        "line": 815
+      },
+      "datapoints": [
+        "company_id",
+        "gics_sub_industry_code"
+      ],
+      "thresholds": {},
+      "canonical_concept": "gics_company_to_security_propagation",
+      "asserts": {
+        "technical": [
+          "company_id and gics_sub_industry_code columns present and non-null"
+        ],
+        "business": [
+          "All securities sharing the same company_id have identical gics_sub_industry_code: first offending company_id={cid}"
+        ]
+      }
+    },
+    {
+      "category": "event_handling",
+      "name": "trigger_review_on_restructuring_or_new_annual_report",
+      "purpose": "Initiate a GICS Sub-Industry review when a significant corporate restructuring occurs, a new annual report is published, or a client request is received.",
+      "source": {
+        "markdown": "A company's Sub-Industry classification will be reviewed either when a significant corporate restructuring occurs or when a new annual report is available. GICS reviews also occur upon client request.",
+        "section": "Section 4: Review of GICS Classification",
+        "line": 838
+      },
+      "datapoints": [
+        "has_significant_restructuring",
+        "has_new_annual_report",
+        "client_review_requested"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "has_significant_restructuring, has_new_annual_report, client_review_requested all boolean and non-null"
+        ],
+        "business": [
+          "Review is triggered for every row where any of the three trigger flags is True"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "gics_fixed_income_corporate_eligibility",
+      "purpose": "Restrict fixed income GICS classification to corporate bond issuers; exclude supranationals, municipals, and sovereigns from fixed income coverage.",
+      "source": {
+        "markdown": "Corporates that have issued bonds are eligible for a classification. Supranationals, Municipals and Sovereigns that have issued fixed income securities are currently not covered under this Methodology.",
+        "section": "Section 8.1: Fixed income universe eligible for classification",
+        "line": 3848
+      },
+      "datapoints": [
+        "fi_entity_type",
+        "has_issued_corporate_bonds"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "fi_entity_type column present"
+        ],
+        "business": [
+          "No supranational, municipal, or sovereign survives FI eligibility filter: offending fi_entity_type={fi_entity_type}",
+          "All surviving rows have has_issued_corporate_bonds == True"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "propagate_gics_equity_to_corporate_bonds",
+      "purpose": "Assign a company's existing equity GICS classification to its corporate bonds when the company has also issued equity securities.",
+      "source": {
+        "markdown": "GICS is assigned at the company level and thus all securities, equities or corporate bonds, issued by the company will have the same GICS classification as the company. MSCI leverages GICS assigned to a company that has issued equity securities and assigns the same GICS classification to the corporate bonds issued by the company.",
+        "section": "Section 8.1.1: Classification of a company that has issued both equity and corporate bonds",
+        "line": 3858
+      },
+      "datapoints": [
+        "company_id",
+        "has_issued_equity",
+        "gics_sub_industry_code"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "company_id, has_issued_equity, gics_sub_industry_code all present and non-null where has_issued_equity == True"
+        ],
+        "business": [
+          "All corporate bonds of a company where has_issued_equity == True share the company's equity gics_sub_industry_code: first offending company_id={cid}"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "classify_bond_only_issuer_by_parent_gics",
+      "purpose": "Assign a bond-only issuer's GICS based on its parent or ultimate parent company's GICS classification as available in GICS Direct.",
+      "source": {
+        "markdown": "Each corporate bond issuer is assigned to a GICS Sub-Industry based on the GICS of its related listed entity, i.e., its parent company or ultimate parent company, as available in GICS Direct.",
+        "section": "Section 8.1.2: Classification of a company that has issued only corporate bonds",
+        "line": 3871
+      },
+      "datapoints": [
+        "has_issued_equity",
+        "parent_gics_sub_industry_code"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "parent_gics_sub_industry_code non-null for rows where this rule applies"
+        ],
+        "business": [
+          "All bond-only issuers with available parent GICS have gics_sub_industry_code == parent_gics_sub_industry_code"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "classify_bond_only_issuer_without_parent_gics",
+      "purpose": "When no parent GICS is available in GICS Direct, classify the bond-only issuer based on its own or related entities' underlying business using the GICS framework.",
+      "source": {
+        "markdown": "In cases where the related entities, i.e., its parent and ultimate parent company don't have GICS in GICS Direct, the corporate bond issuer will be classified based on its own or its related entities' underlying business using the GICS framework.",
+        "section": "Section 8.1.2: Classification of a company that has issued only corporate bonds",
+        "line": 3881
+      },
+      "datapoints": [
+        "has_issued_equity",
+        "parent_gics_sub_industry_code",
+        "primary_activity_revenue_pct"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "parent_gics_sub_industry_code is null for all rows where this rule applies"
+        ],
+        "business": [
+          "gics_sub_industry_code non-null after fallback classification for all bond-only issuers without parent GICS"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "classify_spv_by_related_entity",
+      "purpose": "Assign GICS to a special purpose vehicle or captive finance vehicle based on the business of its related entities rather than its own minimal operations.",
+      "source": {
+        "markdown": "if the corporate bond issuer is a special purpose vehicle or a captive finance vehicle, it will be classified based on the business of its related entities as described in Section 3.",
+        "section": "Section 8.1.2: Classification of a company that has issued only corporate bonds",
+        "line": 3885
+      },
+      "datapoints": [
+        "is_spv_or_captive_finance",
+        "related_entity_gics_sub_industry_code"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "is_spv_or_captive_finance boolean and non-null",
+          "related_entity_gics_sub_industry_code non-null where is_spv_or_captive_finance == True"
+        ],
+        "business": [
+          "All SPV/captive finance rows have gics_sub_industry_code == related_entity_gics_sub_industry_code: first offending row={row}"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "review_fixed_income_gics_annually",
+      "purpose": "Ensure fixed income GICS classifications are reviewed at minimum annually and also upon significant corporate restructuring or client request.",
+      "source": {
+        "markdown": "A company's Sub-Industry classification will be reviewed at least annually. It will also be reviewed when a significant corporate restructuring occurs. GICS reviews could also occur upon client request.",
+        "section": "Section 8.3.1: Ongoing review",
+        "line": 3909
+      },
+      "datapoints": [
+        "fi_last_review_date",
+        "has_significant_restructuring",
+        "client_review_requested"
+      ],
+      "thresholds": {
+        "review_frequency_months": 12
+      },
+      "asserts": {
+        "technical": [
+          "fi_last_review_date is a valid date and non-null"
+        ],
+        "business": [
+          "No row has fi_last_review_date more than 12 months before the current review date: offending company_id={cid}",
+          "Review triggered for all rows where has_significant_restructuring == True or client_review_requested == True"
+        ]
+      }
+    },
+    {
+      "category": "event_handling",
+      "name": "apply_structure_review_to_fixed_income",
+      "purpose": "Apply all GICS Sub-Industry definition changes resulting from a GICS Structure Review to fixed income company classifications without exception.",
+      "source": {
+        "markdown": "All changes in the GICS Structure and definitions resulting from a Structure Review will be applicable to the classification of companies that have issued fixed income securities as well.",
+        "section": "Section 8.3.2: Impact of GICS structure review",
+        "line": 3920
+      },
+      "datapoints": [
+        "gics_sub_industry_code",
+        "structure_review_change_flag",
+        "has_issued_corporate_bonds"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "structure_review_change_flag boolean and non-null"
+        ],
+        "business": [
+          "All rows where structure_review_change_flag == True and has_issued_corporate_bonds == True have an updated gics_sub_industry_code reflecting the new structure"
+        ]
+      }
+    }
+  ],
+  "reused_rules": [],
+  "eligibility": {
+    "rule_names": [
+      "gics_equity_issuer_eligibility",
+      "classify_tracking_stock_by_underlying",
+      "classify_by_primary_revenue",
+      "classify_by_majority_revenue_and_earnings",
+      "classify_by_largest_combined_contribution",
+      "classify_by_qualitative_research",
+      "classify_diversified_conglomerate",
+      "gics_fixed_income_corporate_eligibility",
+      "classify_bond_only_issuer_by_parent_gics",
+      "classify_bond_only_issuer_without_parent_gics",
+      "classify_spv_by_related_entity"
+    ]
+  },
+  "event_handling": {
+    "rule_names": [
+      "trigger_review_on_restructuring_or_new_annual_report",
+      "apply_structure_review_to_fixed_income"
+    ],
+    "defers_to": null,
+    "intra_review_invariants": [
+      {
+        "quote": "To ensure consistency and limit unnecessary turnover, changes to a company's GICS Sub-Industry are generally considered only when a different business activity accounts for at least 60% of total revenues over a sustained period.",
+        "concern": "Between reviews, reclassification is suppressed unless the 60% sustained threshold is met. No mid-period downgrade or reassignment on a single year's result."
+      },
+      {
+        "quote": "In order to provide a stable Sub-Industry classification, when reviewing a company's classification, changes will be minimized in the Sub-Industry classification to the extent possible by disregarding temporary fluctuations in the results of a company's different activities.",
+        "concern": "During a review, temporary fluctuations in activity-level results must not drive a Sub-Industry change; analyst judgement distinguishes temporary from sustained shifts."
+      }
+    ]
+  },
+  "review_cadence": {
+    "schedules": [
+      {
+        "name": "equity_gics_review",
+        "frequency": "event-driven",
+        "months": [],
+        "announcement_lead": null,
+        "data_cutoff": null
+      },
+      {
+        "name": "fixed_income_gics_review",
+        "frequency": "annual minimum",
+        "months": [],
+        "announcement_lead": null,
+        "data_cutoff": null
+      }
+    ],
+    "base_date_reset": null
+  },
+  "data_requirements": {
+    "mandatory_fields": [
+      {
+        "name": "primary_activity_revenue_pct",
+        "description": "Revenue fraction of the single largest business activity as a proportion of total company revenues"
+      },
+      {
+        "name": "primary_activity_earnings_pct",
+        "description": "Earnings fraction of the single largest business activity as a proportion of total company earnings"
+      },
+      {
+        "name": "num_distinct_active_sectors",
+        "description": "Count of GICS Sectors in which the company has material business activity"
+      },
+      {
+        "name": "entity_type",
+        "description": "Category of the entity: corporate, supranational, municipal, sovereign, shell_company, mutual_fund, or etf"
+      }
+    ],
+    "mandatory_products": [
+      "Annual reports and accounts (primary)",
+      "Broker reports and published research literature (secondary)",
+      "Prospectus for new issues",
+      "GICS Direct (parent company GICS lookup for bond-only issuers)"
+    ],
+    "preprocessing": [
+      {
+        "step": "Obtain revenue and earnings breakdown by business activity from annual report"
+      },
+      {
+        "step": "Determine entity type and eligibility flags prior to classification"
+      },
+      {
+        "step": "Look up parent/ultimate parent GICS in GICS Direct for bond-only issuers"
+      }
+    ]
+  },
+  "mock_datapoints": [
+    {
+      "name": "entity_type",
+      "type": "categorical",
+      "distribution": "categorical with values: corporate (0.80), supranational (0.03), municipal (0.03), sovereign (0.05), shell_company (0.03), mutual_fund (0.03), etf (0.03)",
+      "description": "Legal and structural category of the entity for GICS eligibility determination.",
+      "canonical_concept": "gics_entity_type",
+      "source_section": "Section 2: Companies Eligible for GICS Classification",
+      "taxonomy": null,
+      "definition_notes": [
+        "Subsidiaries that file separate financials to a reporting government agency are treated as separate entities and classified independently."
+      ],
+      "semantic_threshold": null
+    },
+    {
+      "name": "is_equity_issuer",
+      "type": "boolean",
+      "distribution": "Bernoulli(p=0.80)",
+      "description": "True if the entity has issued equity securities; required for equity GICS eligibility.",
+      "canonical_concept": "gics_is_equity_issuer",
+      "source_section": "Section 2: Companies Eligible for GICS Classification",
+      "taxonomy": null,
+      "definition_notes": [],
+      "semantic_threshold": null
+    },
+    {
+      "name": "is_subsidiary_with_separate_financials",
+      "type": "boolean",
+      "distribution": "Bernoulli(p=0.10)",
+      "description": "True if the entity is a subsidiary that files separate financials to a government reporting agency and is thus treated as an independent classification entity.",
+      "canonical_concept": null,
+      "source_section": "Section 2: Companies Eligible for GICS Classification",
+      "taxonomy": null,
+      "definition_notes": [],
+      "semantic_threshold": null
+    },
+    {
+      "name": "primary_activity_revenue_pct",
+      "type": "float",
+      "distribution": "Uniform(0.3, 1.0)",
+      "description": "Revenue fraction of the company's single largest business activity as a share of total revenues, used to determine the 60% and 50% classification thresholds.",
+      "canonical_concept": "gics_primary_revenue_pct",
+      "source_section": "Section 3.1: Classification by revenue and earnings",
+      "taxonomy": null,
+      "definition_notes": [
+        "Revenue is preferred over earnings as the primary classification metric because industrial and geographic breakdowns are more commonly available.",
+        "Market perception may supplement the revenue and earnings analysis where relevant."
+      ],
+      "semantic_threshold": "more than 60% of the company's total revenues"
+    },
+    {
+      "name": "primary_activity_earnings_pct",
+      "type": "float",
+      "distribution": "Uniform(0.2, 1.0)",
+      "description": "Earnings fraction of the company's single largest business activity as a share of total earnings, used as secondary criterion when revenue alone does not reach 60%.",
+      "canonical_concept": "gics_primary_earnings_pct",
+      "source_section": "Section 3.1: Classification by revenue and earnings",
+      "taxonomy": null,
+      "definition_notes": [
+        "Company valuations are more closely related to earnings than revenues; earnings remain an important secondary consideration."
+      ],
+      "semantic_threshold": "at least 50% of both revenues and earnings"
+    },
+    {
+      "name": "num_distinct_active_sectors",
+      "type": "integer",
+      "distribution": "Poisson(mu=1.5) clipped to [1, 11]",
+      "description": "Count of distinct GICS Sectors in which the company has material business activity; used to identify diversified conglomerates.",
+      "canonical_concept": null,
+      "source_section": "Section 3.1: Classification by revenue and earnings",
+      "taxonomy": null,
+      "definition_notes": [
+        "Companies with material activity in 3 or more sectors and no single sector majority are candidates for Industrial Conglomerates or Multi-Sector Holdings."
+      ],
+      "semantic_threshold": "three or more Sectors, with no single Sector contributing a majority of revenues or earnings"
+    },
+    {
+      "name": "qualitative_classification_flag",
+      "type": "boolean",
+      "distribution": "Bernoulli(p=0.05)",
+      "description": "True when none of the quantitative revenue or earnings thresholds are met and classification requires additional research and analysis.",
+      "canonical_concept": null,
+      "source_section": "Section 3.1: Classification by revenue and earnings",
+      "taxonomy": null,
+      "definition_notes": [],
+      "semantic_threshold": null
+    },
+    {
+      "name": "is_tracking_stock",
+      "type": "boolean",
+      "distribution": "Bernoulli(p=0.01)",
+      "description": "True if the security is a tracking stock issued by a parent company; such securities are classified based on their underlying business, not the parent's overall GICS.",
+      "canonical_concept": null,
+      "source_section": "Section 3.2: Propagation of GICS from company level to security level",
+      "taxonomy": null,
+      "definition_notes": [],
+      "semantic_threshold": null
+    },
+    {
+      "name": "underlying_business_gics_sub_industry_code",
+      "type": "integer",
+      "distribution": "discrete uniform over the 163 valid 8-digit GICS sub-industry codes",
+      "description": "The 8-digit GICS Sub-Industry code reflecting the underlying business activity tracked by a tracking stock.",
+      "canonical_concept": null,
+      "source_section": "Section 3.2: Propagation of GICS from company level to security level",
+      "taxonomy": "GICS 8-digit hierarchical code (Sector 2-digit, Industry Group 4-digit, Industry 6-digit, Sub-Industry 8-digit)",
+      "definition_notes": [],
+      "semantic_threshold": null
+    },
+    {
+      "name": "gics_sub_industry_code",
+      "type": "integer",
+      "distribution": "discrete uniform over the 163 valid 8-digit GICS sub-industry codes",
+      "description": "The current 8-digit GICS Sub-Industry code assigned to the company or security.",
+      "canonical_concept": "gics_sub_industry_code",
+      "source_section": "Section 1.1: Overview of GICS",
+      "taxonomy": "GICS 8-digit hierarchical code (Sector 2-digit, Industry Group 4-digit, Industry 6-digit, Sub-Industry 8-digit)",
+      "definition_notes": [
+        "The full GICS classification is an 8-digit code with text description.",
+        "The hierarchical design allows easy transition between GICS tiers."
+      ],
+      "semantic_threshold": null
+    },
+    {
+      "name": "has_significant_restructuring",
+      "type": "boolean",
+      "distribution": "Bernoulli(p=0.05)",
+      "description": "True when the company has undergone a significant corporate restructuring, triggering a GICS classification review.",
+      "canonical_concept": null,
+      "source_section": "Section 4: Review of GICS Classification",
+      "taxonomy": null,
+      "definition_notes": [
+        "The term 'significant' is not quantitatively defined in the source; determination is qualitative."
+      ],
+      "semantic_threshold": "significant corporate restructuring"
+    },
+    {
+      "name": "has_new_annual_report",
+      "type": "boolean",
+      "distribution": "Bernoulli(p=0.90)",
+      "description": "True when a new annual report has become available, triggering a periodic GICS classification review.",
+      "canonical_concept": null,
+      "source_section": "Section 4: Review of GICS Classification",
+      "taxonomy": null,
+      "definition_notes": [],
+      "semantic_threshold": null
+    },
+    {
+      "name": "revenue_trend_flag",
+      "type": "boolean",
+      "distribution": "Bernoulli(p=0.15)",
+      "description": "True when the observed change in revenue by activity is judged to be a temporary fluctuation rather than a sustained structural shift, suppressing reclassification.",
+      "canonical_concept": null,
+      "source_section": "Section 4: Review of GICS Classification",
+      "taxonomy": null,
+      "definition_notes": [
+        "No quantitative definition of 'temporary' is given; determination is analyst judgement."
+      ],
+      "semantic_threshold": "temporary fluctuations in the results of a company's different activities"
+    },
+    {
+      "name": "fi_entity_type",
+      "type": "categorical",
+      "distribution": "categorical with values: corporate (0.90), supranational (0.04), municipal (0.03), sovereign (0.03)",
+      "description": "Entity type classification for fixed income GICS eligibility, distinguishing corporate bond issuers from excluded entity types.",
+      "canonical_concept": null,
+      "source_section": "Section 8.1: Fixed income universe eligible for classification",
+      "taxonomy": null,
+      "definition_notes": [],
+      "semantic_threshold": null
+    },
+    {
+      "name": "has_issued_corporate_bonds",
+      "type": "boolean",
+      "distribution": "Bernoulli(p=0.60)",
+      "description": "True if the entity has issued corporate bonds, making it eligible for fixed income GICS classification.",
+      "canonical_concept": null,
+      "source_section": "Section 8.1: Fixed income universe eligible for classification",
+      "taxonomy": null,
+      "definition_notes": [],
+      "semantic_threshold": null
+    },
+    {
+      "name": "has_issued_equity",
+      "type": "boolean",
+      "distribution": "Bernoulli(p=0.75)",
+      "description": "True if the corporate bond issuer has also issued equity securities, enabling direct equity GICS propagation to its bonds.",
+      "canonical_concept": null,
+      "source_section": "Section 8.1.1: Classification of a company that has issued both equity and corporate bonds",
+      "taxonomy": null,
+      "definition_notes": [],
+      "semantic_threshold": null
+    },
+    {
+      "name": "parent_gics_sub_industry_code",
+      "type": "integer",
+      "distribution": "discrete uniform over the 163 valid 8-digit GICS sub-industry codes, with 15% null (no parent GICS available in GICS Direct)",
+      "description": "The 8-digit GICS Sub-Industry code of the bond issuer's parent or ultimate parent company as recorded in GICS Direct.",
+      "canonical_concept": null,
+      "source_section": "Section 8.1.2: Classification of a company that has issued only corporate bonds",
+      "taxonomy": "GICS 8-digit hierarchical code (Sector 2-digit, Industry Group 4-digit, Industry 6-digit, Sub-Industry 8-digit)",
+      "definition_notes": [
+        "Null when parent and ultimate parent do not have a GICS in GICS Direct; triggers fallback classification."
+      ],
+      "semantic_threshold": null
+    },
+    {
+      "name": "is_spv_or_captive_finance",
+      "type": "boolean",
+      "distribution": "Bernoulli(p=0.10)",
+      "description": "True if the corporate bond issuer is a special purpose vehicle or captive finance vehicle; classification is based on related entities' business.",
+      "canonical_concept": null,
+      "source_section": "Section 8.1.2: Classification of a company that has issued only corporate bonds",
+      "taxonomy": null,
+      "definition_notes": [],
+      "semantic_threshold": null
+    },
+    {
+      "name": "related_entity_gics_sub_industry_code",
+      "type": "integer",
+      "distribution": "discrete uniform over the 163 valid 8-digit GICS sub-industry codes",
+      "description": "The 8-digit GICS Sub-Industry code of the related entity whose business drives the SPV or captive finance vehicle's classification.",
+      "canonical_concept": null,
+      "source_section": "Section 8.1.2: Classification of a company that has issued only corporate bonds",
+      "taxonomy": "GICS 8-digit hierarchical code (Sector 2-digit, Industry Group 4-digit, Industry 6-digit, Sub-Industry 8-digit)",
+      "definition_notes": [],
+      "semantic_threshold": null
+    },
+    {
+      "name": "fi_last_review_date",
+      "type": "date",
+      "distribution": "Uniform date in the 12 months prior to simulation date",
+      "description": "Date of the most recent GICS classification review for companies with fixed income securities; used to enforce the annual minimum review cadence.",
+      "canonical_concept": null,
+      "source_section": "Section 8.3.1: Ongoing review",
+      "taxonomy": null,
+      "definition_notes": [],
+      "semantic_threshold": null
+    },
+    {
+      "name": "structure_review_change_flag",
+      "type": "boolean",
+      "distribution": "Bernoulli(p=0.05)",
+      "description": "True when the most recent GICS Structure Review introduced a change to the Sub-Industry definition applicable to this company, requiring reclassification of its fixed income securities.",
+      "canonical_concept": null,
+      "source_section": "Section 8.3.2: Impact of GICS structure review",
+      "taxonomy": null,
+      "definition_notes": [],
+      "semantic_threshold": null
+    },
+    {
+      "name": "client_review_requested",
+      "type": "boolean",
+      "distribution": "Bernoulli(p=0.02)",
+      "description": "True when a client has formally requested a review of the company's GICS classification.",
+      "canonical_concept": null,
+      "source_section": "Section 4: Review of GICS Classification",
+      "taxonomy": null,
+      "definition_notes": [],
+      "semantic_threshold": null
+    }
+  ],
+  "composition_order": [
+    "gics_equity_issuer_eligibility",
+    "classify_tracking_stock_by_underlying",
+    "classify_by_primary_revenue",
+    "classify_by_majority_revenue_and_earnings",
+    "classify_by_largest_combined_contribution",
+    "classify_by_qualitative_research",
+    "classify_diversified_conglomerate",
+    "restrict_reclassification_to_sustained_60pct",
+    "minimize_reclassification_on_temporary_fluctuations",
+    "propagate_gics_from_company_to_equity_securities"
+  ],
+  "final_asserts": [
+    "Every surviving row has a non-null gics_sub_industry_code: null count={null_count}",
+    "gics_sub_industry_code is an 8-digit integer within the set of 163 defined GICS Sub-Industry codes for all rows: first offending code={code}",
+    "No row has entity_type in {supranational, municipal, sovereign, shell_company, mutual_fund, etf}: offending entity_type={entity_type}",
+    "All equity securities sharing the same company_id have identical gics_sub_industry_code: first offending company_id={cid}",
+    "All is_tracking_stock == True rows have gics_sub_industry_code == underlying_business_gics_sub_industry_code: first offending security_id={sid}",
+    "All rows with num_distinct_active_sectors >= 3 and no sector majority have gics_sub_industry_code in {20105010, 40201030}: offending code={code}"
+  ],
+  "clarifications_needed": [
+    {
+      "quote": "If none of the above quantitative thresholds are met, the company's initial classification is determined based on additional research and analysis.",
+      "concern": "No criteria are specified for what research and analysis qualifies, how conclusions are reached, or who makes the determination. The rule classify_by_qualitative_research captures this step but cannot be made algorithmic without further specification."
+    },
+    {
+      "quote": "Market perception may be considered in the classification process where it is relevant to determining a company's appropriate GICS assignment.",
+      "concern": "Market perception is not defined. No criteria specify when it is considered relevant, what weight it carries relative to revenue and earnings thresholds, or how it overrides a quantitative result. A rule cannot be written without this definition."
+    },
+    {
+      "quote": "changes to a company's GICS Sub-Industry are generally considered only when a different business activity accounts for at least 60% of total revenues over a sustained period.",
+      "concern": "The duration that constitutes a sustained period is not defined. The rule restrict_reclassification_to_sustained_60pct captures the 60% threshold but cannot enforce the time dimension without a specific period (e.g., two consecutive fiscal years)."
+    },
+    {
+      "quote": "A company's Sub-Industry classification will be reviewed either when a significant corporate restructuring occurs",
+      "concern": "Significant corporate restructuring is not quantitatively defined. The rule trigger_review_on_restructuring_or_new_annual_report captures this trigger but the significance threshold requires further specification."
+    },
+    {
+      "quote": "GLOBAL INDUSTRY CLASSIFICATION STANDARD (GICS) METHODOLOGY APRIL 2026",
+      "concern": "The document cover page consistently states April 2026, but the source PDF filename contains the date 20250220 (February 20, 2025). The authoritative publication date cannot be determined from the source alone. version_date is set to 2026-04-01 based on the cover page."
+    }
+  ],
+  "scoped_out": [
+    {
+      "quote": "To provide the level of precision critical in the investment process, the GICS is designed with four levels of classifications that includes 11 Sectors, 25 Industry Groups, 74 Industries, and 163 Sub-Industries.",
+      "concern": "Section 1.1 and 1.2 enumerate the GICS taxonomy structure (sector codes, hierarchy table). This is reference material with no algorithmic transformation; all 163 Sub-Industry codes and their hierarchy are implicit inputs to the classification rules."
+    },
+    {
+      "quote": "The Global Industry Classification Standard is designed to be market demand-oriented in its analysis and classification of companies.",
+      "concern": "Section 1.3 explains the philosophy and design rationale for GICS. No transformation is defined; scoped out as background rationale."
+    },
+    {
+      "quote": "Further information on changes to the GICS Structure can be found on MSCI's website at www.msci.com/gics.",
+      "concern": "Section 5 describes the GICS Structure Review as a periodic governance and consultation process (internal analysis, public comment, client consultation). No algorithmic transformation is specified for index construction; the outcome of a Structure Review on fixed income classifications is captured in apply_structure_review_to_fixed_income."
+    },
+    {
+      "quote": "The GICS Methodology and Structure fall under the overall supervision of the GICS Operations Committee, with members from both MSCI and S&P Dow Jones Indices.",
+      "concern": "Section 6 defines organizational governance (Operations Committee membership, confidentiality policy). No transformation."
+    },
+    {
+      "quote": "Section 7 details the GICS Sub-Industry level definitions.",
+      "concern": "Section 7 provides the enumerated definitions of all 163 GICS Sub-Industries. These definitions are the taxonomy that classification rules reference but are not themselves algorithmic rules. Each definition includes inclusions and exclusions that inform analyst judgement during classification."
+    },
+    {
+      "quote": "The following sections were modified as of March 2023",
+      "concern": "Appendix 1 is a document changelog listing which sections changed across publication versions. No transformation; scoped out as document metadata."
+    }
+  ],
+  "external_references": [
+    {
+      "methbook": "https://www.msci.com/gics",
+      "section": "Section 5: GICS Structure Review",
+      "item_type": "url",
+      "item": "MSCI GICS methodology set landing page referenced for ongoing changes to the GICS Structure"
+    }
+  ]
+}

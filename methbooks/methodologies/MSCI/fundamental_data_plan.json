@@ -1,0 +1,1180 @@
+{
+  "identification": {
+    "provider": "MSCI",
+    "family": "Fundamental Data",
+    "slug": "fundamental_data",
+    "version_date": "2024-06-25",
+    "index_type": "reference",
+    "base_methbook": null,
+    "regulatory_framework": null
+  },
+  "document_metadata": {
+    "title": "MSCI Fundamental Data Methodology",
+    "publication_date": "June 2024",
+    "pages": 71,
+    "sections": [
+      "Introduction",
+      "1 Fundamental Per Share Data",
+      "2 Security Ratios",
+      "3 Index Ratio",
+      "4 Fundamental Data Treatments for Corporate Events",
+      "5 Balance Sheet Information",
+      "6 Hyperinflationary Economies - Adjustment of Fundamental Data",
+      "Appendix I: MSCI's Treatment of Some Specific Aspects of IFRS",
+      "Appendix II: Index Ratio Calculation Examples",
+      "Appendix III: Correction Policy",
+      "Methodology Book Tracked Changes"
+    ]
+  },
+  "universe": null,
+  "eligibility": {
+    "rule_names": [
+      "exclude_stale_fundamental_data_18m"
+    ]
+  },
+  "event_handling": {
+    "defers_to": null,
+    "intra_review_invariants": [],
+    "rule_names": [
+      "apply_paf_to_per_share_data_nominal_event",
+      "suppress_small_event_dps_adjustment",
+      "compute_proforma_bvps_real_event",
+      "apply_loss_per_share_restatement",
+      "mark_sales_noncomparable_on_large_event",
+      "apply_proforma_fundamental_business_structure_change",
+      "apply_proforma_for_loss_making_acquisition",
+      "no_adjustment_for_buyback_special_dividend_debt_swap"
+    ]
+  },
+  "selection": null,
+  "weighting": null,
+  "scoring": null,
+  "review_cadence": {
+    "schedules": [
+      {
+        "name": "monthly_data_refresh",
+        "frequency": "monthly",
+        "months": [],
+        "data_cutoff": null,
+        "announcement_lead": null
+      }
+    ],
+    "base_date_reset": null
+  },
+  "unrated_treatment": null,
+  "data_requirements": {
+    "mandatory_fields": [
+      {
+        "name": "number_of_shares_outstanding",
+        "description": "Total shares at company level at date of results; all classes aggregated; options/warrants/convertibles excluded; treasury shares excluded"
+      },
+      {
+        "name": "trailing_12m_earnings",
+        "description": "Last reported fiscal period figure plus current interim minus comparative interim"
+      },
+      {
+        "name": "trailing_12m_sales",
+        "description": "Net operating revenues from ongoing lines; excise tax deducted; Banks (GICS 4010) not published"
+      },
+      {
+        "name": "annualized_dps",
+        "description": "Sum of declared regular cash distributions over latest 12 months; or frequency-adjusted for US/Canada"
+      },
+      {
+        "name": "book_value_per_share",
+        "description": "Latest shareholders equity excluding minority interest, treasury shares, non-equity preferred"
+      }
+    ],
+    "mandatory_products": [
+      {
+        "methbook": "gimi",
+        "section": "1.1.3 Currency and Frequency",
+        "item": "country of classification",
+        "item_type": "reference"
+      },
+      {
+        "methbook": "gics",
+        "section": "1.2.1, 1.2.2, 1.2.3",
+        "item": "industry group classification",
+        "item_type": "reference"
+      }
+    ],
+    "preprocessing": [
+      {
+        "step": "trailing_12m_annualization",
+        "formula": "Last fiscal period figure + (current interim - comparative interim)",
+        "exceptions": [
+          "DPS: used as provided",
+          "BVPS: latest reported, no trailing calculation"
+        ]
+      },
+      {
+        "step": "per_share_division",
+        "formula": "Trailing 12m figure / shares outstanding at company level",
+        "exceptions": [
+          "US, Canada, UK, Ireland: average shares for EPS, CEPS, SPS"
+        ]
+      }
+    ]
+  },
+  "new_rules": [
+    {
+      "category": "eligibility",
+      "name": "exclude_stale_fundamental_data_18m",
+      "purpose": "Exclude per-share and ratio calculations when the gap between calculation date and financial reporting period end exceeds 18 months, preventing use of outdated fundamentals.",
+      "source": {
+        "markdown": "MSCI calculates security per share and ratios if the gap between calculation date and financial reporting period end date is less than 18 months.",
+        "section": "1.2 Historical Per Share Data Calculations",
+        "line": 685
+      },
+      "datapoints": [
+        "financial_period_end_date",
+        "calculation_date"
+      ],
+      "thresholds": {
+        "MAX_REPORTING_GAP_MONTHS": 18
+      },
+      "asserts": {
+        "technical": [
+          "financial_period_end_date column present",
+          "calculation_date column present"
+        ],
+        "business": [
+          "no security in output has reporting gap exceeding 18 months"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "scoring",
+      "name": "use_average_shares_us_canada_uk_ireland",
+      "purpose": "Apply average number of shares (not period-end) for EPS, CEPS, and SPS per-share calculations for US, Canada, UK, and Ireland, matching local standard practice.",
+      "source": {
+        "markdown": "except United States of America, Canada, the United Kingdom and Ireland where average number of shares is used for per share calculations of earnings, cash earnings, and sales",
+        "section": "1.1.1 Number of Shares",
+        "line": 584
+      },
+      "datapoints": [
+        "country_of_classification",
+        "number_of_shares_outstanding",
+        "average_shares_outstanding"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "country_of_classification column present",
+          "average_shares_outstanding populated for US/Canada/UK/IE rows"
+        ],
+        "business": [
+          "shares denominator for EPS/CEPS/SPS equals average_shares_outstanding when country in {US, CA, GB, IE}"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "scoring",
+      "name": "compute_eps12f",
+      "purpose": "Compute 12-month forward EPS on a rolling basis by blending current-year and next-year consensus forecasts weighted by months remaining in fiscal year; fall back to EPS1 alone when EPS2 is unavailable and M >= 8.",
+      "source": {
+        "markdown": "EPS12F = (M x EPS1 + (12-M) x EPS2) / 12 ... For cases where EPS2 is not available and M is greater than or equal to 8, EPS1 is used as an approximation of EPS12F.",
+        "section": "1.3 Forecasted Per Share Data",
+        "line": 891
+      },
+      "datapoints": [
+        "eps1_consensus_forecast",
+        "eps2_consensus_forecast",
+        "months_to_fiscal_year_end"
+      ],
+      "thresholds": {
+        "EPS2_UNAVAILABLE_MIN_M_FOR_FALLBACK": 8
+      },
+      "asserts": {
+        "technical": [
+          "eps1_consensus_forecast present for all rows with eps12f output",
+          "months_to_fiscal_year_end in [0, 12]"
+        ],
+        "business": [
+          "when eps2_consensus_forecast is null and months_to_fiscal_year_end >= 8, eps12f equals eps1_consensus_forecast"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "scoring",
+      "name": "compute_eps12b",
+      "purpose": "Compute 12-month backward EPS by blending last reported fiscal EPS with the current-year consensus estimate, mirroring the EPS12F formula but anchored on historical results.",
+      "source": {
+        "markdown": "EPS12B = (M x EPS0 + (12-M) x EPS1) / 12 ... EPS0 is last fiscal year end reported earnings per share",
+        "section": "1.3 Forecasted Per Share Data",
+        "line": 969
+      },
+      "datapoints": [
+        "eps0_last_fiscal_year_eps",
+        "eps1_consensus_forecast",
+        "months_to_fiscal_year_end"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "eps0_last_fiscal_year_eps present for all rows with eps12b output"
+        ],
+        "business": [
+          "eps12b is a weighted blend of eps0 and eps1 with weights M/12 and (12-M)/12 respectively"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "scoring",
+      "name": "compute_egro_ols",
+      "purpose": "Compute 5-year historical EPS growth trend (EGRO) as OLS regression slope of annual EPS over cumulative months, divided by the mean of absolute EPS values; require at least four comparable annual EPS data points.",
+      "source": {
+        "markdown": "A minimum of the last four comparable EPS or SPS values is needed to compute the historical growth trends. Growth trends for securities without at least four years of comparable EPS or SPS data are not calculated",
+        "section": "2.2.1 Long-Term Historical Growth Trends",
+        "line": 1200
+      },
+      "datapoints": [
+        "five_year_eps_history"
+      ],
+      "thresholds": {
+        "MIN_COMPARABLE_YEARS": 4
+      },
+      "asserts": {
+        "technical": [
+          "five_year_eps_history has at least MIN_COMPARABLE_YEARS non-null entries when egro is populated"
+        ],
+        "business": [
+          "egro is null when fewer than 4 comparable EPS values exist",
+          "egro equals OLS slope of EPS on cumulative months divided by mean absolute EPS"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "scoring",
+      "name": "compute_sgro_ols",
+      "purpose": "Compute 5-year historical SPS growth trend (SGRO) as OLS regression slope of annual SPS over cumulative months, divided by the mean of absolute SPS values; require at least four comparable annual SPS data points.",
+      "source": {
+        "markdown": "A minimum of the last four comparable EPS or SPS values is needed to compute the historical growth trends. Growth trends for securities without at least four years of comparable EPS or SPS data are not calculated",
+        "section": "2.2.1 Long-Term Historical Growth Trends",
+        "line": 1200
+      },
+      "datapoints": [
+        "five_year_sps_history"
+      ],
+      "thresholds": {
+        "MIN_COMPARABLE_YEARS": 4
+      },
+      "asserts": {
+        "technical": [
+          "five_year_sps_history has at least MIN_COMPARABLE_YEARS non-null entries when sgro is populated"
+        ],
+        "business": [
+          "sgro is null when fewer than 4 comparable SPS values exist",
+          "sgro equals OLS slope of SPS on cumulative months divided by mean absolute SPS"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "scoring",
+      "name": "compute_roe",
+      "purpose": "Compute return on equity as trailing 12-month EPS divided by latest BVPS; suppress result when book value is non-positive, the date gap between BV and earnings exceeds 18 months, BV date is newer than earnings date, or consolidation bases differ.",
+      "source": {
+        "markdown": "ROE is considered meaningful and calculated only if the following conditions are met: the book value is positive; the difference between the book value date and earnings date is less than 18 months; the book value date is equal to or older than the earnings date; book value and earnings are both consolidated or both non-consolidated.",
+        "section": "2.2.2 Return on Equity (ROE)",
+        "line": 1239
+      },
+      "datapoints": [
+        "trailing_12m_earnings_per_share",
+        "book_value_per_share",
+        "earnings_period_date",
+        "book_value_period_date",
+        "consolidation_basis"
+      ],
+      "thresholds": {
+        "MAX_BV_EARNINGS_DATE_GAP_MONTHS": 18
+      },
+      "asserts": {
+        "technical": [
+          "book_value_per_share and trailing_12m_earnings_per_share present for all roe-populated rows"
+        ],
+        "business": [
+          "roe is null when book_value_per_share <= 0",
+          "roe is null when abs(book_value_period_date - earnings_period_date) > 18 months",
+          "roe is null when book_value_period_date > earnings_period_date",
+          "roe is null when consolidation bases differ"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "scoring",
+      "name": "compute_egrsf",
+      "purpose": "Compute short-term forward EPS growth rate as (EPS12F - EPS12B) / |EPS12B|, measuring expected 12-month earnings growth.",
+      "source": {
+        "markdown": "EGRSF = (EPS12F - EPS12B) / |EPS12B|",
+        "section": "2.2.5 Short-Term Forward Earnings Per Share Growth Rate (EGRSF)",
+        "line": 1297
+      },
+      "datapoints": [
+        "eps12f",
+        "eps12b"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "eps12f and eps12b both present when egrsf is populated"
+        ],
+        "business": [
+          "egrsf is null when eps12b is zero or null"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "maintenance",
+      "name": "exclude_egrlf_single_contributor_outlier",
+      "purpose": "Suppress EGRLF when the consensus estimate is an outlier (greater than 50% or less than -33%) and is based on only one analyst contributor.",
+      "source": {
+        "markdown": "In cases where the LT fwd EPS G is considered an outlier (greater than 50% or less than -33%) and the corresponding estimate is based on only one contributor, the variable will not be used by MSCI.",
+        "section": "2.2.6 Long-Term Forward Earnings Per Share Growth Rate (EGRLF)",
+        "line": 1305
+      },
+      "datapoints": [
+        "egrlf_value",
+        "egrlf_contributor_count"
+      ],
+      "thresholds": {
+        "OUTLIER_MAX": 0.5,
+        "OUTLIER_MIN": -0.33,
+        "MAX_CONTRIBUTORS_FOR_OUTLIER_SUPPRESSION": 1
+      },
+      "asserts": {
+        "technical": [
+          "egrlf_contributor_count present when egrlf_value is populated"
+        ],
+        "business": [
+          "egrlf_value is null when egrlf_value > 0.50 and egrlf_contributor_count == 1",
+          "egrlf_value is null when egrlf_value < -0.33 and egrlf_contributor_count == 1"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "scoring",
+      "name": "compute_evar",
+      "purpose": "Compute earnings variability as the standard deviation of year-on-year EPS growth over the last 5 fiscal years; requires at least 5 comparable EPS values; sign of denominator follows sign of prior-year EPS; growth null when prior-year EPS is zero.",
+      "source": {
+        "markdown": "A minimum of the last five comparable EPS values are needed to compute the earnings variability",
+        "section": "2.2.7 Earnings Variability (EVAR)",
+        "line": 1383
+      },
+      "datapoints": [
+        "five_year_eps_history"
+      ],
+      "thresholds": {
+        "MIN_COMPARABLE_EPS_PERIODS": 5
+      },
+      "asserts": {
+        "technical": [
+          "five_year_eps_history has 5 non-null entries when evar is populated"
+        ],
+        "business": [
+          "evar is null when fewer than 5 comparable EPS values exist",
+          "yoy_eps_growth is null when prior-year EPS is zero",
+          "yoy_eps_growth sign is flipped when prior-year EPS is negative"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "scoring",
+      "name": "compute_dps_annualized",
+      "purpose": "Annualize DPS as trailing 12m declared regular cash distributions; on distribution frequency change, use latest 6m only if it yields a higher annualized amount than prior; for US and Canada, multiply latest payment by distribution frequency.",
+      "source": {
+        "markdown": "if the regular cash distribution frequency is changed... MSCI estimates the current annualized dividend by using the latest 6 months of distribution if resulting in a higher amount than the previous annualized dividend. If the latest 6 months of distribution is lower than the previous annualized dividend, MSCI keeps the previous annualized dividend... In the US and Canada, however, regular cash distributions are annualized by multiplying the latest cash distributions by the frequency",
+        "section": "1.2.4 Dividends Per Share (DPS)",
+        "line": 821
+      },
+      "datapoints": [
+        "cash_distributions_last_12m",
+        "cash_distributions_last_6m",
+        "prior_annualized_dps",
+        "country_of_classification",
+        "payment_frequency"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "cash_distributions_last_12m or cash_distributions_last_6m present"
+        ],
+        "business": [
+          "when frequency_changed and country not in {US, CA}: annualized_dps = max(2 * cash_distributions_last_6m, prior_annualized_dps)",
+          "when country in {US, CA}: annualized_dps = latest_cash_distribution * payment_frequency",
+          "special dividends excluded unless paid for three consecutive years",
+          "extraordinary capital repayments excluded"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "event_handling",
+      "name": "apply_paf_to_per_share_data_nominal_event",
+      "purpose": "Adjust all fundamental per-share data by the price adjustment factor for nominal capital structure changes (no change in market cap), ensuring per-share figures remain consistent with the adjusted price; also applies to combined nominal and real events.",
+      "source": {
+        "markdown": "Nominal changes in capital structure, events that have no effect on the capitalization of a security, require fundamental data to be adjusted in the same way that the price of the security is adjusted using the price adjustment factor (PAF).",
+        "section": "4.1 Nominal Changes in Capital Structure",
+        "line": 3563
+      },
+      "datapoints": [
+        "price_adjustment_factor",
+        "per_share_fundamental_data"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "price_adjustment_factor present and non-zero"
+        ],
+        "business": [
+          "post-event per_share_fundamental_data equals pre-event value multiplied by price_adjustment_factor",
+          "security and index valuation ratios remain neutral to nominal events"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "event_handling",
+      "name": "suppress_small_event_dps_adjustment",
+      "purpose": "Do not adjust the current dividend rate when the PAF from a nominal or combined nominal and real capital structure event falls within 0.80 to 1.25, assuming the event will not change dividend policy.",
+      "source": {
+        "markdown": "In the case of the current dividend rate, if the adjustment factor is between 0.8 and 1.25, no adjustment is made. MSCI assumes that any event that leads to an adjustment factor within this range will typically not lead to a change in a company's dividend policy.",
+        "section": "4.1 Nominal Changes in Capital Structure",
+        "line": 3590
+      },
+      "datapoints": [
+        "price_adjustment_factor",
+        "annualized_dps"
+      ],
+      "thresholds": {
+        "PAF_LOWER_BOUND": 0.8,
+        "PAF_UPPER_BOUND": 1.25
+      },
+      "asserts": {
+        "technical": [
+          "price_adjustment_factor present"
+        ],
+        "business": [
+          "annualized_dps is unchanged when PAF_LOWER_BOUND <= price_adjustment_factor <= PAF_UPPER_BOUND"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "event_handling",
+      "name": "compute_proforma_bvps_real_event",
+      "purpose": "Compute pro forma BVPS for real capital structure changes by blending existing book value with capital raised at issue price, divided by post-event total shares.",
+      "source": {
+        "markdown": "Pro forma book value per share is calculated using the following formula: (Latest BVPS x Latest number of company shares outstanding) + (Number of shares issued x Issue price) / Number of shares after private placement or public offering",
+        "section": "4.2 Real Changes in Capital Structure",
+        "line": 3610
+      },
+      "datapoints": [
+        "latest_bvps",
+        "shares_outstanding_pre_event",
+        "shares_issued",
+        "issue_price"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "shares_outstanding_pre_event > 0",
+          "issue_price > 0"
+        ],
+        "business": [
+          "proforma_bvps = (latest_bvps * shares_outstanding_pre_event + shares_issued * issue_price) / (shares_outstanding_pre_event + shares_issued)"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "event_handling",
+      "name": "apply_loss_per_share_restatement",
+      "purpose": "When a real or combined capital structure event increases shares and earnings are negative, recalculate loss per share using post-event shares to prevent artificial amplification of losses in P/E and P/CE index calculations.",
+      "source": {
+        "markdown": "If earnings/cash earnings are negative, an adjustment factor is applied according to the change in number of shares (Pre-event number of shares/ Post-event number of shares) in order to avoid increasing losses artificially in P/E and P/CE calculations at index level.",
+        "section": "4.2 Real Changes in Capital Structure",
+        "line": 3640
+      },
+      "datapoints": [
+        "trailing_12m_earnings",
+        "shares_outstanding_pre_event",
+        "shares_outstanding_post_event"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "shares_outstanding_pre_event and shares_outstanding_post_event both present"
+        ],
+        "business": [
+          "loss_per_share is recalculated using post_event shares when trailing_12m_earnings < 0 and shares_outstanding_post_event > shares_outstanding_pre_event"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "event_handling",
+      "name": "mark_sales_noncomparable_on_large_event",
+      "purpose": "Mark the post-event fiscal year as non-comparable in sales and earnings, dropping the 5-year growth rate calculation, when a corporate event causes annual sales to increase by more than 50% or decrease by more than 33% and the variation is not due to normal operations.",
+      "source": {
+        "markdown": "Whenever post event annual sales increase by more than 50% or decrease by less than 33% and The variation is determined not to be due to normal continuous business operations... MSCI will mark the post event fiscal year reporting as non-comparable in sales and earnings against previous fiscals and drop the 5 year growth rate calculation.",
+        "section": "2.2.1 Long-Term Historical Growth Trends",
+        "line": 1217
+      },
+      "datapoints": [
+        "post_event_annual_sales",
+        "pre_event_annual_sales",
+        "event_type_flag"
+      ],
+      "thresholds": {
+        "SALES_INCREASE_THRESHOLD": 0.5,
+        "SALES_DECREASE_THRESHOLD": 0.33
+      },
+      "asserts": {
+        "technical": [
+          "post_event_annual_sales and pre_event_annual_sales present"
+        ],
+        "business": [
+          "egro and sgro are null for the affected security in the post-event fiscal year when comparability flag is set",
+          "MSCI waits for post-event annual sales before marking non-comparable when only interim sales are published"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "event_handling",
+      "name": "apply_proforma_fundamental_business_structure_change",
+      "purpose": "Use pro forma post-event fundamental data for style review when a significant M&A, spin-off inclusion, or IPO changes full market cap or shares outstanding by 50% or more increase or 33% or more decrease, provided the post-event entity moves between specified size segments.",
+      "source": {
+        "markdown": "MSCI uses a threshold of an increase of 50% or greater or a decrease of 33% or more, relative to the company's full market capitalization before the event to identify such significant events.",
+        "section": "4.4 Changes in Business Structure",
+        "line": 3669
+      },
+      "datapoints": [
+        "market_cap_pre_event",
+        "market_cap_post_event",
+        "shares_outstanding_pre_event",
+        "shares_outstanding_post_event",
+        "index_size_segment_pre_event",
+        "index_size_segment_post_event"
+      ],
+      "thresholds": {
+        "MCAP_INCREASE_THRESHOLD": 0.5,
+        "MCAP_DECREASE_THRESHOLD": 0.33,
+        "SHARES_INCREASE_THRESHOLD": 0.5,
+        "SHARES_DECREASE_THRESHOLD": 0.33
+      },
+      "asserts": {
+        "technical": [
+          "market_cap_pre_event > 0"
+        ],
+        "business": [
+          "style review performed only when security moves from non-constituent to GIMI constituent, or from Small Cap to Standard",
+          "pro forma fundamental data used until company reports post-event actuals"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "event_handling",
+      "name": "apply_proforma_for_loss_making_acquisition",
+      "purpose": "Use estimated pro forma combined fundamental data for an acquirer when it acquires a loss-making Standard Index constituent whose trailing 12-month losses exceeded USD 1 billion at month-end before the ex-date.",
+      "source": {
+        "markdown": "The acquired loss-making company was a constituent of the MSCI Standard Size Segment before the acquisition; and The 12-month trailing losses of the acquired loss-making company exceeded USD 1bn at the end of the month previous to the ex-date of the acquisition event.",
+        "section": "4.4 Changes in Business Structure",
+        "line": 3710
+      },
+      "datapoints": [
+        "acquired_company_trailing_12m_losses_usd",
+        "acquired_company_was_standard_constituent"
+      ],
+      "thresholds": {
+        "LOSS_THRESHOLD_USD_BN": 1
+      },
+      "asserts": {
+        "technical": [
+          "acquired_company_trailing_12m_losses_usd present"
+        ],
+        "business": [
+          "pro forma fundamental data applied until acquirer reports post-event actual results",
+          "both trailing loss threshold and Standard constituent status required"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "event_handling",
+      "name": "no_adjustment_for_buyback_special_dividend_debt_swap",
+      "purpose": "Make no fundamental data adjustment for share buybacks, special cash dividends, or debt-to-equity swaps; these event types are treated as pass-through by default.",
+      "source": {
+        "markdown": "For events such as share buybacks, special cash dividends, and debt-to-equity swaps, no adjustment is made generally.",
+        "section": "4 Fundamental Data Treatments for Corporate Events",
+        "line": 3555
+      },
+      "datapoints": [
+        "event_type_flag",
+        "per_share_fundamental_data"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "event_type_flag present"
+        ],
+        "business": [
+          "per_share_fundamental_data is unchanged when event_type in {share_buyback, special_cash_dividend, debt_to_equity_swap}"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "maintenance",
+      "name": "apply_ifrs_goodwill_amortization_adjustment",
+      "purpose": "Add back goodwill amortization to pre-IFRS historical earnings to maintain 5-year EPS comparability when IFRS adoption changes reported earnings by 10% or more.",
+      "source": {
+        "markdown": "MSCI will adjust historical [non-IFRS] earnings by adding back 'amortization of goodwill' for companies where the difference between IFRS earnings and non-IFRS earnings is more than or equal to 10%.",
+        "section": "Appendix I: MSCI's Treatment of Some Specific Aspects of IFRS",
+        "line": 3906
+      },
+      "datapoints": [
+        "historical_earnings_non_ifrs",
+        "historical_earnings_ifrs",
+        "goodwill_amortization"
+      ],
+      "thresholds": {
+        "MIN_EARNINGS_DIFF_PCT": 0.1
+      },
+      "asserts": {
+        "technical": [
+          "historical_earnings_ifrs and historical_earnings_non_ifrs both present for adjustment"
+        ],
+        "business": [
+          "adjusted pre-IFRS earnings = historical_earnings_non_ifrs + goodwill_amortization when abs((ifrs - non_ifrs) / non_ifrs) >= 0.10",
+          "previously published financial data is not revised; only internal comparability is adjusted"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "maintenance",
+      "name": "adjust_trailing_eps_real_estate_revaluation",
+      "purpose": "Adjust trailing EPS and five-year historical EPS for Real Estate companies (GICS Sector 60) by excluding gains or losses from revaluation of investment property, treating them as non-recurring.",
+      "source": {
+        "markdown": "'Revaluation of property' can have a large impact on earnings of Real Estate companies. Therefore, MSCI adjusts the earnings of real estate companies (i.e., companies falling under the GICS Industry Group 'Real Estate' for 'Gain / Loss due to Revaluation of Investment Property'). To compute the trailing EPS of a real estate company that has opted to revalue its investment property, MSCI adjusts the trailing EPS for the 'Gain / Loss due to Revaluation of Investment Property' for the latest trailing period updated by MSCI.",
+        "section": "Appendix I: MSCI's Treatment of Some Specific Aspects of IFRS",
+        "line": 3918
+      },
+      "datapoints": [
+        "gics_industry_group",
+        "trailing_12m_earnings",
+        "property_revaluation_gain_loss"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "property_revaluation_gain_loss present for GICS Sector 60 securities"
+        ],
+        "business": [
+          "adjusted_trailing_eps = trailing_eps - property_revaluation_gain_loss for GICS Sector 60 securities reporting under IFRS from December 2004 onwards",
+          "five-year historical EPS adjusted analogously for growth-trend comparability"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "maintenance",
+      "name": "announce_security_yield_correction_above_threshold",
+      "purpose": "Trigger a security-level announcement with revised valuation ratios when an error causes the incorrect security yield to deviate from the correct yield by more than 0.25 percent (0.5 percent for book value yield); historical security data is always revised regardless of magnitude.",
+      "source": {
+        "markdown": "If the incorrect security yields are within +/-0.25% of the correct yields (+/-0.5% for book value yield), no revision is done on the country and industry index. No announcement is made by MSCI. Per share figures and valuation ratios at security level are revised in the MSCI historical database. If the incorrect security yields are not within +/-0.25% of the correct yields (+/-0.5% for book value yield), an announcement is made by MSCI with the revised valuation ratios at the security level.",
+        "section": "Appendix III: Correction Policy",
+        "line": 4467
+      },
+      "datapoints": [
+        "security_yield_correct",
+        "security_yield_incorrect",
+        "ratio_type"
+      ],
+      "thresholds": {
+        "SECURITY_YIELD_THRESHOLD": 0.0025,
+        "SECURITY_BV_YIELD_THRESHOLD": 0.005
+      },
+      "asserts": {
+        "technical": [
+          "correct and incorrect security yield values available for comparison"
+        ],
+        "business": [
+          "historical security-level valuation ratios are always revised regardless of impact magnitude",
+          "security-level announcement triggered when abs(yield_error) > SECURITY_YIELD_THRESHOLD (or SECURITY_BV_YIELD_THRESHOLD for book value yield)"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "maintenance",
+      "name": "apply_index_revision_above_yield_threshold",
+      "purpose": "Trigger recalculation and announcement of index-level valuation ratios only when the error in country or industry index yield exceeds 0.1 percent (0.5 percent for book value yield); below threshold, no index revision or announcement is made.",
+      "source": {
+        "markdown": "If the incorrect index yields at country/industry level are within +/-0.1% of the correct yields (+/-0.5% for book value yield), no index revision is done. No announcement is made by MSCI. If the incorrect index yields are not within +/-0.1 of the correct yield (+/-0.5% for book value yield), new valuation ratios are calculated, for all the Indexes in which the security is included.",
+        "section": "Appendix III: Correction Policy",
+        "line": 4475
+      },
+      "datapoints": [
+        "index_yield_correct",
+        "index_yield_incorrect",
+        "ratio_type"
+      ],
+      "thresholds": {
+        "INDEX_YIELD_THRESHOLD": 0.001,
+        "INDEX_BV_YIELD_THRESHOLD": 0.005
+      },
+      "asserts": {
+        "technical": [
+          "correct and incorrect index yield values available for comparison"
+        ],
+        "business": [
+          "no index action when abs(index_yield_error) <= INDEX_YIELD_THRESHOLD (or INDEX_BV_YIELD_THRESHOLD for book value yield)",
+          "index-level announcement and revision triggered when abs(index_yield_error) exceeds threshold"
+        ]
+      },
+      "canonical_concept": null
+    },
+    {
+      "category": "maintenance",
+      "name": "apply_hyperinflationary_currency_substitution",
+      "purpose": "Publish fundamental data in a relatively stable foreign currency for companies domiciled in hyperinflationary economies, identified by cumulative inflation approaching or exceeding 100% over three years.",
+      "source": {
+        "markdown": "The cumulative inflation rate over three years is approaching, or exceeds, 100%... If a country qualifies as a hyperinflationary economy, MSCI may opt to publish the fundamental data and all other security ratios and growth rates in a relatively more stable foreign currency",
+        "section": "6 Hyperinflationary Economies - Adjustment of Fundamental Data",
+        "line": 3873
+      },
+      "datapoints": [
+        "country_of_classification",
+        "country_cumulative_inflation_3yr"
+      ],
+      "thresholds": {
+        "CUMULATIVE_INFLATION_THRESHOLD": 1,
+        "MEASUREMENT_PERIOD_YEARS": 3
+      },
+      "asserts": {
+        "technical": [
+          "country_cumulative_inflation_3yr present for all securities"
+        ],
+        "business": [
+          "reporting currency overridden to stable foreign currency when country_cumulative_inflation_3yr >= CUMULATIVE_INFLATION_THRESHOLD"
+        ]
+      },
+      "canonical_concept": null
+    }
+  ],
+  "reused_rules": [],
+  "mock_datapoints": [
+    {
+      "name": "security_id",
+      "type": "str",
+      "distribution": "random 6-character alphanumeric",
+      "description": "Unique security identifier.",
+      "canonical_concept": null,
+      "source_section": null,
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": []
+    },
+    {
+      "name": "weight",
+      "type": "float",
+      "distribution": "uniform(0.0001, 0.05)",
+      "description": "Index weight from base universe, normalised to sum to 1.",
+      "canonical_concept": null,
+      "source_section": null,
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": []
+    },
+    {
+      "name": "country_of_classification",
+      "type": "str",
+      "distribution": "choice(['US','CA','GB','IE','DE','JP','FR','AU','HK','SG','IN','BR','CN'])",
+      "description": "Country of classification per GIMI Methodology; determines reporting currency and share-count methodology.",
+      "canonical_concept": "gimi_country_classification",
+      "source_section": "1.1.3 Currency and Frequency",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": [
+        "US, CA, GB, IE use average shares for EPS/CEPS/SPS",
+        "hyperinflationary countries may have reporting currency overridden to a stable foreign currency"
+      ]
+    },
+    {
+      "name": "gics_industry_group",
+      "type": "str",
+      "distribution": "choice(['1010','2010','2510','3010','4010','4030','5010','6010','6020'])",
+      "description": "GICS Industry Group code; controls which per-share figures are published (Banks 4010: no SPS or CEPS; Insurance 4030: no CEPS).",
+      "canonical_concept": "gics_industry_group",
+      "source_section": "1.2.1, 1.2.3",
+      "semantic_threshold": null,
+      "taxonomy": "GICS Industry Group",
+      "definition_notes": [
+        "Banks (4010): SPS not published; CEPS not published",
+        "Insurance (4030): CEPS not published; net premiums earned used as sales proxy",
+        "Real Estate (GICS Sector 60, industry groups 6010/6020): property revaluation gains/losses treated as non-recurring for EPS"
+      ]
+    },
+    {
+      "name": "number_of_shares_outstanding",
+      "type": "float",
+      "distribution": "lognormal(mean=18, sigma=2)",
+      "description": "Total shares at company level at date of results; all classes including unlisted aggregated; stock options, warrants, and convertibles excluded; treasury shares excluded.",
+      "canonical_concept": null,
+      "source_section": "1.1.1 Number of Shares",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": [
+        "preferred shares with equity-like characteristics included",
+        "ADR/GDR/CPO securities: per-share data reported on per-DR basis"
+      ]
+    },
+    {
+      "name": "average_shares_outstanding",
+      "type": "float",
+      "distribution": "lognormal(mean=18, sigma=2)",
+      "description": "Average shares outstanding over the reporting period; used instead of period-end shares for EPS, CEPS, SPS in US, Canada, UK, Ireland.",
+      "canonical_concept": null,
+      "source_section": "1.1.1 Number of Shares",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": []
+    },
+    {
+      "name": "consolidation_basis",
+      "type": "str",
+      "distribution": "choice(['consolidated','non_consolidated'])",
+      "description": "Basis on which fundamental data is reported; MSCI uses consolidated data by default, non-consolidated only when consolidated is unavailable.",
+      "canonical_concept": null,
+      "source_section": "1.1.2 Consolidation",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": [
+        "in countries like India interim results may be non-consolidated while fiscal-period results are consolidated",
+        "ROE requires earnings and book value on the same consolidation basis"
+      ]
+    },
+    {
+      "name": "trailing_12m_earnings",
+      "type": "float",
+      "distribution": "normal(mean=1e9, sigma=5e8)",
+      "description": "Net income from continuing operations available to all equity shareholders, excluding extraordinary items, minority interest, and preferred dividends; adjusted for non-recurring items.",
+      "canonical_concept": "trailing_12m_earnings",
+      "source_section": "1.2.2 Earnings Per Share (EPS)",
+      "semantic_threshold": "net income from the continuing operations available to all equity shareholders excluding extraordinary items or non-recurring items",
+      "taxonomy": null,
+      "definition_notes": [
+        "Real Estate (GICS Sector 60): property revaluation gains/losses excluded",
+        "Oil & Gas (GICS Industry Group 1010): impairment of properties not excluded",
+        "Banks (4010) and Insurance (4030): unrealized gains/losses on financial assets not excluded",
+        "US/CA/UK/IE: uses basic undiluted EPS from continuing operations as reported"
+      ]
+    },
+    {
+      "name": "trailing_12m_sales",
+      "type": "float",
+      "distribution": "lognormal(mean=21, sigma=2)",
+      "description": "Net operating revenues from all ongoing lines of business; excise tax deducted; Banks (GICS 4010) excluded; Insurance (4030) uses net premiums earned.",
+      "canonical_concept": null,
+      "source_section": "1.2.1 Sales Per Share (SPS)",
+      "semantic_threshold": "net operating revenues from all on-going lines of business",
+      "taxonomy": null,
+      "definition_notes": [
+        "Banks (4010): SPS not published",
+        "Insurance (4030): net premiums earned used as proxy",
+        "cumulative sales used, not quarterly",
+        "excise tax always deducted when available"
+      ]
+    },
+    {
+      "name": "trailing_12m_cash_earnings",
+      "type": "float",
+      "distribution": "normal(mean=1.2e9, sigma=5e8)",
+      "description": "Earnings plus depreciation and amortization as reported; where amortization not reported, only depreciation added; latest fiscal D&A used if not in interim statements.",
+      "canonical_concept": null,
+      "source_section": "1.2.3 Cash Earnings Per Share (CEPS)",
+      "semantic_threshold": "earnings per share including depreciation and amortization as reported by the company",
+      "taxonomy": null,
+      "definition_notes": [
+        "Banks (4010) and Insurance (4030): CEPS not published"
+      ]
+    },
+    {
+      "name": "annualized_dps",
+      "type": "float",
+      "distribution": "uniform(0, 5)",
+      "description": "Annualized dividend per share; gross before withholding tax; excludes special dividends unless paid three consecutive years; excludes extraordinary capital repayments.",
+      "canonical_concept": null,
+      "source_section": "1.2.4 Dividends Per Share (DPS)",
+      "semantic_threshold": "sum of all the declared regular cash distributions including the ones not yet ex or paid over the latest 12-month period",
+      "taxonomy": null,
+      "definition_notes": [
+        "US/CA: latest cash distribution multiplied by payment frequency",
+        "frequency change: take latest 6m only if annualized amount is higher than prior",
+        "regular capital repayments treated as regular cash dividends",
+        "yields gross, withholding tax credits included when applicable"
+      ]
+    },
+    {
+      "name": "book_value_per_share",
+      "type": "float",
+      "distribution": "lognormal(mean=3, sigma=1)",
+      "description": "Shareholders equity at latest period end excluding minority interest, treasury shares, and preferred shares without equity-like characteristics.",
+      "canonical_concept": null,
+      "source_section": "1.2.5 Book Value Per Share (BVPS)",
+      "semantic_threshold": "shareholders' equity available to shareholders at the latest period end date excluding minority interest, treasury shares and preferred shares that do not exhibit equity like characteristics",
+      "taxonomy": null,
+      "definition_notes": [
+        "not a trailing 12m figure; always latest reported",
+        "used for P/BV, ROE, and internal growth rate"
+      ]
+    },
+    {
+      "name": "financial_period_end_date",
+      "type": "date",
+      "distribution": "date in past 24 months",
+      "description": "End date of the company's most recent reported financial period.",
+      "canonical_concept": null,
+      "source_section": "1.2 Historical Per Share Data Calculations",
+      "semantic_threshold": "gap between calculation date and financial reporting period end date is less than 18 months",
+      "taxonomy": null,
+      "definition_notes": []
+    },
+    {
+      "name": "eps1_consensus_forecast",
+      "type": "float",
+      "distribution": "normal(mean=2, sigma=1)",
+      "description": "Consensus analysts EPS estimate for the current fiscal year from Thomson I/B/E/S (Toyo Keizai for Japan securities not covered by I/B/E/S).",
+      "canonical_concept": null,
+      "source_section": "1.3 Forecasted Per Share Data",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": [
+        "current fiscal year is the fiscal year following the last year with published results",
+        "refreshed monthly"
+      ]
+    },
+    {
+      "name": "eps2_consensus_forecast",
+      "type": "float",
+      "distribution": "normal(mean=2.2, sigma=1)",
+      "description": "Consensus analysts EPS estimate for the next fiscal year from Thomson I/B/E/S.",
+      "canonical_concept": null,
+      "source_section": "1.3 Forecasted Per Share Data",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": [
+        "when null and months_to_fiscal_year_end >= 8, eps12f falls back to eps1_consensus_forecast"
+      ]
+    },
+    {
+      "name": "months_to_fiscal_year_end",
+      "type": "int",
+      "distribution": "randint(0, 12)",
+      "description": "Number of months remaining before the current fiscal year end (M in EPS12F/EPS12B formulas).",
+      "canonical_concept": null,
+      "source_section": "1.3 Forecasted Per Share Data",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": []
+    },
+    {
+      "name": "eps0_last_fiscal_year_eps",
+      "type": "float",
+      "distribution": "normal(mean=1.8, sigma=0.9)",
+      "description": "EPS from the last fully reported fiscal year; used as EPS0 in EPS12B calculation.",
+      "canonical_concept": null,
+      "source_section": "1.3 Forecasted Per Share Data",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": [
+        "if missing from the data vendor, MSCI's last reported fiscal year EPS is used"
+      ]
+    },
+    {
+      "name": "egrlf_value",
+      "type": "float",
+      "distribution": "normal(mean=0.12, sigma=0.15)",
+      "description": "Long-term forward EPS growth rate; consensus of analysts estimates typically for 3 to 5 years; suppressed when outlier with single contributor.",
+      "canonical_concept": null,
+      "source_section": "2.2.6 Long-Term Forward Earnings Per Share Growth Rate (EGRLF)",
+      "semantic_threshold": "greater than 50% or less than -33%",
+      "taxonomy": null,
+      "definition_notes": [
+        "used at index level via market-cap-weighted aggregation"
+      ]
+    },
+    {
+      "name": "egrlf_contributor_count",
+      "type": "int",
+      "distribution": "randint(1, 20)",
+      "description": "Number of analyst contributors to the EGRLF consensus estimate.",
+      "canonical_concept": null,
+      "source_section": "2.2.6 Long-Term Forward Earnings Per Share Growth Rate (EGRLF)",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": []
+    },
+    {
+      "name": "five_year_eps_history",
+      "type": "list[float]",
+      "distribution": "5 draws from normal(mean=1.5, sigma=0.8)",
+      "description": "List of up to 5 annual fiscal year-end EPS values used for EGRO and EVAR calculations.",
+      "canonical_concept": null,
+      "source_section": "2.2.1, 2.2.7",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": [
+        "MSCI may restate historical EPS for corporate events to maintain comparability",
+        "minimum 4 comparable values for EGRO; minimum 5 for EVAR"
+      ]
+    },
+    {
+      "name": "five_year_sps_history",
+      "type": "list[float]",
+      "distribution": "5 draws from lognormal(mean=5, sigma=1)",
+      "description": "List of up to 5 annual fiscal year-end SPS values used for SGRO calculation.",
+      "canonical_concept": null,
+      "source_section": "2.2.1",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": [
+        "minimum 4 comparable values required",
+        "MSCI may restate for corporate events"
+      ]
+    },
+    {
+      "name": "price_adjustment_factor",
+      "type": "float",
+      "distribution": "uniform(0.5, 2.0)",
+      "description": "Price adjustment factor (PAF) applied at the ex-date of a capital structure event; ratio of ex-price to cum-price.",
+      "canonical_concept": null,
+      "source_section": "4.1 Nominal Changes in Capital Structure",
+      "semantic_threshold": "between 0.8 and 1.25",
+      "taxonomy": null,
+      "definition_notes": [
+        "values within [0.80, 1.25] exempt dividend rate adjustment",
+        "when event increases shares the PAF decreases per-share figures; when event decreases shares the PAF increases per-share figures"
+      ]
+    },
+    {
+      "name": "country_cumulative_inflation_3yr",
+      "type": "float",
+      "distribution": "uniform(0, 2.0)",
+      "description": "Cumulative consumer price inflation for the country over the most recent 3-year period; triggers hyperinflationary treatment at or near 100%.",
+      "canonical_concept": null,
+      "source_section": "6 Hyperinflationary Economies",
+      "semantic_threshold": "cumulative inflation rate over three years is approaching, or exceeds, 100%",
+      "taxonomy": null,
+      "definition_notes": []
+    },
+    {
+      "name": "property_revaluation_gain_loss",
+      "type": "float",
+      "distribution": "normal(mean=0, sigma=1e8)",
+      "description": "Gain or loss from revaluation of investment property reported by Real Estate companies (GICS Sector 60); excluded from MSCI trailing and historical EPS as a non-recurring item.",
+      "canonical_concept": null,
+      "source_section": "Appendix I: MSCI's Treatment of Some Specific Aspects of IFRS",
+      "semantic_threshold": null,
+      "taxonomy": null,
+      "definition_notes": [
+        "adjustment applied to IFRS-reporting fiscals from December 2004 onwards for growth-trend comparability"
+      ]
+    }
+  ],
+  "composition_order": [],
+  "final_asserts": [
+    "every security in output has reporting gap between calculation date and financial period end date strictly less than 18 months",
+    "valuation ratios are neutral to nominal-only capital structure events when pre-event per-share figures are positive"
+  ],
+  "external_references": [
+    {
+      "methbook": "gimi",
+      "section": "1.1.3 Currency and Frequency",
+      "item": "country of classification",
+      "item_type": "reference"
+    },
+    {
+      "methbook": "gics",
+      "section": "1.2.1 Sales Per Share, 1.2.2 Earnings Per Share, 1.2.3 Cash Earnings Per Share",
+      "item": "industry group and sector codes",
+      "item_type": "reference"
+    },
+    {
+      "methbook": "corporate_events",
+      "section": "4 Fundamental Data Treatments for Corporate Events",
+      "item": "fallback policy for non-enumerated corporate events",
+      "item_type": "reference"
+    }
+  ],
+  "scoped_out": [
+    {
+      "quote": "MSCI began publishing annual fundamental data for developed market companies in 1969 and for emerging market companies in 1988.",
+      "concern": "Introduction and historical coverage table describe publication history, not transformation rules."
+    },
+    {
+      "quote": "This appendix provides examples on how index ratios are calculated.",
+      "concern": "Appendix II contains only numeric worked examples illustrating formulas defined in sections 3.1 and 3.2. No additional rules."
+    },
+    {
+      "quote": "The following sections have been updated since July 2017",
+      "concern": "Methodology Book Tracked Changes is a changelog with no rule content."
+    },
+    {
+      "quote": "MSCI calculates two types of security ratios: Valuation Ratios, Other Financial Ratios",
+      "concern": "Sections 2.1 Valuation Ratios and 2.2.3 Payout Ratio, 2.2.4 Current Internal Growth Rate (g), 2.2.8 through 2.2.42 define ratio formulas as pure arithmetic on defined datapoints with no eligibility, selection, weighting, or event thresholds beyond the general 18-month staleness rule already captured."
+    },
+    {
+      "quote": "Index ratios computed by MSCI result from the aggregation of the constituent using the methodology that best reflects the underlying index.",
+      "concern": "Section 3.1 Index Valuation Ratios and section 3.2 Other Index Financial Ratios (including 3.2.8 Estimated Daily Dividend Yield) define aggregation mechanics (inclusion-factor-weighted price-to-fundamental aggregation and a daily dividend-yield formula) that are computation specifications, not pipeline rules with conditional thresholds."
+    },
+    {
+      "quote": "MSCI covers the following Balance Sheet items in its product files.",
+      "concern": "Section 5 defines balance-sheet item coverage (FA, INV, OA, CA, BV, OL, LD, CL) and ratio formulas (MLEV, BLEV, DTOA). These are data product specifications and formula definitions; no conditional thresholds."
+    }
+  ],
+  "clarifications_needed": [
+    {
+      "quote": "for corporate events not described in this section or combinations of different types of corporate events and other exceptional cases, MSCI will determine the most appropriate implementation method and will announce it prior to the changes becoming effective",
+      "concern": "Section 4 intro: fallback for non-enumerated corporate events is fully discretionary. No algorithmic rule can be derived."
+    },
+    {
+      "quote": "MSCI will review the inflation rates of countries on a periodic basis to identify cases that meet the above threshold.",
+      "concern": "Section 6: review frequency for hyperinflationary classification is not specified; cannot determine whether annual, semi-annual, or event-driven."
+    },
+    {
+      "quote": "In order to calculate the short-term forward EPS growth rate, if the EPS of the last reported fiscal year is missing from the data vendor, then MSCI's last reported fiscal year EPS will be used.",
+      "concern": "Section 1.3: the distinction between vendor-supplied EPS0 and MSCI's own last reported fiscal year EPS is not defined, nor under what circumstances MSCI's figure differs from the vendor's."
+    },
+    {
+      "quote": "In order to provide meaningful historical growth trends, MSCI may restate EPS and SPS to reflect the impact of corporate events that may affect historical financial data on an on-going basis.",
+      "concern": "Sections 2.2.1 and 2.2.7: restatement of historical EPS/SPS for corporate events is discretionary ('may restate'). No algorithmic rule specifies which events trigger restatement or the restatement methodology."
+    },
+    {
+      "quote": "2) In order to make sales comparable, MSCI will make case-by-case adjustments.",
+      "concern": "Appendix I point 2: IFRS sales comparability adjustments are case-by-case. No threshold or formula extractable."
+    },
+    {
+      "quote": "in countries like India, owing to the disclosure procedures, there could be use of unconsolidated data for interim financial results whereas the fiscal period financial results could be consolidated.",
+      "concern": "Section 1.1.2: country-level consolidation-basis exception is described only by example (India). Scope of exception (which other countries, which interim types) is undefined."
+    },
+    {
+      "quote": "For certain companies that report higher revenues on account of notional contracts or sales, MSCI may report revenues net of operating cost.",
+      "concern": "Section 1.2.1: identification of 'certain companies' with notional-contract revenue is discretionary; no criteria or list is provided."
+    }
+  ]
+}

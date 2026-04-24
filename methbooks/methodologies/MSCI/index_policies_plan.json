@@ -1,0 +1,398 @@
+{
+  "identification": {
+    "provider": "MSCI",
+    "family": "Index Policies",
+    "slug": "index_policies",
+    "version_date": "2025-12-01",
+    "index_type": "reference"
+  },
+  "document_metadata": {
+    "title": "MSCI Index Policies",
+    "publication_month": "December 2025",
+    "pages": 20
+  },
+  "external_references": [
+    {
+      "methbook": "gimi",
+      "section": "MSCI Global Investable Market Indexes Methodology"
+    },
+    {
+      "methbook": "corporate_events",
+      "section": "MSCI Corporate Events Methodology"
+    },
+    {
+      "methbook": "index_calculation",
+      "section": "MSCI Index Calculation Methodology"
+    },
+    {
+      "methbook": "fundamental_data",
+      "section": "MSCI Fundamental Data Methodology"
+    }
+  ],
+  "new_rules": [
+    {
+      "category": "event_handling",
+      "name": "market_closure_price_carryforward",
+      "purpose": "Preserve equity index continuity by carrying forward the latest available closing price when a market is closed or a security does not trade on a given day or period.",
+      "source": {
+        "markdown": "In case of market closure or if a security does not trade on a specific day or a specific period, MSCI carries forward the latest available closing price to calculate its equity indexes.",
+        "section": "Index Calculation and Discretion",
+        "line": 533
+      },
+      "datapoints": [
+        "closing_price",
+        "market_status",
+        "is_trading"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "closing_price column present after carryforward"
+        ],
+        "business": [
+          "no security in a closed market or non-trading state has a null closing_price after carryforward"
+        ]
+      }
+    },
+    {
+      "category": "event_handling",
+      "name": "market_outage_partial_day_prices",
+      "purpose": "Use prices provided up to the point of a market outage for that day's equity index calculation, rather than carrying forward the prior day's close.",
+      "source": {
+        "markdown": "In case of market outage, MSCI will use the prices provided up to the point of the outage of that market for calculation of MSCI equity indexes on that day.",
+        "section": "Index Calculation and Discretion",
+        "line": 535
+      },
+      "datapoints": [
+        "intraday_price",
+        "market_outage_timestamp"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "intraday_price and market_outage_timestamp columns present"
+        ],
+        "business": [
+          "on outage days, the price used is the last price observed strictly before market_outage_timestamp"
+        ]
+      }
+    },
+    {
+      "category": "event_handling",
+      "name": "component_index_carryforward_on_unavailability",
+      "purpose": "Preserve blended, digital assets, and ETF-linked index calculation by carrying forward the latest available component index level when a component is temporarily or permanently unavailable.",
+      "source": {
+        "markdown": "In case of the unavailability of a component index level used in the calculation of an MSCI blended index, MSCI digital assets index or an MSCI ETF linked index, MSCI carries forward the latest available component index level to calculate its blended indexes.",
+        "section": "Index Calculation and Discretion",
+        "line": 537
+      },
+      "datapoints": [
+        "component_index_level",
+        "component_availability_flag"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "component_index_level column present after carryforward"
+        ],
+        "business": [
+          "no component has a null index level after carryforward is applied"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "correction_restatement_threshold",
+      "purpose": "Trigger historical index restatement when a data error's performance impact at the country or regional index level is deemed important.",
+      "source": {
+        "markdown": "If the impact of the error on performance is \"important\" at the index level, indexes are restated historically.",
+        "section": "Corrections Policy",
+        "line": 485
+      },
+      "datapoints": [
+        "error_impact_bps",
+        "index_level_scope"
+      ],
+      "thresholds": {
+        "important_threshold_bps": 50
+      },
+      "asserts": {
+        "technical": [
+          "error_impact_bps and index_level_scope columns present"
+        ],
+        "business": [
+          "restatement_flag is True for all records where error_impact_bps >= important_threshold_bps at country or regional index level"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "correction_window_12_month",
+      "purpose": "Exclude errors older than 12 months from the standard correction process; only errors within the rolling 12-month window are eligible for correction.",
+      "source": {
+        "markdown": "MSCI applies a 12-month correction period for index errors. Errors discovered that are older than 12 months are generally not corrected.",
+        "section": "Corrections Policy",
+        "line": 493
+      },
+      "datapoints": [
+        "error_occurrence_date",
+        "error_discovery_date"
+      ],
+      "thresholds": {
+        "correction_window_months": 12
+      },
+      "asserts": {
+        "technical": [
+          "error_occurrence_date and error_discovery_date columns present"
+        ],
+        "business": [
+          "no error with (error_discovery_date - error_occurrence_date) > 12 months is flagged eligible under the standard correction process"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "constituent_omission_restatement_override",
+      "purpose": "Restate history for errors in the list of index constituents (e.g., a security unintentionally omitted) even when aggregate performance impact is not deemed important.",
+      "source": {
+        "markdown": "In certain circumstances, such as errors in the list of index constituents (e.g., a security is unintentionally omitted) ... MSCI may also correct and restate history, even if the aggregate impact is not important.",
+        "section": "Corrections Policy",
+        "line": 488
+      },
+      "datapoints": [
+        "error_type",
+        "is_constituent_omission"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "error_type and is_constituent_omission columns present"
+        ],
+        "business": [
+          "restatement_flag is True where is_constituent_omission is True regardless of error_impact_bps"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "large_scale_error_restatement_override",
+      "purpose": "Restate history when an error affects a large number of securities (e.g., a third of the prices in a particular market) even when aggregate performance impact is not deemed important.",
+      "source": {
+        "markdown": "In certain circumstances, such as ... the error affects a large number of securities (e.g., a third of the prices in a particular market are in error) MSCI may also correct and restate history, even if the aggregate impact is not important.",
+        "section": "Corrections Policy",
+        "line": 489
+      },
+      "datapoints": [
+        "affected_security_count",
+        "total_market_security_count"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "affected_security_count and total_market_security_count columns present"
+        ],
+        "business": [
+          "restatement_flag may be True when (affected_security_count / total_market_security_count) indicates a large-scale error regardless of error_impact_bps"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "index_termination_notice_standard",
+      "purpose": "Guarantee market participants at least 3 months to transition before an index is terminated under standard circumstances.",
+      "source": {
+        "markdown": "MSCI will generally announce index terminations with at least three months' notice",
+        "section": "Index Termination Policy",
+        "line": 437
+      },
+      "datapoints": [
+        "termination_announcement_date",
+        "termination_effective_date",
+        "termination_cause"
+      ],
+      "thresholds": {
+        "minimum_notice_months": 3
+      },
+      "asserts": {
+        "technical": [
+          "termination_announcement_date and termination_effective_date present"
+        ],
+        "business": [
+          "days between announcement and effective date >= 90 for standard terminations not falling under EIC-determined exceptions"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "index_termination_notice_provisional",
+      "purpose": "Ensure provisional indexes created to reflect future methodology changes receive at least 1 week of advance termination notice.",
+      "source": {
+        "markdown": "The termination of such provisional indexes will be announced at least one week prior to the termination date.",
+        "section": "Index Termination Policy",
+        "line": 460
+      },
+      "datapoints": [
+        "is_provisional_index",
+        "termination_announcement_date",
+        "termination_effective_date"
+      ],
+      "thresholds": {
+        "minimum_notice_weeks": 1
+      },
+      "asserts": {
+        "technical": [
+          "is_provisional_index, termination_announcement_date, termination_effective_date present"
+        ],
+        "business": [
+          "days between announcement and effective date >= 7 for all provisional index terminations"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "index_discontinued_minimum_securities",
+      "purpose": "Discontinue an index when eligible security count falls below the methodology-defined minimum, since the index can no longer be calculated in accordance with the applicable methodology.",
+      "source": {
+        "markdown": "Indexes may also be discontinued if fewer than the required minimum number of securities are eligible for inclusion when applying a given methodology to a market.",
+        "section": "Index Termination Policy",
+        "line": 463
+      },
+      "datapoints": [
+        "eligible_security_count",
+        "methodology_minimum_securities"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "eligible_security_count and methodology_minimum_securities columns present"
+        ],
+        "business": [
+          "discontinued_flag is True when eligible_security_count < methodology_minimum_securities"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "methodology_change_announcement_lead",
+      "purpose": "Ensure methodology changes are announced at least 1 month before implementation, unless the EIC determines a faster timeline is required.",
+      "source": {
+        "markdown": "Methodology changes are generally announced at least one month prior to their implementation, unless specific circumstances require a faster implementation timeline as determined by the EIC.",
+        "section": "Methodology and Index Consultation Process",
+        "line": 372
+      },
+      "datapoints": [
+        "change_announcement_date",
+        "change_effective_date",
+        "eic_fast_track_flag"
+      ],
+      "thresholds": {
+        "standard_lead_months": 1
+      },
+      "asserts": {
+        "technical": [
+          "change_announcement_date, change_effective_date, eic_fast_track_flag present"
+        ],
+        "business": [
+          "days between announcement and effective date >= 30 where eic_fast_track_flag is False"
+        ]
+      }
+    }
+  ],
+  "reused_rules": [],
+  "event_handling": {
+    "rule_names": [
+      "market_closure_price_carryforward",
+      "market_outage_partial_day_prices",
+      "component_index_carryforward_on_unavailability"
+    ],
+    "intra_review_invariants": [
+      {
+        "quote": "MSCI's rules-based index methodologies, which cover index construction, maintenance and calculation, provide that discretion is not used in the production of the indexes except in unusual cases not effectively addressed by the methodology.",
+        "concern": "Discretion is reserved for cases not addressed by methodology. Routine between-review operations follow written rules; EIC escalation applies only to unusual cases (novel/complex corporate events, structural market changes, exchange operational issues, geo-political events, events beyond human control)."
+      },
+      {
+        "quote": "Timely and consistent treatment of corporate events also occurs outside regular rebalancings.",
+        "concern": "Between-review corporate event handling is governed by the MSCI Corporate Events Methodology rather than this policies document."
+      }
+    ]
+  },
+  "review_cadence": {
+    "schedules": [
+      {
+        "name": "Methodology Review",
+        "frequency": "at least annually"
+      }
+    ]
+  },
+  "scoped_out": [
+    {
+      "quote": "MSCI provides a wide variety of indexes all of which are governed by rules-based methodologies.",
+      "concern": "Overview section (pages 3-4) describes the MSCI index ecosystem and governance structure. No data transformations."
+    },
+    {
+      "quote": "MSCI indexes aim to accurately and objectively measure performance of a market or economic reality... Index methodologies should be rules-based and aim to find the right balance between representativeness of the underlying market or strategy and replicability.",
+      "concern": "Index Design Guidelines describe qualitative design principles (representativeness, replicability, efficiency) without specifying measurable thresholds or transformations."
+    },
+    {
+      "quote": "MSCI may trigger out-of-cycle methodology reviews based on, but not limited to, one of the following: Market participant feedback; Underlying market review and rebalancing; Unusual corporate events and other constituent data changes; Current events and news",
+      "concern": "Out-of-cycle review triggers are qualitative criteria for initiating a review, not transformations applied to constituent data."
+    },
+    {
+      "quote": "MSCI commences a public consultation when the EIC approves a proposal to make a material change to a methodology.",
+      "concern": "Methodology and Index Consultation Policy and Process (pages 7-9) describe procedural workflow for stakeholder consultations. No data transformations."
+    },
+    {
+      "quote": "The EIC would review the impact and approve appropriateness of a potential termination. EIC may also choose to escalate an index termination to the IPC.",
+      "concern": "Index Termination Policy governance procedures (EIC review, IPC escalation, alternative index communication, custom index modalities) are purely procedural. Quantitative notice thresholds are captured in new_rules; remainder scoped out."
+    },
+    {
+      "quote": "At times there may be a need to take an action that is not prescribed in the correction policy as stated above. When this is the case senior members across the MSCI Index Research and Production teams will develop a proposal keeping in mind the following factors in determining the most appropriate corrective action: index investability and replicability as well as potential reverse turnover.",
+      "concern": "Corrections discretion escalation framework is procedural (senior-member proposal, EIC review). No data transformation beyond those captured in the corrections rules."
+    },
+    {
+      "quote": "If MSCI determines that another price or index level is more appropriate based on the circumstances, an announcement would be sent to clients with the related information. All such determinations are made by EIC.",
+      "concern": "Discretionary EIC price/level determinations are case-by-case overrides of the calculation fallbacks, not a deterministic rule. Captured qualitatively via intra_review_invariants."
+    },
+    {
+      "quote": "MSCI assumes no responsibility for any potential use of its indexes by clients for a particular purpose.",
+      "concern": "Notice on Index Usage (page 15) is advisory and disclaimer content. No transformations."
+    },
+    {
+      "quote": "February 2018 updates: Clarification on the launch of methodology consultations",
+      "concern": "Historical changelog (pages 16-17) records version history only."
+    },
+    {
+      "quote": "\u00a9 2022 MSCI Inc. All rights reserved.",
+      "concern": "Contact information (page 18) and legal notice and disclaimer (pages 19-20) are legal boilerplate."
+    }
+  ],
+  "clarifications_needed": [
+    {
+      "quote": "Currently the threshold for corrections is 50 basis points at the country or regional index level.",
+      "concern": "Footnote 4 qualifies the 50 bps threshold with 'currently', implying it is not permanently fixed. The conditions under which the EIC would revise this threshold and any notification protocol are not described."
+    },
+    {
+      "quote": "Indexes may also be discontinued if fewer than the required minimum number of securities are eligible for inclusion when applying a given methodology to a market. For example, this could happen in GIMI Large, Mid or Small Cap Indexes or indexes based on the GICS segmentation.",
+      "concern": "The specific minimum number of eligible securities is not stated in this document and varies per methodology. The index_discontinued_minimum_securities rule cannot be parameterized without consulting each specific index methodology book."
+    },
+    {
+      "quote": "In the event that an appropriate alternative index is established, the details of the methodology governing this index as well as the timing of the transition would be publicly communicated in advance of implementation.",
+      "concern": "The document does not specify what constitutes an 'appropriate alternative index' nor how transition timing is determined. No threshold or rule can be derived without further specification."
+    },
+    {
+      "quote": "the error affects a large number of securities (e.g., a third of the prices in a particular market are in error)",
+      "concern": "The 'one third of prices' figure is given as an example rather than a definitive threshold. The large_scale_error_restatement_override rule therefore has no numeric threshold; the quantitative cutoff for 'large number of securities' is not fixed in this document."
+    },
+    {
+      "quote": "Corrections related to regular index rebalancings or corporate events are assessed on a case by case basis.",
+      "concern": "Rebalancing-related and corporate-event-related corrections are carved out of the standard corrections rules (12-month window, 50 bps threshold) without specifying the alternative decision criteria. No rule can be written without further specification."
+    },
+    {
+      "quote": "In the case of index terminations due to circumstances not within MSCI's control ... the EIC will determine the appropriate termination timeframe depending on the specific situation.",
+      "concern": "The 3-month standard termination notice rule has an EIC-determined exception for uncontrollable circumstances with no specified minimum timeframe. The index_termination_notice_standard rule cannot be asserted on terminations where this exception applies."
+    }
+  ],
+  "composition_order": [],
+  "final_asserts": [],
+  "mock_datapoints": []
+}

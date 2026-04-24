@@ -1,0 +1,1277 @@
+{
+  "identification": {
+    "provider": "MSCI",
+    "family": "Climate Action",
+    "slug": "climate_action",
+    "version_date": "2025-12-11",
+    "index_type": "climate"
+  },
+  "document_metadata": {
+    "title": "MSCI Climate Action Indexes Methodology",
+    "publication": "December 2025",
+    "pipeline_folder": "MSCI_Climate_Action_Indexes_Methodology_20251211"
+  },
+  "universe": {
+    "applicable_universe": {
+      "methbook": "gimi"
+    },
+    "eligibility_scope": "All existing constituents of the Parent Index."
+  },
+  "data_requirements": {
+    "mandatory_products": [
+      {
+        "methbook": "msci_controversies"
+      },
+      {
+        "methbook": "msci_climate_change_metrics"
+      },
+      {
+        "methbook": "msci_bisr"
+      },
+      {
+        "methbook": "msci_esg_ratings"
+      },
+      {
+        "methbook": "msci_sustainable_impact_metrics"
+      }
+    ],
+    "mandatory_fields": [
+      {
+        "datapoint": "msci_controversies_score",
+        "reason": "Red Flag exclusion and quarterly screen"
+      },
+      {
+        "datapoint": "emission_intensity",
+        "reason": "Emission Eligibility and Intensity Score"
+      },
+      {
+        "datapoint": "has_emission_intensity_data",
+        "reason": "Unrated treatment; securities without calculable Emission Intensity are ineligible"
+      },
+      {
+        "datapoint": "crm_weighted_avg_score",
+        "reason": "Climate Risk Management Eligibility and scoring"
+      },
+      {
+        "datapoint": "green_business_revenue_pct",
+        "reason": "Green Business Score and Security-Level Assessment adjustment"
+      },
+      {
+        "datapoint": "approved_sbti",
+        "reason": "Emission Eligibility and Security-Level Assessment adjustment"
+      },
+      {
+        "datapoint": "gics_sector",
+        "reason": "All sector-relative quartile calculations and sector weight caps"
+      },
+      {
+        "datapoint": "ff_mcap",
+        "reason": "Tie-breaking in sector rankings and weighting"
+      },
+      {
+        "datapoint": "parent_index_weight",
+        "reason": "Renormalization and active sector weight calculation"
+      }
+    ],
+    "preprocessing": [
+      {
+        "step": "emission_intensity_95th_pct_threshold",
+        "description": "95th percentile of Emission Intensity among MSCI ACWI constituents with emission data; computed from MSCI ACWI Index constituents.",
+        "source_section": "2.2.3"
+      },
+      {
+        "step": "potential_emission_95th_pct_threshold",
+        "description": "95th percentile of Total Potential Carbon Emissions excluding Metallurgical Coal among MSCI ACWI constituents where fossil_fuel_reserves_energy_application is True and total potential carbon emissions data is present.",
+        "source_section": "2.2.3"
+      },
+      {
+        "step": "crm_weighted_avg_score_calculation",
+        "description": "Weighted average of 7 MSCI ESG Ratings key issue management scores (Carbon Emissions, Product Carbon Footprint, Climate Change Vulnerability, Biodiversity and Land Use, Clean Tech Opportunities, Green Building Opportunities, Renewable Energy Opportunities). Missing key issue scores are substituted with zero. If weighted average is zero or cannot be calculated and carbon emissions key issue weight is zero, set equal to Carbon Emissions Management Score.",
+        "source_section": "Appendix III"
+      },
+      {
+        "step": "emission_track_record_calculation",
+        "description": "Geometric average of last 3 yearly YoY emission changes. Assigned only to securities where: Average Yearly Emission Change < -2%, security reports Scope 1 and 2 emissions, and security has published an emission reduction target. Securities with fewer than 4 years of emission data are not assigned a track record.",
+        "source_section": "Appendix II"
+      },
+      {
+        "step": "green_business_revenue_pct_calculation",
+        "description": "Cumulative % revenue from six Clean Tech themes: Alternative Energy, Energy Efficiency, Sustainable Water, Green Building, Pollution Prevention, Sustainable Agriculture (sourced from MSCI Sustainable Impact Metrics).",
+        "source_section": "Appendix IV"
+      }
+    ]
+  },
+  "unrated_treatment": {
+    "policy": "exclude",
+    "details": {
+      "missing_products": "Companies not assessed by MSCI Solutions on MSCI Controversies, MSCI Climate Change Metrics, or MSCI Business Involvement Screening Research are excluded from the index.",
+      "missing_emission_intensity": "Companies for which Emission Intensity cannot be calculated are excluded.",
+      "crm_missing_key_issues": "For Climate Risk Management Weighted Average Score calculation, missing key issue management scores are substituted with zero rather than excluding the security. See preprocessing step crm_weighted_avg_score_calculation."
+    }
+  },
+  "new_rules": [
+    {
+      "category": "eligibility",
+      "name": "exclude_red_flag_controversies",
+      "purpose": "Exclude companies with an ongoing Very Severe controversy (Red Flag) directly implicating the company through its actions, products, or operations.",
+      "source": {
+        "markdown": "All companies assessed as having involvement in controversies that are classified as Red Flags (MSCI Controversies Score of 0).",
+        "section": "2.2.1 Controversies Score Eligibility",
+        "line": 140
+      },
+      "datapoints": [
+        "msci_controversies_score"
+      ],
+      "thresholds": {
+        "red_flag_score": 0
+      },
+      "canonical_concept": "msci_controversies_score_eligibility",
+      "asserts": {
+        "technical": [
+          "msci_controversies_score column present after filter",
+          "no null values in msci_controversies_score for remaining rows"
+        ],
+        "business": [
+          "no remaining security has msci_controversies_score == 0"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_tobacco",
+      "purpose": "Exclude tobacco producers and companies deriving significant revenue from tobacco-related activities.",
+      "source": {
+        "markdown": "All companies classified as a 'Producer'. All companies deriving 5% or more aggregate revenue from the production, distribution, retail, supply, and licensing of tobacco related products.",
+        "section": "Appendix I: ESG Business Involvement Eligibility",
+        "line": 596
+      },
+      "datapoints": [
+        "tobacco_producer_flag",
+        "tobacco_revenue_pct"
+      ],
+      "thresholds": {
+        "revenue_threshold_pct": 5
+      },
+      "asserts": {
+        "technical": [
+          "tobacco_producer_flag and tobacco_revenue_pct columns present after filter"
+        ],
+        "business": [
+          "no remaining security has tobacco_producer_flag == True",
+          "no remaining security has tobacco_revenue_pct >= 5.0"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_thermal_coal_mining",
+      "purpose": "Exclude companies with material revenue from thermal coal mining and external sale; excludes metallurgical coal, internal power generation, intra-company sales, and trading revenue.",
+      "source": {
+        "markdown": "All companies deriving 1% or more revenue (either reported or estimated) from the mining of thermal coal (including lignite, bituminous, anthracite and steam coal) and its sale to external parties.",
+        "section": "Appendix I: ESG Business Involvement Eligibility",
+        "line": 604
+      },
+      "datapoints": [
+        "thermal_coal_mining_revenue_pct"
+      ],
+      "thresholds": {
+        "revenue_threshold_pct": 1
+      },
+      "definition_notes": [
+        "Excludes revenue from metallurgical coal",
+        "Excludes coal mined for internal power generation",
+        "Excludes intra-company sales of mined thermal coal",
+        "Excludes revenue from coal trading"
+      ],
+      "asserts": {
+        "technical": [
+          "thermal_coal_mining_revenue_pct column present after filter"
+        ],
+        "business": [
+          "no remaining security has thermal_coal_mining_revenue_pct >= 1.0"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_oil_sands",
+      "purpose": "Exclude companies with material revenue from oil sands extraction that own reserves and disclose extraction revenue.",
+      "source": {
+        "markdown": "All companies deriving 5% or more revenue from oil sands extraction, which own oil sands reserves and disclose evidence of deriving revenue from oil sands extraction.",
+        "section": "Appendix I: ESG Business Involvement Eligibility",
+        "line": 613
+      },
+      "datapoints": [
+        "oil_sands_extraction_revenue_pct",
+        "has_oil_sands_reserves"
+      ],
+      "thresholds": {
+        "revenue_threshold_pct": 5
+      },
+      "definition_notes": [
+        "Excludes revenue from non-extraction activities (exploration, surveying, processing, refining)",
+        "Excludes ownership of reserves with no associated extraction revenue",
+        "Excludes intra-company sales"
+      ],
+      "asserts": {
+        "technical": [
+          "oil_sands_extraction_revenue_pct and has_oil_sands_reserves columns present after filter"
+        ],
+        "business": [
+          "no remaining security satisfies oil_sands_extraction_revenue_pct >= 5.0 AND has_oil_sands_reserves == True"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_nuclear_weapons",
+      "purpose": "Exclude companies involved in manufacturing, assembling, or servicing nuclear warheads, missiles, dedicated components, delivery platforms, or auxiliary nuclear weapons services.",
+      "source": {
+        "markdown": "All companies that manufacture nuclear warheads and/or whole nuclear missiles... All companies that manufacture components that were developed or are significantly modified for exclusive use in nuclear weapons...",
+        "section": "Appendix I: ESG Business Involvement Eligibility",
+        "line": 622
+      },
+      "datapoints": [
+        "nuclear_weapons_flag"
+      ],
+      "thresholds": {},
+      "definition_notes": [
+        "Covers assembly and integration of warhead and missile body",
+        "Covers contracts to operate/manage government-owned facilities that manufacture nuclear warheads and missiles",
+        "Covers components developed or significantly modified for exclusive nuclear use",
+        "Covers delivery platforms developed or significantly modified for exclusive nuclear delivery",
+        "Covers auxiliary services: repair, maintenance, overhaul, upgrade, stockpiling, R&D, testing, simulations",
+        "Also covers components and platforms NOT exclusively developed for nuclear use but capable of nuclear application"
+      ],
+      "asserts": {
+        "technical": [
+          "nuclear_weapons_flag column present after filter"
+        ],
+        "business": [
+          "no remaining security has nuclear_weapons_flag == True"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_high_emitters_without_sbti",
+      "purpose": "Exclude high-emission companies without approved science-based targets to retain only those with either low emissions or a credible emissions commitment.",
+      "source": {
+        "markdown": "Securities which either have higher Emission Intensity than the High Emission Threshold... or higher total potential emission than the High Potential Emission Threshold... and do not yet have approved science-based targets are excluded.",
+        "section": "2.2.3 Emission Eligibility",
+        "line": 176
+      },
+      "datapoints": [
+        "emission_intensity",
+        "total_potential_carbon_emissions_ex_met_coal",
+        "fossil_fuel_reserves_energy_application",
+        "approved_sbti",
+        "has_emission_intensity_data"
+      ],
+      "thresholds": {
+        "emission_intensity_percentile": 95,
+        "potential_emission_percentile": 95
+      },
+      "definition_notes": [
+        "High Emission Threshold: 95th percentile of Emission Intensity among MSCI ACWI constituents with emission data",
+        "High Potential Emission Threshold: 95th percentile of Total Potential Carbon Emissions ex Metallurgical Coal among MSCI ACWI constituents where fossil_fuel_reserves_energy_application is True and data is present",
+        "Exclusion applies when EITHER threshold is breached AND approved_sbti is False",
+        "Securities without Total Potential Carbon Emissions data are excluded from the 95th percentile calculation for that threshold"
+      ],
+      "asserts": {
+        "technical": [
+          "emission_intensity and approved_sbti columns present after filter"
+        ],
+        "business": [
+          "no remaining security breaches either emission threshold without approved_sbti"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_bottom_quartile_climate_risk_management",
+      "purpose": "Exclude securities with the least favorable Climate Risk Management assessment relative to sector peers (lowest quartile by sector-relative CRM Weighted Average Score).",
+      "source": {
+        "markdown": "All securities which are in the lowest quartile of their GICS sector based on their Climate Risk Management Score are excluded.",
+        "section": "2.2.4 Climate Risk Management Eligibility",
+        "line": 194
+      },
+      "datapoints": [
+        "crm_weighted_avg_score",
+        "gics_sector"
+      ],
+      "thresholds": {
+        "excluded_quartile_score": 1
+      },
+      "asserts": {
+        "technical": [
+          "crm_weighted_avg_score and gics_sector columns present after filter"
+        ],
+        "business": [
+          "no remaining security has sector-relative CRM quartile score of 1"
+        ]
+      }
+    },
+    {
+      "category": "scoring",
+      "name": "score_intensity",
+      "purpose": "Assign each security a sector-relative quartile (1-4) based on Scope 1+2+3 GHG Emission Intensity; score 4 indicates highest (worst) emission intensity within sector.",
+      "source": {
+        "markdown": "Intensity Score - Each security is assigned to a quartile based on its sector relative Scope 1+2+3 Greenhouse Gas (GHG) Intensity.",
+        "section": "2.3.1 Security-Level Assessment",
+        "line": 206
+      },
+      "datapoints": [
+        "emission_intensity",
+        "gics_sector",
+        "ff_mcap"
+      ],
+      "thresholds": {
+        "quartile_count": 4
+      },
+      "canonical_concept": "sector_relative_ghg_intensity_quartile",
+      "asserts": {
+        "technical": [
+          "intensity_score column added, dtype int, no nulls"
+        ],
+        "business": [
+          "all intensity_score values in {1, 2, 3, 4}",
+          "within each gics_sector, intensity_score is distributed across all four quartiles"
+        ]
+      }
+    },
+    {
+      "category": "scoring",
+      "name": "score_green_business_revenue",
+      "purpose": "Assign each security a sector-relative quartile (1-4) based on cumulative Green Business Revenue from six Clean Tech themes; score 4 indicates highest green revenue within sector.",
+      "source": {
+        "markdown": "Green Business Revenue - Security level cumulative % of revenue from a set of 'Clean Tech' themes described in Appendix IV.",
+        "section": "Appendix II: Calculation of Security Level Scores",
+        "line": 710
+      },
+      "datapoints": [
+        "green_business_revenue_pct",
+        "gics_sector",
+        "ff_mcap"
+      ],
+      "thresholds": {
+        "quartile_count": 4
+      },
+      "asserts": {
+        "technical": [
+          "green_business_score column added, dtype int, no nulls"
+        ],
+        "business": [
+          "all green_business_score values in {1, 2, 3, 4}"
+        ]
+      }
+    },
+    {
+      "category": "scoring",
+      "name": "score_climate_risk_management",
+      "purpose": "Assign each security a sector-relative quartile (1-4) based on CRM Weighted Average Score; score 4 indicates most favorable CRM assessment within sector.",
+      "source": {
+        "markdown": "Climate Risk Management Raw Score - Security level weighted average of a set of climate change related key issue management scores which are described in Appendix III.",
+        "section": "Appendix II: Calculation of Security Level Scores",
+        "line": 714
+      },
+      "datapoints": [
+        "crm_weighted_avg_score",
+        "gics_sector",
+        "ff_mcap"
+      ],
+      "thresholds": {
+        "quartile_count": 4
+      },
+      "asserts": {
+        "technical": [
+          "climate_risk_management_score column added, dtype int, no nulls"
+        ],
+        "business": [
+          "all climate_risk_management_score values in {1, 2, 3, 4}"
+        ]
+      }
+    },
+    {
+      "category": "scoring",
+      "name": "score_emission_track_record",
+      "purpose": "Assign each security a sector-relative quartile (1-4) based on Emission Track Record (geometric avg YoY change); score 1 indicates strongest historic emission reductions within sector.",
+      "source": {
+        "markdown": "Emission Track Record \u2013 Security level track record is calculated as follows: Security level yearly (YoY) change in emission is calculated for last 4 years (3 yearly changes).",
+        "section": "Appendix II: Calculation of Security Level Scores",
+        "line": 720
+      },
+      "datapoints": [
+        "emission_track_record",
+        "gics_sector",
+        "ff_mcap"
+      ],
+      "thresholds": {
+        "quartile_count": 4,
+        "avg_yearly_change_threshold_pct": -2
+      },
+      "definition_notes": [
+        "Only securities with emission_track_record assigned (meeting all three conditions) participate in quartile ranking",
+        "Securities without a track record value do not receive a track record score",
+        "Score 4 corresponds to weakest track record (least negative or positive change); score 1 corresponds to strongest reduction"
+      ],
+      "asserts": {
+        "technical": [
+          "track_record_score column added; null is permissible for securities without emission_track_record"
+        ],
+        "business": [
+          "all non-null track_record_score values in {1, 2, 3, 4}"
+        ]
+      }
+    },
+    {
+      "category": "scoring",
+      "name": "assess_credible_track_record",
+      "purpose": "Flag a security as having Credible Track Record if and only if its Track Record Score is 1.",
+      "source": {
+        "markdown": "Security is assessed to have Credible Track Record if it is assigned a Track Record Score of 1.",
+        "section": "Appendix II: Calculation of Security Level Scores",
+        "line": 776
+      },
+      "datapoints": [
+        "track_record_score"
+      ],
+      "thresholds": {
+        "credible_track_record_score": 1
+      },
+      "asserts": {
+        "technical": [
+          "credible_track_record column added, dtype bool, null permissible where track_record_score is null"
+        ],
+        "business": [
+          "credible_track_record is True only where track_record_score == 1"
+        ]
+      }
+    },
+    {
+      "category": "scoring",
+      "name": "compute_security_level_assessment",
+      "purpose": "Derive the final Security-Level Assessment by adjusting the Intensity Score downward for companies with approved SBTi or credible track record, then for companies with strong CRM or Green Business scores, floored at 1.",
+      "source": {
+        "markdown": "Each security is assigned a final Assessment by adjusting the initial Intensity Score according to the following sequence: The Intensity Score is lowered by two quartiles for all securities that either have an approved science-based targets (SBTi) or are assessed to have Credible Track Record.",
+        "section": "2.3.1 Security-Level Assessment",
+        "line": 237
+      },
+      "datapoints": [
+        "intensity_score",
+        "approved_sbti",
+        "credible_track_record",
+        "climate_risk_management_score",
+        "green_business_score",
+        "green_business_revenue_pct"
+      ],
+      "thresholds": {
+        "sbti_or_track_record_promotion_quartiles": 2,
+        "crm_or_gbr_promotion_quartiles": 1,
+        "promotion_trigger_quartile_score": 4,
+        "gbr_minimum_pct_for_gbr_promotion": 5,
+        "assessment_floor": 1
+      },
+      "definition_notes": [
+        "Tier 1 (SBTi or Credible Track Record): lower intensity_score by 2; Tier 1 takes precedence, Tier 2 not applied",
+        "Tier 2 (neither SBTi nor Credible Track Record): lower intensity_score by 1 if climate_risk_management_score == 4 OR (green_business_score == 4 AND green_business_revenue_pct >= 5.0)",
+        "Assessment floored at 1 regardless of adjustment magnitude"
+      ],
+      "asserts": {
+        "technical": [
+          "security_level_assessment column added, dtype int, no nulls"
+        ],
+        "business": [
+          "all security_level_assessment values in {1, 2, 3, 4}",
+          "no security has security_level_assessment < 1",
+          "any security with approved_sbti or credible_track_record has security_level_assessment <= max(1, intensity_score - 2)"
+        ]
+      }
+    },
+    {
+      "category": "ranking",
+      "name": "rank_by_assessment_then_mcap",
+      "purpose": "Construct the Ranked Universe by ordering eligible securities within each GICS sector ascending by Security-Level Assessment and descending by float-adjusted market cap to break ties.",
+      "source": {
+        "markdown": "The Ranked Universe is constructed by sorting eligible securities of each GICS sector, in ascending order of Security-Level Assessment and descending order of float adjusted market capitalization.",
+        "section": "2.3.2 Ranked Universe",
+        "line": 261
+      },
+      "datapoints": [
+        "security_level_assessment",
+        "ff_mcap",
+        "gics_sector"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "sector_rank column added per gics_sector, no nulls, integer starting at 1"
+        ],
+        "business": [
+          "within each gics_sector, rank is strictly ordered by ascending security_level_assessment then descending ff_mcap"
+        ]
+      }
+    },
+    {
+      "category": "selection",
+      "name": "select_top_50pct_with_buffer",
+      "purpose": "Select approximately 50% of Applicable Universe securities per GICS sector using a buffer band that preferentially retains existing constituents ranked between 40% and 60%.",
+      "source": {
+        "markdown": "For each GICS sector in the Ranked Universe, 50% of the number of securities in the Applicable Universe are selected in the following order...",
+        "section": "2.3.3 Security Selection",
+        "line": 266
+      },
+      "datapoints": [
+        "sector_rank",
+        "gics_sector",
+        "is_current_constituent"
+      ],
+      "thresholds": {
+        "target_coverage_pct": 50,
+        "lower_buffer_pct": 40,
+        "upper_buffer_pct": 60
+      },
+      "definition_notes": [
+        "Step 1: Select all securities ranked above the 40% cutoff (rank <= floor(0.40 * N_applicable_sector))",
+        "Step 2: From remaining securities ranked in the 40-60% band, select existing constituents first",
+        "Step 3: Continue selecting non-constituent securities in the band until total selected <= 50% of N; any single security that would take total beyond 50% is also selected"
+      ],
+      "asserts": {
+        "technical": [
+          "selected flag added as boolean column, no nulls"
+        ],
+        "business": [
+          "selected count per sector is approximately 50% of applicable universe count per sector",
+          "all top-40% securities are selected",
+          "existing constituents in the 40-60% band are selected before non-constituents"
+        ]
+      }
+    },
+    {
+      "category": "weighting",
+      "name": "renormalize_parent_weights",
+      "purpose": "Set each selected security's weight to its Parent Index weight renormalized so that selected securities sum to 100%.",
+      "source": {
+        "markdown": "The Parent Index weights of selected securities are renormalized to 100%.",
+        "section": "2.4 Weighting Of Selected Securities",
+        "line": 300
+      },
+      "datapoints": [
+        "parent_index_weight"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "weight column modified in-place, no nulls, all non-negative"
+        ],
+        "business": [
+          "abs(weight.sum() - 1.0) < 1e-6"
+        ]
+      }
+    },
+    {
+      "category": "weighting",
+      "name": "cap_issuer_weight_5pct",
+      "purpose": "Cap any single issuer's weight at 5% to limit concentration, redistributing excess weight across remaining securities.",
+      "source": {
+        "markdown": "Additionally, the max issuer weights are capped at 5%.",
+        "section": "2.4 Weighting Of Selected Securities",
+        "line": 300
+      },
+      "datapoints": [
+        "issuer_id",
+        "weight"
+      ],
+      "thresholds": {
+        "max_issuer_weight": 0.05
+      },
+      "asserts": {
+        "technical": [
+          "weight column non-negative after cap, no nulls"
+        ],
+        "business": [
+          "no issuer aggregate weight exceeds 0.05",
+          "abs(weight.sum() - 1.0) < 1e-6"
+        ]
+      }
+    },
+    {
+      "category": "weighting",
+      "name": "apply_active_sector_weight_cap_floor",
+      "purpose": "Restrict each GICS sector's active weight (index weight minus Parent Index weight) to a +/-5% band, then redistribute remaining sector weights to restore 100% total.",
+      "source": {
+        "markdown": "Active sector weights are capped in the following steps: Active sector weights are calculated by aggregating the active weight of securities in the Parent Index... Active sector weights which are greater than +5% are capped at +5% and active sector weights which are smaller than -5% are floored at -5%.",
+        "section": "2.4.1 Active GICS Sector Weight Cap and Floor",
+        "line": 305
+      },
+      "datapoints": [
+        "weight",
+        "parent_index_weight",
+        "gics_sector"
+      ],
+      "thresholds": {
+        "active_sector_weight_cap": 0.05,
+        "active_sector_weight_floor": -0.05
+      },
+      "definition_notes": [
+        "Active weight per security = weight (from section 2.4) - parent_index_weight",
+        "Active sector weight = sum of active weights for all securities in the sector",
+        "After capping/flooring sector active weights, remaining sectors are renormalized to sum all sectors to 100%",
+        "Within each capped/floored sector, the sector weight is distributed to selected securities in proportion to their section-2.4 weights"
+      ],
+      "asserts": {
+        "technical": [
+          "weight column non-negative after redistribution, no nulls"
+        ],
+        "business": [
+          "all sector active weights in [-0.05, 0.05]",
+          "abs(weight.sum() - 1.0) < 1e-6"
+        ]
+      }
+    },
+    {
+      "category": "event_handling",
+      "name": "spinoff_immediate_addition",
+      "purpose": "Add all securities created from the spin-off of an existing index constituent at event implementation time; defer eligibility re-evaluation to the next scheduled Index Review.",
+      "source": {
+        "markdown": "All securities created as a result of the spin-off of an existing Index constituent will be added to the Index at the time of event implementation. Reevaluation for continued inclusion in the Index will occur at the subsequent Index Review.",
+        "section": "3.3 Ongoing Event-Related Changes",
+        "line": 396
+      },
+      "datapoints": [],
+      "thresholds": {},
+      "asserts": {
+        "technical": [],
+        "business": [
+          "all spin-off securities of existing constituents are present in the index at event implementation date"
+        ]
+      }
+    },
+    {
+      "category": "event_handling",
+      "name": "ma_acquirer_proportionate_weight",
+      "purpose": "On merger or acquisition, adjust the acquirer's post-event weight to reflect the proportionate amount of shares involved in deal consideration; invest cash proceeds across the index.",
+      "source": {
+        "markdown": "For Mergers and Acquisitions, the acquirer's post event weight will account for the proportionate amount of shares involved in deal consideration, while cash proceeds will be invested across the Index.",
+        "section": "3.3 Ongoing Event-Related Changes",
+        "line": 418
+      },
+      "datapoints": [],
+      "thresholds": {},
+      "asserts": {
+        "technical": [],
+        "business": [
+          "acquirer weight post-event reflects deal consideration proportion",
+          "cash proceeds reinvested pro-rata across remaining constituents"
+        ]
+      }
+    },
+    {
+      "category": "event_handling",
+      "name": "quarterly_controversies_bisr_deletion",
+      "purpose": "At each quarterly review, screen existing constituents for Controversies Score Eligibility and ESG Business Involvement Eligibility; delete constituents that fail and renormalize remaining weights to 100%.",
+      "source": {
+        "markdown": "During quarterly reviews, the 'Controversies Score Eligibility' and 'ESG Business Involvement Eligibility' of existing constituents are reviewed. Existing constituents that meet the exclusion criteria are deleted from the index and the weight of remaining constituents are renormalized to 100%.",
+        "section": "3.2 Quarterly Index Reviews",
+        "line": 364
+      },
+      "datapoints": [
+        "msci_controversies_score",
+        "tobacco_producer_flag",
+        "tobacco_revenue_pct",
+        "thermal_coal_mining_revenue_pct",
+        "oil_sands_extraction_revenue_pct",
+        "nuclear_weapons_flag",
+        "weight"
+      ],
+      "thresholds": {
+        "red_flag_score": 0,
+        "tobacco_revenue_threshold_pct": 5,
+        "thermal_coal_revenue_threshold_pct": 1,
+        "oil_sands_revenue_threshold_pct": 5
+      },
+      "asserts": {
+        "technical": [
+          "weight column sums to 1.0 after renormalization"
+        ],
+        "business": [
+          "no remaining constituent has msci_controversies_score == 0",
+          "no remaining constituent fails any ESG business involvement exclusion criterion"
+        ]
+      }
+    }
+  ],
+  "reused_rules": [
+    {
+      "methbook": "xcw",
+      "name": "exclude_controversial_weapons_involvement",
+      "justification": "Appendix I refers to 'the methodology of the MSCI Global Ex-Controversial Weapons Indexes' (URL cited). The XCW rule implements the identical BISR-based controversial weapons flag covering cluster munitions, landmines, depleted uranium, biological/chemical, blinding lasers, non-detectable fragments, and incendiary weapons."
+    },
+    {
+      "methbook": "xcw",
+      "name": "xcw_new_addition_deferred_to_review",
+      "justification": "Source text 'A new security added to the Parent Index (such as IPO and other early inclusions) will not be added to the index' is transformationally identical to the XCW rule that filters is_new_parent_addition == True; defer new parent additions to the next Index Review."
+    },
+    {
+      "methbook": "xcw",
+      "name": "xcw_parent_deletion_propagates",
+      "justification": "Source text 'Parent Index deletions will be reflected simultaneously' is transformationally identical to the XCW rule that removes securities flagged is_parent_deletion_event."
+    },
+    {
+      "methbook": "xcw",
+      "name": "xcw_ma_delete_acquired_constituent",
+      "justification": "Source text 'If an existing Index constituent is acquired by a non-Index constituent, the existing constituent will be deleted from the Index' is transformationally identical to XCW's delete-acquired-constituent rule."
+    },
+    {
+      "methbook": "xcw",
+      "name": "xcw_ma_no_add_nonconstituent_acquirer",
+      "justification": "Source text '...and the acquiring non-constituent will not be added to the Index' is the separable companion transformation to xcw_ma_delete_acquired_constituent and is transformationally identical to the XCW no-add-acquirer rule."
+    },
+    {
+      "methbook": "xcw",
+      "name": "xcw_characteristics_change_no_deletion",
+      "justification": "Source text 'A security will continue to be an Index constituent if there are changes in characteristics (country, sector, size segment, etc.) Reevaluation for continued inclusion in the Index will occur at the subsequent Index Review' is transformationally identical to the XCW characteristics-change no-deletion rule."
+    }
+  ],
+  "scoring": {
+    "variables": [
+      {
+        "name": "intensity_score",
+        "ranking_metric": "emission_intensity",
+        "rank_order": "descending",
+        "scale": "1-4 sector-relative quartile; 4 = highest emission intensity in sector"
+      },
+      {
+        "name": "green_business_score",
+        "ranking_metric": "green_business_revenue_pct",
+        "rank_order": "descending",
+        "scale": "1-4 sector-relative quartile; 4 = highest green revenue in sector"
+      },
+      {
+        "name": "climate_risk_management_score",
+        "ranking_metric": "crm_weighted_avg_score",
+        "rank_order": "descending",
+        "scale": "1-4 sector-relative quartile; 4 = most favorable CRM in sector"
+      },
+      {
+        "name": "track_record_score",
+        "ranking_metric": "emission_track_record",
+        "rank_order": "descending",
+        "scale": "1-4 sector-relative quartile; 1 = strongest historical emission reduction; null for securities without a track record"
+      },
+      {
+        "name": "security_level_assessment",
+        "ranking_metric": "derived from intensity_score via sequential adjustment",
+        "rank_order": "ascending in selection (lower = better positioned)",
+        "scale": "1-4 integer floored at 1"
+      }
+    ],
+    "normalization": "quartile_sector_relative",
+    "aggregation": "sequential_conditional_adjustment_of_intensity_score",
+    "conditional_adjustments": [
+      {
+        "tier": 1,
+        "condition": "approved_sbti == True OR credible_track_record == True",
+        "adjustment": "lower intensity_score by 2 quartiles, floor at 1; Tier 2 not applied"
+      },
+      {
+        "tier": 2,
+        "condition": "Tier 1 not triggered AND (climate_risk_management_score == 4 OR (green_business_score == 4 AND green_business_revenue_pct >= 5.0))",
+        "adjustment": "lower intensity_score by 1 quartile, floor at 1"
+      }
+    ]
+  },
+  "selection": {
+    "method": "coverage_cutoff",
+    "content": {
+      "target_pct": 50,
+      "lower_buffer_pct": 40,
+      "upper_buffer_pct": 60,
+      "incumbent_preference": "existing constituents in the 40-60% band are selected before non-constituents in the same band",
+      "overshoot_policy": "any security that would take the total selected beyond 50% is still included",
+      "scope": "applied per GICS sector using Applicable Universe count as denominator"
+    }
+  },
+  "weighting": {
+    "method": "ff_mcap_with_caps",
+    "caps": [
+      {
+        "type": "issuer_weight",
+        "threshold": 0.05,
+        "description": "No issuer may exceed 5% of index weight"
+      },
+      {
+        "type": "active_sector_weight",
+        "threshold": 0.05,
+        "description": "No GICS sector active weight may exceed +5% relative to Parent Index"
+      }
+    ],
+    "floors": [
+      {
+        "type": "active_sector_weight",
+        "threshold": -0.05,
+        "description": "No GICS sector active weight may fall below -5% relative to Parent Index"
+      }
+    ],
+    "buffers": []
+  },
+  "review_cadence": {
+    "schedules": [
+      {
+        "name": "Semi-Annual Index Review",
+        "frequency": "semi-annual",
+        "months": [
+          "May",
+          "November"
+        ],
+        "announcement_lead": "nine business days before effective date",
+        "data_cutoff": "end of month preceding the Index Review"
+      },
+      {
+        "name": "Quarterly Index Review",
+        "frequency": "quarterly",
+        "months": [
+          "February",
+          "August"
+        ],
+        "announcement_lead": "nine business days before effective date",
+        "data_cutoff": "end of month preceding the Index Review (MSCI Controversies and BISR data)"
+      }
+    ]
+  },
+  "event_handling": {
+    "rule_names": [
+      "xcw_new_addition_deferred_to_review",
+      "xcw_parent_deletion_propagates",
+      "spinoff_immediate_addition",
+      "ma_acquirer_proportionate_weight",
+      "xcw_ma_delete_acquired_constituent",
+      "xcw_ma_no_add_nonconstituent_acquirer",
+      "xcw_characteristics_change_no_deletion",
+      "quarterly_controversies_bisr_deletion"
+    ],
+    "defers_to": {
+      "methbook": "corporate_events",
+      "section": "Capped Weighted and Non-Market Capitalization Weighted indexes"
+    },
+    "intra_review_invariants": [
+      {
+        "quote": "No new securities will be added (except where noted below) to the Index between Index Reviews.",
+        "concern": "Applies between semi-annual reviews; spin-offs of existing constituents are the sole exception where additions occur at event time."
+      },
+      {
+        "quote": "Parent Index deletions will be reflected simultaneously.",
+        "concern": "Parent Index deletions propagate to this index at event time, contrary to the general no-change-between-reviews stance."
+      },
+      {
+        "quote": "A security will continue to be an Index constituent if there are changes in characteristics (country, sector, size segment, etc.)",
+        "concern": "Characteristics changes (country reclassification, sector reclassification, size segment change) do not trigger deletion between reviews; re-evaluation deferred to next review."
+      }
+    ]
+  },
+  "eligibility": {
+    "rule_names": [
+      "exclude_red_flag_controversies",
+      "exclude_controversial_weapons_involvement",
+      "exclude_tobacco",
+      "exclude_thermal_coal_mining",
+      "exclude_oil_sands",
+      "exclude_nuclear_weapons",
+      "exclude_high_emitters_without_sbti",
+      "exclude_bottom_quartile_climate_risk_management"
+    ]
+  },
+  "composition_order": [
+    "exclude_red_flag_controversies",
+    "exclude_controversial_weapons_involvement",
+    "exclude_tobacco",
+    "exclude_thermal_coal_mining",
+    "exclude_oil_sands",
+    "exclude_nuclear_weapons",
+    "exclude_high_emitters_without_sbti",
+    "exclude_bottom_quartile_climate_risk_management",
+    "score_intensity",
+    "score_green_business_revenue",
+    "score_climate_risk_management",
+    "score_emission_track_record",
+    "assess_credible_track_record",
+    "compute_security_level_assessment",
+    "rank_by_assessment_then_mcap",
+    "select_top_50pct_with_buffer",
+    "renormalize_parent_weights",
+    "cap_issuer_weight_5pct",
+    "apply_active_sector_weight_cap_floor"
+  ],
+  "final_asserts": [
+    "abs(weight.sum() - 1.0) < 1e-6: weights must sum to 1",
+    "weight.min() >= 0: all weights non-negative",
+    "issuer_weight.max() <= 0.05 + 1e-6: no issuer exceeds 5% cap",
+    "active_sector_weight.abs().max() <= 0.05 + 1e-6: all sector active weights within +/-5% band",
+    "msci_controversies_score.min() > 0: no Red Flag security included",
+    "nuclear_weapons_flag.any() == False: no nuclear weapons involvement",
+    "tobacco_producer_flag.any() == False: no tobacco producers",
+    "security_level_assessment.between(1, 4).all(): all assessments in valid range",
+    "per-sector selected count is approximately 50% of applicable universe count per sector"
+  ],
+  "mock_datapoints": [
+    {
+      "name": "msci_controversies_score",
+      "type": "float",
+      "distribution": "uniform(0, 10)",
+      "description": "MSCI Controversies Score on 0-10 scale; 0 indicates Red Flag (ongoing Very Severe controversy).",
+      "canonical_concept": "msci_controversies_score",
+      "source_section": "2.2.1 Controversies Score Eligibility",
+      "semantic_threshold": "MSCI Controversies Score of 0",
+      "taxonomy": "MSCI Controversies 0-10 scale; 0=Red Flag (most severe), 10=least severe",
+      "definition_notes": [
+        "Red Flag indicates an ongoing, Very Severe controversy implicating a company directly through its actions, products, or operations"
+      ]
+    },
+    {
+      "name": "tobacco_producer_flag",
+      "type": "bool",
+      "distribution": "bernoulli(0.05)",
+      "description": "True if company is classified as a tobacco Producer by MSCI BISR.",
+      "source_section": "Appendix I: ESG Business Involvement Eligibility",
+      "semantic_threshold": "All companies classified as a 'Producer'"
+    },
+    {
+      "name": "tobacco_revenue_pct",
+      "type": "float",
+      "distribution": "uniform(0, 30)",
+      "description": "Aggregate revenue percentage from production, distribution, retail, supply, and licensing of tobacco-related products.",
+      "source_section": "Appendix I: ESG Business Involvement Eligibility",
+      "semantic_threshold": "5% or more aggregate revenue from the production, distribution, retail, supply, and licensing of tobacco related products"
+    },
+    {
+      "name": "thermal_coal_mining_revenue_pct",
+      "type": "float",
+      "distribution": "uniform(0, 20)",
+      "description": "Revenue percentage (reported or estimated) from mining thermal coal (lignite, bituminous, anthracite, steam coal) and sale to external parties.",
+      "source_section": "Appendix I: ESG Business Involvement Eligibility",
+      "semantic_threshold": "1% or more revenue (either reported or estimated) from the mining of thermal coal ... and its sale to external parties",
+      "definition_notes": [
+        "Excludes metallurgical coal",
+        "Excludes coal mined for internal power generation",
+        "Excludes intra-company sales",
+        "Excludes coal trading revenue"
+      ]
+    },
+    {
+      "name": "oil_sands_extraction_revenue_pct",
+      "type": "float",
+      "distribution": "uniform(0, 20)",
+      "description": "Revenue percentage from oil sands extraction by companies that own oil sands reserves and disclose extraction revenue.",
+      "source_section": "Appendix I: ESG Business Involvement Eligibility",
+      "semantic_threshold": "5% or more revenue from oil sands extraction, which own oil sands reserves and disclose evidence of deriving revenue from oil sands extraction",
+      "definition_notes": [
+        "Excludes non-extraction activities (exploration, surveying, processing, refining)",
+        "Excludes reserve ownership with no extraction revenue",
+        "Excludes intra-company sales"
+      ]
+    },
+    {
+      "name": "has_oil_sands_reserves",
+      "type": "bool",
+      "distribution": "bernoulli(0.1)",
+      "description": "True if company owns oil sands reserves.",
+      "source_section": "Appendix I: ESG Business Involvement Eligibility"
+    },
+    {
+      "name": "nuclear_weapons_flag",
+      "type": "bool",
+      "distribution": "bernoulli(0.02)",
+      "description": "True if company is involved in manufacturing, assembling, or servicing nuclear warheads, missiles, dedicated components, delivery platforms, or auxiliary nuclear weapons services as defined by MSCI BISR.",
+      "source_section": "Appendix I: ESG Business Involvement Eligibility",
+      "definition_notes": [
+        "Includes components not exclusively designed for nuclear use but capable of nuclear application",
+        "Includes delivery platforms not exclusively designed for nuclear delivery but capable of it",
+        "Includes contracts to operate government-owned nuclear facilities"
+      ]
+    },
+    {
+      "name": "emission_intensity",
+      "type": "float",
+      "distribution": "lognormal(1.5, 1.2)",
+      "description": "Global GHG Emission (Scope 1+2+3, CO2-equivalent) divided by (Enterprise Value + Cash in USD).",
+      "canonical_concept": "ghg_emission_intensity",
+      "source_section": "Appendix II: Calculation of Security Level Scores",
+      "definition_notes": [
+        "GHG includes CO2, HFCs, CH4, N2O, PFCs, SF6 per GHG Protocol",
+        "Enterprise Value + Cash is the denominator"
+      ]
+    },
+    {
+      "name": "has_emission_intensity_data",
+      "type": "bool",
+      "distribution": "bernoulli(0.9)",
+      "description": "True if Emission Intensity can be calculated for the security.",
+      "source_section": "2.5 Treatment Of Unrated Companies"
+    },
+    {
+      "name": "total_potential_carbon_emissions_ex_met_coal",
+      "type": "float",
+      "distribution": "lognormal(4.0, 2.0)",
+      "description": "Potential carbon emissions from fossil fuel reserves excluding metallurgical coal; sum of potential carbon emissions from thermal coal, total oil, and total gas reserves owned by the company.",
+      "source_section": "2.2.3 Emission Eligibility",
+      "definition_notes": [
+        "Applies only to securities with total potential carbon emissions data available"
+      ]
+    },
+    {
+      "name": "fossil_fuel_reserves_energy_application",
+      "type": "bool",
+      "distribution": "bernoulli(0.15)",
+      "description": "True if company's fossil fuel reserves are most likely to be used for energy applications (MSCI 'Fossil Fuel Reserves \u2013 Energy Application' = True).",
+      "source_section": "2.2.3 Emission Eligibility",
+      "definition_notes": [
+        "Used to filter the population for the 95th percentile High Potential Emission Threshold calculation"
+      ]
+    },
+    {
+      "name": "approved_sbti",
+      "type": "bool",
+      "distribution": "bernoulli(0.2)",
+      "description": "True if company has company-level emission reduction targets approved by the Science Based Targets initiative (SBTi).",
+      "source_section": "2.2.3 Emission Eligibility"
+    },
+    {
+      "name": "crm_weighted_avg_score",
+      "type": "float",
+      "distribution": "uniform(0, 10)",
+      "description": "Climate Risk Management Weighted Average Score: weighted average of Carbon Emissions Management, Product Carbon Footprint Management, Climate Change Vulnerability Management, Biodiversity and Land Use Management, Clean Tech Opportunities Management, Green Building Opportunities Management, and Renewable Energy Opportunities Management key issue scores from MSCI ESG Ratings. Missing key issues substituted with zero.",
+      "source_section": "Appendix III: Climate Risk Management Weighted Average Score",
+      "definition_notes": [
+        "If weighted average is zero or uncalculable AND carbon emissions key issue weight is zero, score is set equal to Carbon Emissions Management Score",
+        "Key issue weights come from MSCI ESG Ratings methodology"
+      ]
+    },
+    {
+      "name": "carbon_emissions_mgmt_score",
+      "type": "float",
+      "distribution": "uniform(0, 10)",
+      "description": "Carbon Emissions Management key issue management score from MSCI ESG Ratings; used as fallback for CRM Weighted Average Score when weighted average is zero and carbon emissions key issue weight is zero.",
+      "source_section": "Appendix III: Climate Risk Management Weighted Average Score"
+    },
+    {
+      "name": "carbon_emissions_key_issue_weight",
+      "type": "float",
+      "distribution": "uniform(0, 0.5)",
+      "description": "Key issue weight for Carbon Emissions Management in MSCI ESG Ratings; determines when the CRM score fallback to Carbon Emissions Management Score applies.",
+      "source_section": "Appendix III: Climate Risk Management Weighted Average Score"
+    },
+    {
+      "name": "green_business_revenue_pct",
+      "type": "float",
+      "distribution": "uniform(0, 50)",
+      "description": "Cumulative percentage revenue from six Clean Tech themes: Alternative Energy, Energy Efficiency, Sustainable Water, Green Building, Pollution Prevention, Sustainable Agriculture (sourced from MSCI Sustainable Impact Metrics).",
+      "canonical_concept": "msci_green_business_revenue_pct",
+      "source_section": "Appendix IV: Calculation of Green Business Revenue",
+      "semantic_threshold": "Green Business Revenue >= 5%"
+    },
+    {
+      "name": "emission_track_record",
+      "type": "float",
+      "distribution": "normal(-0.02, 0.05)",
+      "description": "Geometric average of last 3 yearly year-on-year emission changes. Assigned only to securities where: Average Yearly Emission Change < -2%, security reports Scope 1 and 2 emissions, and security has published an emission reduction target. Null for securities not meeting all three conditions or with fewer than 4 years of data.",
+      "source_section": "Appendix II: Calculation of Security Level Scores",
+      "semantic_threshold": "Average Yearly Emission Change < - 2%",
+      "definition_notes": [
+        "Since a favorable Track Record is negative, lower values of the Track Record indicate a stronger historic reduction in emissions"
+      ]
+    },
+    {
+      "name": "credible_track_record",
+      "type": "bool",
+      "distribution": "bernoulli(0.15)",
+      "description": "True if security's Track Record Score is 1.",
+      "source_section": "Appendix II: Calculation of Security Level Scores",
+      "semantic_threshold": "Security is assessed to have Credible Track Record if it is assigned a Track Record Score of 1"
+    },
+    {
+      "name": "track_record_score",
+      "type": "int",
+      "distribution": "choice([1,2,3,4,null])",
+      "description": "Sector-relative quartile assigned from Emission Track Record; 1 indicates strongest historic emission reduction within sector; null for securities without an Emission Track Record value.",
+      "source_section": "Appendix II: Calculation of Security Level Scores"
+    },
+    {
+      "name": "reports_scope_1_2_emissions",
+      "type": "bool",
+      "distribution": "bernoulli(0.7)",
+      "description": "True if security reports both Scope 1 and Scope 2 emissions; required condition for Emission Track Record assignment.",
+      "source_section": "Appendix II: Calculation of Security Level Scores"
+    },
+    {
+      "name": "has_emission_reduction_target",
+      "type": "bool",
+      "distribution": "bernoulli(0.4)",
+      "description": "True if security has published an emission reduction target; required condition for Emission Track Record assignment.",
+      "source_section": "Appendix II: Calculation of Security Level Scores"
+    },
+    {
+      "name": "gics_sector",
+      "type": "str",
+      "distribution": "choice(['Energy','Materials','Industrials','Consumer Discretionary','Consumer Staples','Health Care','Financials','Information Technology','Communication Services','Utilities','Real Estate'])",
+      "description": "GICS sector classification used for all sector-relative quartile calculations and sector weight capping.",
+      "canonical_concept": "gics_sector",
+      "source_section": "2.3.2 Ranked Universe"
+    },
+    {
+      "name": "ff_mcap",
+      "type": "float",
+      "distribution": "lognormal(23.0, 2.0)",
+      "description": "Float-adjusted market capitalization in USD; used as tie-breaker in sector ranking and as basis for Parent Index weight renormalization.",
+      "canonical_concept": "ff_mcap",
+      "source_section": "2.3.2 Ranked Universe"
+    },
+    {
+      "name": "is_current_constituent",
+      "type": "bool",
+      "distribution": "bernoulli(0.6)",
+      "description": "True if security is an existing constituent of the index at the time of the review; determines incumbent preference in the 40-60% buffer band.",
+      "source_section": "2.3.3 Security Selection"
+    },
+    {
+      "name": "parent_index_weight",
+      "type": "float",
+      "distribution": "uniform(0.0001, 0.02)",
+      "description": "Weight of the security in the Parent Index prior to renormalization; basis for both weight calculation (section 2.4) and active sector weight computation (section 2.4.1).",
+      "source_section": "2.4 Weighting Of Selected Securities"
+    },
+    {
+      "name": "issuer_id",
+      "type": "str",
+      "distribution": "uuid()",
+      "description": "Issuer identifier used to aggregate weights across multiple securities of the same issuer for the 5% issuer weight cap.",
+      "source_section": "2.4 Weighting Of Selected Securities"
+    },
+    {
+      "name": "is_new_parent_addition",
+      "type": "bool",
+      "distribution": "bernoulli(0.005)",
+      "description": "True if the security was newly added to the Parent Index (IPO or other early inclusion) since the last Index Review.",
+      "source_section": "3.3 Ongoing Event-Related Changes"
+    },
+    {
+      "name": "is_parent_deletion_event",
+      "type": "bool",
+      "distribution": "bernoulli(0.005)",
+      "description": "True if the security is being deleted from the Parent Index at the event-implementation date.",
+      "source_section": "3.3 Ongoing Event-Related Changes"
+    },
+    {
+      "name": "is_acquisition_target",
+      "type": "bool",
+      "distribution": "bernoulli(0.002)",
+      "description": "True if the security is the target of an M&A event at the event-implementation date.",
+      "source_section": "3.3 Ongoing Event-Related Changes"
+    },
+    {
+      "name": "acquirer_is_index_constituent",
+      "type": "bool",
+      "distribution": "bernoulli(0.5)",
+      "description": "True if the acquirer in the M&A event is already an index constituent.",
+      "source_section": "3.3 Ongoing Event-Related Changes"
+    },
+    {
+      "name": "has_characteristics_change",
+      "type": "bool",
+      "distribution": "bernoulli(0.01)",
+      "description": "True if the security has a change in characteristics (country, sector, size segment, etc.) since the last Index Review.",
+      "source_section": "3.3 Ongoing Event-Related Changes"
+    }
+  ],
+  "external_references": [
+    {
+      "methbook": "methodology_set_readme"
+    },
+    {
+      "methbook": "corporate_events"
+    },
+    {
+      "methbook": "fundamental_data"
+    },
+    {
+      "methbook": "index_calculation"
+    },
+    {
+      "methbook": "index_glossary"
+    },
+    {
+      "methbook": "index_policies"
+    },
+    {
+      "methbook": "gics"
+    },
+    {
+      "methbook": "gimi"
+    },
+    {
+      "methbook": "xcw"
+    },
+    {
+      "methbook": "esg_factors_in_methodology"
+    }
+  ],
+  "scoped_out": [
+    {
+      "quote": "1. Introduction",
+      "concern": "Narrative description of index purpose; no transformation rules."
+    },
+    {
+      "quote": "4. MSCI Solutions ... 4.1 MSCI ESG Ratings ... 4.2 MSCI Impact Solutions ... 4.3 MSCI Controversies ... 4.4 MSCI Business Involvement Screening Research ... 4.5 MSCI Climate Change Metrics ... 4.5.1 Fossil Fuels and Power Generation Metrics ... 4.5.2 Greenhouse Gas (GHG) Emissions",
+      "concern": "Product descriptions for data providers; no index construction transformation rules. Data products captured in data_requirements.mandatory_products."
+    },
+    {
+      "quote": "Prior to the May 2020 Semi-Annual Index Review (SAIR) of the Indexes, the Green House Gas (GHG) Intensity has been calculated based on Scope 1+2 Emissions. The Scope 3 Emissions used in the May 2020 Semi-Annual Index Review of the Indexes is as of Jun 30, 2020",
+      "concern": "Footnote 8: historical methodology variant prior to May 2020; not part of the current methodology."
+    },
+    {
+      "quote": "During the May 2022 Semi Annual Index review, securities are selected from the top until the number of selected stocks is less than or equal to the 50% of the number of securities in the Applicable Universe",
+      "concern": "Footnote 12: one-time historical exception for the May 2022 SAIR; not part of the current methodology."
+    },
+    {
+      "quote": "Prior to October 31, 2019, each periodic rebalancing of the Index applied the 'Reporting Emission Reduction Targets' value as of October 31, 2019 and the 'Approved Science Based Targets' value as of November 30, 2021.",
+      "concern": "Footnote 13: historical data-lineage note preceding the current methodology; no current transformation."
+    },
+    {
+      "quote": "Prior to June 1, 2020, security level GHG Emission = Emissions from Scope 1+2",
+      "concern": "Footnote 14: historical formula prior to June 2020; superseded by Scope 1+2+3 definition currently in effect."
+    },
+    {
+      "quote": "Appendix V: MSCI Extended Climate Action Indexes",
+      "concern": "Defines a separate variant index family (Extended Climate Action) with an additional civilian firearm producer exclusion and a monthly review cadence. This variant warrants its own methbook with base_methbook: climate_action listing only the delta rules. Not part of the base Climate Action methodology."
+    },
+    {
+      "quote": "Appendix VI: Methodology Set",
+      "concern": "URL registry for the Methodology Set; no transformation rules. All referenced documents captured in external_references."
+    },
+    {
+      "quote": "Appendix VII: Changes to this Document",
+      "concern": "Document changelog; no transformation rules."
+    },
+    {
+      "quote": "Contact us ... Notice and disclaimer",
+      "concern": "Boilerplate; no transformation rules."
+    }
+  ],
+  "clarifications_needed": [
+    {
+      "quote": "Active sector weights which are greater than +5% are capped at +5% and active sector weights which are smaller than -5% are floored at -5%. Sector weights of remaining sectors are renormalized so that aggregate weight of all sectors sum to 100%.",
+      "concern": "The document does not specify whether the sector cap/floor is applied iteratively (repeated until no sector violates the band) or in a single pass. The redistribution to remaining sectors may itself push other sectors beyond the band, making the iteration count material."
+    },
+    {
+      "quote": "Additionally, the max issuer weights are capped at 5%.",
+      "concern": "The document does not specify whether the issuer cap is applied iteratively after redistribution or in a single pass, nor whether it interacts with the active sector weight cap (e.g., which cap is applied first)."
+    },
+    {
+      "quote": "In general, MSCI uses MSCI Solutions data ... as of the end of the month preceding the Index Reviews.",
+      "concern": "The 95th percentile thresholds for Emission Intensity and Total Potential Carbon Emissions (section 2.2.3) are computed from MSCI ACWI constituents. The document does not explicitly state whether these thresholds are recalculated at every semi-annual review or held constant between reviews."
+    },
+    {
+      "quote": "Securities in the top group receive a score of 4 and securities in the bottom group receive a score of 1 within each sector.",
+      "concern": "The document does not specify how securities are assigned when they fall exactly on a quartile boundary (e.g., the 25th security in a 100-security sector). The tie-breaking rule (descending ff_mcap) is stated for the ranked universe but not explicitly confirmed as also applying within each quartile boundary assignment."
+    }
+  ]
+}

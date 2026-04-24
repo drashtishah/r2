@@ -1,0 +1,930 @@
+{
+  "identification": {
+    "provider": "MSCI",
+    "family": "Quality",
+    "slug": "quality",
+    "version_date": "2025-05",
+    "index_type": "factor"
+  },
+  "document_metadata": {
+    "title": "MSCI Quality Indexes Methodology",
+    "author": "Jain, Siddharth",
+    "published": "May 2025",
+    "total_pages": 20,
+    "copyright": "2025 MSCI Inc.",
+    "source_path": "meth-pipeline/msci_quality_indexes_methodology_20250520/2026-04-24T10-45-19Z/input/markdown.md"
+  },
+  "universe": {
+    "applicable_universe": {
+      "methbook": "gimi"
+    },
+    "eligibility_scope": "existing_constituents_of_parent_index"
+  },
+  "eligibility": {
+    "rule_names": [
+      "exclude_missing_roe_or_de"
+    ]
+  },
+  "scoring": {
+    "variables": [
+      {
+        "name": "roe_z_score",
+        "direction": "positive",
+        "note": "standard Z-score, higher ROE yields higher score"
+      },
+      {
+        "name": "debt_to_equity_z_score",
+        "direction": "negative",
+        "note": "negated Z-score so higher D/E yields lower score"
+      },
+      {
+        "name": "earnings_variability_z_score",
+        "direction": "negative",
+        "note": "negated Z-score so higher variability yields lower score"
+      }
+    ],
+    "normalization": "z_score_parent_index_relative",
+    "aggregation": "equal_weighted_average_of_available_z_scores",
+    "transformation": {
+      "formula": "1+Z if Z>0, (1-Z)**-1 if Z<0",
+      "output": "quality_score"
+    },
+    "conditional_adjustments": [
+      {
+        "condition": "earnings_variability missing, ROE and D/E present",
+        "action": "compute composite Z as average of ROE and D/E Z-scores only",
+        "source": "Appendix II Case 3"
+      }
+    ]
+  },
+  "selection": {
+    "method": "fixed_number",
+    "content": {
+      "tie_break": "parent_index_weight",
+      "positive_quality_score_required": true,
+      "buffer_pct": 0.2,
+      "buffer_note": "buffer applied at 20% of fixed number; lower bound = 0.8*N, upper bound = 1.2*N"
+    }
+  },
+  "weighting": {
+    "method": "score_tilt_ff_mcap",
+    "caps": [
+      {
+        "type": "issuer",
+        "applies_to": "broad_parent_indexes",
+        "cap": 0.05,
+        "broad_examples": [
+          "MSCI ACWI Quality Index",
+          "MSCI World Quality Index",
+          "MSCI EM Quality Index",
+          "MSCI Europe Quality Index",
+          "MSCI USA Quality Index"
+        ]
+      },
+      {
+        "type": "issuer",
+        "applies_to": "narrow_parent_indexes",
+        "cap_formula": "max(0.10, max_parent_issuer_weight)",
+        "narrow_definition": "parent index where max market cap weight > 10%"
+      }
+    ]
+  },
+  "review_cadence": {
+    "schedules": [
+      {
+        "name": "semi_annual",
+        "frequency": "semi-annual",
+        "months": [
+          "May",
+          "November"
+        ],
+        "data_cutoff": "end of April and October respectively",
+        "announcement_lead": "nine business days before effective date"
+      }
+    ]
+  },
+  "event_handling": {
+    "defers_to": {
+      "methbook": "corporate_events",
+      "section": "Capped Weighted and Non-Market Capitalization Weighted indexes"
+    },
+    "intra_review_invariants": [
+      {
+        "quote": "No new securities will be added (except where noted below) to the Index between Index Reviews. Parent Index deletions will be reflected simultaneously.",
+        "concern": "Spin-offs from existing constituents are the only permitted between-review addition."
+      }
+    ],
+    "rule_names": [
+      "characteristics_change_no_deletion",
+      "quality_ma_nonconstituent_acquirer_treatment"
+    ]
+  },
+  "unrated_treatment": {
+    "policy": "conditional",
+    "details": {
+      "missing_roe": "exclude: Composite Quality Z Score not calculated",
+      "missing_debt_to_equity": "exclude: Composite Quality Z Score not calculated",
+      "missing_earnings_variability": "partial: compute Composite Z using ROE and D/E only",
+      "missing_all": "exclude: Composite Quality Z Score not calculated"
+    }
+  },
+  "data_requirements": {
+    "mandatory_products": [
+      {
+        "methbook": "fundamental_data"
+      },
+      {
+        "methbook": "gimi"
+      }
+    ],
+    "mandatory_fields": [
+      {
+        "name": "security_id",
+        "type": "str",
+        "nullable": false
+      },
+      {
+        "name": "parent_index_weight",
+        "type": "float",
+        "nullable": false,
+        "note": "free-float market cap weight in relevant Parent Index"
+      },
+      {
+        "name": "roe",
+        "type": "float",
+        "nullable": true,
+        "note": "trailing 12m EPS / latest BVPS; null triggers exclusion"
+      },
+      {
+        "name": "debt_to_equity",
+        "type": "float",
+        "nullable": true,
+        "note": "latest fiscal year total debt / book value; null triggers exclusion"
+      },
+      {
+        "name": "earnings_variability",
+        "type": "float",
+        "nullable": true,
+        "note": "std dev of y-o-y EPS growth over last 5 fiscal years; null allows two-variable fallback"
+      }
+    ],
+    "preprocessing": [
+      {
+        "step": "winsorize_roe",
+        "method": "5th/95th percentile within each Parent Index; missing values excluded from ranking"
+      },
+      {
+        "step": "winsorize_debt_to_equity",
+        "method": "5th/95th percentile within each Parent Index; missing values excluded from ranking"
+      },
+      {
+        "step": "winsorize_earnings_variability",
+        "method": "5th/95th percentile within each Parent Index; missing values excluded from ranking"
+      }
+    ]
+  },
+  "new_rules": [
+    {
+      "category": "eligibility",
+      "name": "exclude_missing_roe_or_de",
+      "purpose": "Remove securities that cannot receive a Quality Score because a mandatory fundamental variable is absent, preventing downstream division by zero and ensuring only scored securities are ranked.",
+      "source": {
+        "markdown": "If ROE is missing, Composite Quality Z Score is not calculated and the security will not be part of the MSCI Quality Index",
+        "section": "Appendix II: Quality Z-Score Computation",
+        "line": 444
+      },
+      "datapoints": [
+        "roe",
+        "debt_to_equity"
+      ],
+      "thresholds": {},
+      "canonical_concept": "msci_quality_mandatory_variable_exclusion",
+      "asserts": {
+        "technical": [
+          "roe column present after filter",
+          "debt_to_equity column present after filter"
+        ],
+        "business": [
+          "no row with null roe survives",
+          "no row with null debt_to_equity survives"
+        ]
+      }
+    },
+    {
+      "category": "scoring",
+      "name": "winsorize_quality_variables",
+      "purpose": "Clip extreme values of ROE, D/E, and Earnings Variability at the 5th and 95th percentile within each Parent Index so that outliers do not distort the Z-score mean and standard deviation.",
+      "source": {
+        "markdown": "for securities that lie below the 5th percentile rank or above the 95th percentile rank, their value is set equal to the value of the 5th percentile ranked or 95th percentile ranked security, as applicable",
+        "section": "2.2.1 Winsorizing The Variable",
+        "line": 143
+      },
+      "datapoints": [
+        "roe",
+        "debt_to_equity",
+        "earnings_variability"
+      ],
+      "thresholds": {
+        "lower_percentile": 0.05,
+        "upper_percentile": 0.95
+      },
+      "canonical_concept": "msci_percentile_winsorization",
+      "asserts": {
+        "technical": [
+          "roe_winsorized column present",
+          "debt_to_equity_winsorized column present",
+          "earnings_variability_winsorized column present"
+        ],
+        "business": [
+          "no non-null roe_winsorized value below p5_roe or above p95_roe within parent index",
+          "missing values excluded from rank before percentile computation"
+        ]
+      }
+    },
+    {
+      "category": "scoring",
+      "name": "compute_quality_z_scores",
+      "purpose": "Standardize each winsorized fundamental variable to zero mean and unit standard deviation within the Parent Index; negate D/E and Earnings Variability so that higher values yield lower scores.",
+      "source": {
+        "markdown": "Z-Score for each of the three variables for each security can be calculated using the mean and standard deviation of the relevant variable within each MSCI Parent Index. A negative Z score is calculated to ensure that a security having higher Debt to Equity or higher Earnings Variability gets a lower respective Z-Score.",
+        "section": "2.2.2 Calculating The Z-Scores",
+        "line": 161
+      },
+      "datapoints": [
+        "roe_winsorized",
+        "debt_to_equity_winsorized",
+        "earnings_variability_winsorized"
+      ],
+      "thresholds": {},
+      "canonical_concept": "msci_z_score_standardization",
+      "asserts": {
+        "technical": [
+          "roe_z_score column present",
+          "debt_to_equity_z_score column present",
+          "earnings_variability_z_score column present"
+        ],
+        "business": [
+          "roe_z_score mean within each parent_index_id is approximately 0",
+          "debt_to_equity_z_score is negated relative to raw D/E"
+        ]
+      }
+    },
+    {
+      "category": "scoring",
+      "name": "compute_composite_quality_z_score",
+      "purpose": "Average the three variable Z-scores into a single composite; apply the two-variable fallback (ROE and D/E only) when Earnings Variability is missing.",
+      "source": {
+        "markdown": "Quality Z-Scores are computed by averaging the Z scores of all the three fundamental descriptor as calculated in section 2.2.2. Computation of the Quality Z Score also depends on the availability of fundamental variables as described in Appendix II.",
+        "section": "2.2.3 Calculating the Quality Score",
+        "line": 193
+      },
+      "datapoints": [
+        "roe_z_score",
+        "debt_to_equity_z_score",
+        "earnings_variability_z_score"
+      ],
+      "thresholds": {},
+      "canonical_concept": "msci_composite_quality_z_score",
+      "asserts": {
+        "technical": [
+          "composite_quality_z_score column present",
+          "no row with null roe_z_score or null debt_to_equity_z_score has a non-null composite_quality_z_score"
+        ],
+        "business": [
+          "composite uses two variables when earnings_variability_z_score is null",
+          "composite uses three variables when all z-scores are non-null"
+        ]
+      }
+    },
+    {
+      "category": "scoring",
+      "name": "compute_quality_score_from_z",
+      "purpose": "Transform the composite Quality Z-Score into the Quality Score using an asymmetric formula that amplifies high-quality securities above 1 and compresses low-quality securities toward 0.",
+      "source": {
+        "markdown": "Quality Score = { 1 + Z, Z > 0 / (1 \u2212 Z)\u22121, Z < 0",
+        "section": "2.2.3 Calculating the Quality Score",
+        "line": 199
+      },
+      "datapoints": [
+        "composite_quality_z_score"
+      ],
+      "thresholds": {},
+      "canonical_concept": "msci_quality_score",
+      "asserts": {
+        "technical": [
+          "quality_score column present",
+          "no null quality_score where composite_quality_z_score is non-null"
+        ],
+        "business": [
+          "all quality_score values are positive",
+          "quality_score > 1 when composite_quality_z_score > 0",
+          "quality_score < 1 when composite_quality_z_score < 0"
+        ]
+      }
+    },
+    {
+      "category": "ranking",
+      "name": "rank_by_quality_score_then_parent_weight",
+      "purpose": "Assign a descending rank to each security by Quality Score; break ties using Parent Index weight so that larger securities are preferred when scores are equal.",
+      "source": {
+        "markdown": "All the existing constituents of the relevant MSCI Parent Index are ranked based on their Quality Scores. If multiple securities have the same Quality Score, then the security having a higher weight in the Parent Index is given a higher rank.",
+        "section": "2.3 Security Selection",
+        "line": 213
+      },
+      "datapoints": [
+        "quality_score",
+        "parent_index_weight"
+      ],
+      "thresholds": {},
+      "canonical_concept": "msci_quality_rank",
+      "asserts": {
+        "technical": [
+          "quality_rank column present",
+          "quality_rank values are unique integers starting at 1"
+        ],
+        "business": [
+          "for any two securities with equal quality_score, the one with higher parent_index_weight has the lower rank number"
+        ]
+      }
+    },
+    {
+      "category": "selection",
+      "name": "select_fixed_number_top_quality",
+      "purpose": "Retain only the top-N securities by quality rank at initial construction, where N is the index-specific fixed number, targeting high Quality factor exposure while maintaining sufficient market cap coverage.",
+      "source": {
+        "markdown": "A fixed number of securities with the highest positive Quality Scores are predetermined for every MSCI Quality Index at initial construction with an aim to attain a high exposure to the Quality factor while maintaining sufficient index market capitalization and number of securities coverage.",
+        "section": "2.3 Security Selection",
+        "line": 216
+      },
+      "datapoints": [
+        "quality_rank",
+        "quality_score",
+        "fixed_number_securities"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "output row count equals fixed_number_securities unless parent index has fewer eligible securities"
+        ],
+        "business": [
+          "no security with null quality_score in output",
+          "all output securities have positive quality_score"
+        ]
+      }
+    },
+    {
+      "category": "selection",
+      "name": "round_fixed_number_of_securities",
+      "purpose": "Apply upward rounding to the raw target count from the Appendix III algorithm so the fixed number aligns to a round increment appropriate for the index size.",
+      "source": {
+        "markdown": "If NumSec in Previous Step < 100, Upward Rounding Off to 10 Securities / If NumSec in Previous Step >= 100 but < 300, Upward Rounding Off to 25 Securities / If NumSec in Previous Step >= 300, Upward Rounding Off to 50 Securities",
+        "section": "Appendix III: Rules to Determine Fixed Number of Securities at Initial Construction and in Ongoing Rebalancing",
+        "line": 488
+      },
+      "datapoints": [
+        "raw_fixed_number"
+      ],
+      "thresholds": {
+        "tier1_upper_exclusive": 100,
+        "tier1_round_to": 10,
+        "tier2_lower_inclusive": 100,
+        "tier2_upper_exclusive": 300,
+        "tier2_round_to": 25,
+        "tier3_lower_inclusive": 300,
+        "tier3_round_to": 50
+      },
+      "asserts": {
+        "technical": [
+          "fixed_number_securities column present after rule",
+          "fixed_number_securities is a positive integer"
+        ],
+        "business": [
+          "fixed_number_securities is a multiple of 10 when raw_fixed_number < 100",
+          "fixed_number_securities is a multiple of 25 when 100 <= raw_fixed_number < 300",
+          "fixed_number_securities is a multiple of 50 when raw_fixed_number >= 300",
+          "fixed_number_securities >= raw_fixed_number"
+        ]
+      }
+    },
+    {
+      "category": "selection",
+      "name": "apply_quality_buffer_rule",
+      "purpose": "Reduce turnover at each semi-annual review by giving existing constituents within a buffer zone priority retention before filling the index to the fixed number with the highest-ranked non-constituents.",
+      "source": {
+        "markdown": "buffer rules are applied at 20% of the fixed number of securities in the MSCI Quality Index. The securities in the MSCI Parent Index with a Quality rank at or above 240 will be added to the MSCI World Quality Index on a priority basis. The existing constituents that have a Quality rank between 241 and 360 are then successively added until the number of securities in the MSCI World Quality Index reaches 300.",
+        "section": "3.1.1 Buffer Rules",
+        "line": 283
+      },
+      "datapoints": [
+        "quality_rank",
+        "is_current_constituent",
+        "fixed_number_securities"
+      ],
+      "thresholds": {
+        "buffer_pct": 0.2
+      },
+      "asserts": {
+        "technical": [
+          "output row count equals fixed_number_securities unless parent index has fewer eligible securities"
+        ],
+        "business": [
+          "all securities with quality_rank <= floor(fixed_number_securities * (1 - buffer_pct)) are included",
+          "existing constituents with quality_rank <= ceil(fixed_number_securities * (1 + buffer_pct)) are included before non-constituents in the buffer zone"
+        ]
+      }
+    },
+    {
+      "category": "weighting",
+      "name": "apply_quality_score_tilt_weight",
+      "purpose": "Weight each selected security by the product of its Quality Score and its Parent Index market cap weight, then normalize to 100%, so that higher-quality securities receive proportionately greater index weight.",
+      "source": {
+        "markdown": "Quality Weight = Quality Score * Market Capitalization Weight in the Parent Index. The above weights are then normalized to 100%.",
+        "section": "2.4 Weighting Scheme",
+        "line": 238
+      },
+      "datapoints": [
+        "quality_score",
+        "parent_index_weight"
+      ],
+      "thresholds": {},
+      "canonical_concept": "msci_quality_score_tilt_weight",
+      "asserts": {
+        "technical": [
+          "weight column present",
+          "no null weight values"
+        ],
+        "business": [
+          "weights sum to 1.0 within floating point tolerance",
+          "all weights are positive",
+          "relative weight ordering follows quality_score * parent_index_weight ordering"
+        ]
+      }
+    },
+    {
+      "category": "weighting",
+      "name": "cap_issuer_weight_broad_quality_index",
+      "purpose": "Prevent single-issuer concentration in broad-market Quality Indexes by capping aggregate issuer weight at 5% and redistributing excess weight proportionally.",
+      "source": {
+        "markdown": "Issuers in the MSCI Quality Indexes based on broad Parent Indexes (e.g. MSCI World Index, MSCI Emerging Markets Index etc.) will be capped at 5%",
+        "section": "2.4 Weighting Scheme",
+        "line": 251
+      },
+      "datapoints": [
+        "issuer_id",
+        "weight",
+        "is_broad_parent_index"
+      ],
+      "thresholds": {
+        "broad_issuer_cap": 0.05
+      },
+      "canonical_concept": "msci_issuer_weight_cap_5pct",
+      "asserts": {
+        "technical": [
+          "weight column present after cap",
+          "weights sum to 1.0"
+        ],
+        "business": [
+          "no issuer aggregated weight exceeds 0.05 in broad indexes after normalization"
+        ]
+      }
+    },
+    {
+      "category": "weighting",
+      "name": "cap_issuer_weight_narrow_quality_index",
+      "purpose": "Apply a flexible issuer cap for narrow Parent Indexes, floored at 10% or the maximum issuer weight in the Parent Index, whichever is greater, to avoid over-constraining concentrated markets.",
+      "source": {
+        "markdown": "Cap for narrow Country/Regional Indexes = max (10%, maximum issuer weight in the Parent Index)",
+        "section": "Appendix IV: Issuer Weight Capping",
+        "line": 521
+      },
+      "datapoints": [
+        "issuer_id",
+        "weight",
+        "is_narrow_parent_index",
+        "max_parent_issuer_weight"
+      ],
+      "thresholds": {
+        "narrow_floor": 0.1
+      },
+      "asserts": {
+        "technical": [
+          "weight column present after cap",
+          "weights sum to 1.0"
+        ],
+        "business": [
+          "no issuer aggregated weight exceeds max(0.10, max_parent_issuer_weight) in narrow indexes after normalization"
+        ]
+      }
+    },
+    {
+      "category": "weighting",
+      "name": "compute_inclusion_factor",
+      "purpose": "Derive the per-security inclusion factor as the ratio of the final (post-cap, post-normalization) index weight to the pro-forma Parent Index market capitalization weight, producing the output field consumed by downstream index calculation.",
+      "source": {
+        "markdown": "The final security level inclusion factor is determined as the ratio of the final security level weight and the security level pro forma market capitalization weight in the relevant MSCI Parent Index.",
+        "section": "2.4 Weighting Scheme",
+        "line": 240
+      },
+      "datapoints": [
+        "weight",
+        "parent_index_weight"
+      ],
+      "thresholds": {},
+      "canonical_concept": "msci_inclusion_factor",
+      "asserts": {
+        "technical": [
+          "inclusion_factor column present",
+          "no null inclusion_factor where parent_index_weight > 0"
+        ],
+        "business": [
+          "inclusion_factor equals weight divided by parent_index_weight for every row with non-zero parent_index_weight"
+        ]
+      }
+    },
+    {
+      "category": "event_handling",
+      "name": "characteristics_change_no_deletion",
+      "purpose": "Preserve an existing constituent through changes in country, sector, or size-segment classification between reviews, deferring reevaluation to the next scheduled Index Review to minimize unnecessary turnover.",
+      "source": {
+        "markdown": "A security will continue to be an Index constituent if there are changes in characteristics (country, sector, size segment, etc.) Reevaluation for continued inclusion in the Index will occur at the subsequent Index Review.",
+        "section": "3.2 Ongoing Event Related Changes",
+        "line": 357
+      },
+      "datapoints": [
+        "security_id",
+        "is_current_constituent",
+        "characteristics_changed_flag"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "security_id column present"
+        ],
+        "business": [
+          "no existing constituent is removed solely due to a characteristics change between reviews"
+        ]
+      }
+    },
+    {
+      "category": "event_handling",
+      "name": "quality_ma_nonconstituent_acquirer_treatment",
+      "purpose": "Delete an existing constituent when it is acquired by a non-Index company and block the acquiring non-constituent from being added, preventing unscored securities from entering the Quality Index outside reviews.",
+      "source": {
+        "markdown": "If an existing Index constituent is acquired by a non-Index constituent, the existing constituent will be deleted from the Index and the acquiring non-constituent will not be added to the Index.",
+        "section": "3.2 Ongoing Event Related Changes",
+        "line": 353
+      },
+      "datapoints": [
+        "security_id",
+        "is_current_constituent",
+        "acquirer_is_index_constituent"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "security_id column present"
+        ],
+        "business": [
+          "acquired constituent is absent from output",
+          "non-constituent acquirer is absent from output"
+        ]
+      }
+    }
+  ],
+  "reused_rules": [
+    {
+      "methbook": "corporate_events",
+      "name": "block_non_spinoff_parent_additions",
+      "justification": "Section 3.2 states no new securities added between reviews; Quality follows the same between-review addition block as defined in Corporate Events for non-mcap weighted indexes."
+    },
+    {
+      "methbook": "corporate_events",
+      "name": "spinoff_immediate_addition",
+      "justification": "Section 3.2 states all spin-offs from existing constituents are added at event implementation; this matches the Corporate Events treatment for capped and non-mcap indexes."
+    },
+    {
+      "methbook": "corporate_events",
+      "name": "ma_acquirer_proportionate_weight",
+      "justification": "Section 3.2 states the acquirer post-event weight accounts for proportionate shares in deal consideration while cash proceeds are invested across the index; this is the Corporate Events capped/non-mcap M&A acquirer weight rule."
+    },
+    {
+      "methbook": "corporate_events",
+      "name": "reflect_parent_deletions",
+      "justification": "Section 3.2 states parent deletions are reflected simultaneously; Quality defers to Corporate Events for parent deletion propagation timing."
+    },
+    {
+      "methbook": "corporate_events",
+      "name": "neutralize_intermediate_parent_reviews",
+      "justification": "Section 3.2 states that when the parent reviews more frequently than the Quality Index, intermediate parent review changes are neutralized in the Quality Index."
+    },
+    {
+      "methbook": "corporate_events",
+      "name": "nonmcap_vwf_recalculation_ma_spinoff",
+      "justification": "Section 3.2 states that market cap changes from corporate event implementation are offset by a corresponding VWF change; this is the non-mcap VWF recalculation rule in Corporate Events."
+    },
+    {
+      "methbook": "corporate_events",
+      "name": "capped_nonmcap_cf_calculation",
+      "justification": "Section 3.2 references treatment under Capped Weighted and Non-Market Capitalization Weighted sections of Corporate Events; the CF calculation for such indexes applies to Quality."
+    }
+  ],
+  "mock_datapoints": [
+    {
+      "name": "roe",
+      "type": "float",
+      "distribution": "normal(0.15, 0.20), nullable with ~5% missing rate",
+      "description": "Return on Equity: trailing 12-month earnings per share divided by latest book value per share.",
+      "source_section": "Appendix I: Calculation Of Fundamental Variables",
+      "taxonomy": "quality_fundamental_variable",
+      "canonical_concept": "msci_quality_roe",
+      "definition_notes": [
+        "trailing 12-month EPS used, not fiscal year EPS",
+        "null triggers security exclusion per Appendix II Case 1"
+      ]
+    },
+    {
+      "name": "debt_to_equity",
+      "type": "float",
+      "distribution": "lognormal(0.5, 1.0), nullable with ~5% missing rate",
+      "description": "Debt to Equity: latest fiscal year total debt divided by book value.",
+      "source_section": "Appendix I: Calculation Of Fundamental Variables",
+      "taxonomy": "quality_fundamental_variable",
+      "canonical_concept": "msci_quality_debt_to_equity",
+      "definition_notes": [
+        "uses latest fiscal year, not trailing 12-month",
+        "null triggers security exclusion per Appendix II Case 2"
+      ]
+    },
+    {
+      "name": "earnings_variability",
+      "type": "float",
+      "distribution": "lognormal(0.3, 0.5), nullable with ~15% missing rate",
+      "description": "Earnings Variability: standard deviation of year-over-year EPS growth over the last five fiscal years.",
+      "source_section": "Appendix I: Calculation Of Fundamental Variables",
+      "taxonomy": "quality_fundamental_variable",
+      "canonical_concept": "msci_quality_earnings_variability",
+      "definition_notes": [
+        "computed over the last five fiscal years",
+        "null triggers two-variable fallback per Appendix II Case 3, not exclusion"
+      ]
+    },
+    {
+      "name": "parent_index_weight",
+      "type": "float",
+      "distribution": "exponential, sums to 1.0 within parent_index_id",
+      "description": "Free-float market capitalization weight of the security in the relevant MSCI Parent Index.",
+      "source_section": "2.3 Security Selection",
+      "taxonomy": "parent_index_attribute",
+      "canonical_concept": "parent_index_ff_mcap_weight",
+      "definition_notes": [
+        "used both as tie-breaker in ranking and as basis for quality-tilt weighting",
+        "pro-forma weight from GIMI rebalancing used at each review"
+      ]
+    },
+    {
+      "name": "fixed_number_securities",
+      "type": "int",
+      "distribution": "integer, index-specific constant; typical values: 300 (MSCI World), 100 (single-country)",
+      "description": "Target number of securities for this Quality Index instance, set at initial construction and reevaluated at each Index Review.",
+      "source_section": "2.3 Security Selection",
+      "taxonomy": "index_parameter",
+      "definition_notes": [
+        "determined by Appendix III algorithm and rounding rules",
+        "reevaluated at every semi-annual review to maintain sufficient market cap coverage"
+      ]
+    },
+    {
+      "name": "is_broad_parent_index",
+      "type": "bool",
+      "distribution": "bernoulli(0.3)",
+      "description": "Flag indicating the Parent Index is a broad regional or global index (e.g., MSCI World, MSCI EM) subject to the 5% issuer cap.",
+      "source_section": "2.4 Weighting Scheme",
+      "taxonomy": "index_parameter",
+      "definition_notes": [
+        "broad index defined implicitly by enumeration in Appendix IV: ACWI, World, EM, Europe, USA Quality Indexes",
+        "complement of is_narrow_parent_index"
+      ]
+    },
+    {
+      "name": "max_parent_issuer_weight",
+      "type": "float",
+      "distribution": "uniform(0.05, 0.35)",
+      "description": "Maximum aggregate issuer weight in the Parent Index; used to determine narrow-index status and the narrow-index cap level.",
+      "source_section": "2.4 Weighting Scheme",
+      "taxonomy": "parent_index_attribute",
+      "definition_notes": [
+        "narrow index defined as parent where this value > 0.10",
+        "cap for narrow index = max(0.10, this value) per Appendix IV"
+      ]
+    },
+    {
+      "name": "is_current_constituent",
+      "type": "bool",
+      "distribution": "bernoulli(0.85)",
+      "description": "Flag indicating whether the security is an existing constituent of the Quality Index before the current review, used in buffer rule and characteristics-change handling.",
+      "source_section": "3.1.1 Buffer Rules",
+      "taxonomy": "index_state"
+    },
+    {
+      "name": "issuer_id",
+      "type": "str",
+      "distribution": "many-to-one mapping from security_id; ~80% of issuers have one security",
+      "description": "Issuer identifier used to aggregate security-level weights to issuer level for cap enforcement.",
+      "source_section": "2.4 Weighting Scheme",
+      "taxonomy": "index_attribute"
+    },
+    {
+      "name": "raw_fixed_number",
+      "type": "int",
+      "distribution": "integer, output of Appendix III coverage algorithm before rounding",
+      "description": "Pre-rounding target security count from the Appendix III determination algorithm, input to the rounding rule.",
+      "source_section": "Appendix III: Rules to Determine Fixed Number of Securities at Initial Construction and in Ongoing Rebalancing",
+      "taxonomy": "index_parameter",
+      "definition_notes": [
+        "full determination algorithm is a flowchart not fully captured in markdown; see clarifications_needed"
+      ]
+    },
+    {
+      "name": "roe_winsorized",
+      "type": "float",
+      "distribution": "derived from roe; clipped at p5 and p95 within parent_index_id",
+      "description": "ROE value after winsorization at the 5th and 95th percentile within the Parent Index.",
+      "source_section": "2.2.1 Winsorizing The Variable",
+      "taxonomy": "quality_winsorized_variable"
+    },
+    {
+      "name": "debt_to_equity_winsorized",
+      "type": "float",
+      "distribution": "derived from debt_to_equity; clipped at p5 and p95 within parent_index_id",
+      "description": "D/E value after winsorization at the 5th and 95th percentile within the Parent Index.",
+      "source_section": "2.2.1 Winsorizing The Variable",
+      "taxonomy": "quality_winsorized_variable"
+    },
+    {
+      "name": "earnings_variability_winsorized",
+      "type": "float",
+      "distribution": "derived from earnings_variability; clipped at p5 and p95 within parent_index_id",
+      "description": "Earnings Variability value after winsorization at the 5th and 95th percentile within the Parent Index.",
+      "source_section": "2.2.1 Winsorizing The Variable",
+      "taxonomy": "quality_winsorized_variable"
+    },
+    {
+      "name": "roe_z_score",
+      "type": "float",
+      "distribution": "approximately normal(0, 1) within parent_index_id",
+      "description": "Z-score of winsorized ROE: (roe_winsorized - mean_roe) / std_roe within Parent Index. Higher is better.",
+      "source_section": "2.2.2 Calculating The Z-Scores",
+      "taxonomy": "quality_z_score"
+    },
+    {
+      "name": "debt_to_equity_z_score",
+      "type": "float",
+      "distribution": "approximately normal(0, 1) within parent_index_id",
+      "description": "Negated Z-score of winsorized D/E: -((de_winsorized - mean_de) / std_de). Higher is better.",
+      "source_section": "2.2.2 Calculating The Z-Scores",
+      "taxonomy": "quality_z_score"
+    },
+    {
+      "name": "earnings_variability_z_score",
+      "type": "float",
+      "distribution": "approximately normal(0, 1) within parent_index_id, nullable",
+      "description": "Negated Z-score of winsorized Earnings Variability: -((ev_winsorized - mean_ev) / std_ev). Null when earnings_variability is null.",
+      "source_section": "2.2.2 Calculating The Z-Scores",
+      "taxonomy": "quality_z_score"
+    },
+    {
+      "name": "composite_quality_z_score",
+      "type": "float",
+      "distribution": "approximately normal(0, 1)",
+      "description": "Equal-weighted average of available variable Z-scores (three when all present, two when earnings_variability_z_score is null).",
+      "source_section": "2.2.3 Calculating the Quality Score",
+      "taxonomy": "quality_composite_score",
+      "canonical_concept": "msci_composite_quality_z_score"
+    },
+    {
+      "name": "quality_score",
+      "type": "float",
+      "distribution": "positive real; >1 for Z>0, in (0,1) for Z<0",
+      "description": "Transformed Quality Score: 1+Z when composite Z>0; (1-Z)^-1 when composite Z<0. Always positive.",
+      "source_section": "2.2.3 Calculating the Quality Score",
+      "semantic_threshold": "A fixed number of securities with the highest positive Quality Scores are predetermined",
+      "taxonomy": "quality_composite_score",
+      "canonical_concept": "msci_quality_score",
+      "definition_notes": [
+        "Z=0 case not defined by the piecewise formula; see clarifications_needed"
+      ]
+    },
+    {
+      "name": "quality_rank",
+      "type": "int",
+      "distribution": "1 to N where N is parent index size, no ties",
+      "description": "Descending rank by quality_score; ties broken by parent_index_weight (higher weight = lower rank number).",
+      "source_section": "2.3 Security Selection",
+      "taxonomy": "quality_rank",
+      "canonical_concept": "msci_quality_rank"
+    },
+    {
+      "name": "inclusion_factor",
+      "type": "float",
+      "distribution": "positive real; ratio of final index weight to parent-index free-float market cap weight",
+      "description": "Final security-level inclusion factor: final index weight divided by the pro-forma Parent Index market cap weight. Output field consumed by downstream index calculation.",
+      "source_section": "2.4 Weighting Scheme",
+      "taxonomy": "index_output",
+      "canonical_concept": "msci_inclusion_factor"
+    }
+  ],
+  "composition_order": [
+    "exclude_missing_roe_or_de",
+    "winsorize_quality_variables",
+    "compute_quality_z_scores",
+    "compute_composite_quality_z_score",
+    "compute_quality_score_from_z",
+    "rank_by_quality_score_then_parent_weight",
+    "apply_quality_buffer_rule",
+    "apply_quality_score_tilt_weight",
+    "cap_issuer_weight_broad_quality_index",
+    "cap_issuer_weight_narrow_quality_index",
+    "compute_inclusion_factor"
+  ],
+  "final_asserts": [
+    "weights sum to 1.0 within floating point tolerance",
+    "no individual security weight exceeds 0.05 in broad parent index variants",
+    "no issuer aggregate weight exceeds max(0.10, max_parent_issuer_weight) in narrow parent index variants",
+    "output row count equals fixed_number_securities unless parent index has fewer eligible securities",
+    "all quality_score values in output are positive",
+    "no security with null roe or null debt_to_equity in output",
+    "all output securities are existing constituents of the Parent Index",
+    "inclusion_factor = weight / parent_index_weight for every output row with non-zero parent_index_weight"
+  ],
+  "external_references": [
+    {
+      "methbook": "corporate_events"
+    },
+    {
+      "methbook": "fundamental_data"
+    },
+    {
+      "methbook": "index_calculation"
+    },
+    {
+      "methbook": "index_policies"
+    },
+    {
+      "methbook": "index_glossary"
+    },
+    {
+      "methbook": "gics"
+    },
+    {
+      "methbook": "gimi"
+    }
+  ],
+  "clarifications_needed": [
+    {
+      "quote": "A fixed number of securities with the highest positive Quality Scores are predetermined",
+      "concern": "All mathematically computed Quality Scores are positive (1+Z>0 for Z>0; (1-Z)^-1>0 for Z<0), so 'positive Quality Scores' adds no filter beyond having a score. Confirm whether a floor threshold on quality_score or quality_rank exists, or whether the phrase only means the security must have a computed score."
+    },
+    {
+      "quote": "Quality Score = { 1 + Z, Z > 0 / (1 \u2212 Z)\u22121, Z < 0",
+      "concern": "The piecewise formula covers Z>0 and Z<0 but does not define Quality Score when Z=0. Confirm whether Z=0 maps to Q=1 (the limit from both sides) or is treated as a missing score."
+    },
+    {
+      "quote": "Issuers in the MSCI Quality Indexes based on narrow Parent Indexes will be capped at the maximum weight in the Parent Index.",
+      "concern": "Section 2.4 states the narrow-index cap equals the maximum weight in the Parent Index. Appendix IV states the cap equals max(10%, maximum issuer weight in the Parent Index). The 10% floor in Appendix IV has no counterpart in Section 2.4. Confirm which formula is authoritative; the Methbook uses Appendix IV."
+    },
+    {
+      "quote": "Algorithm to Determine Fixed Number of Securities at Initial Construction",
+      "concern": "Appendix III describes the determination algorithm as a flowchart. The markdown extraction captures only the rounding-off rules in text; the decision-tree logic (coverage thresholds, branching conditions, market-cap targets) was in image form and is not present in the extracted markdown. The Methbook defines only the rounding rule; the upstream algorithm requires the original PDF flowchart."
+    },
+    {
+      "quote": "Algorithm to reevaluate Fixed Number of Securities at Semi Annual Rebalancing",
+      "concern": "The reevaluation algorithm for existing indexes is also a flowchart (page 13 of the source PDF). The extracted markdown contains no text for this algorithm. Rules governing when fixed_number_securities changes at a review cannot be fully codified from the markdown alone."
+    }
+  ],
+  "scoped_out": [
+    {
+      "quote": "Appendix V: Constructing MSCI Quality Tilt Index",
+      "concern": "Defines a distinct variant index (all parent constituents included, same tilt weighting, no fixed-number selection). Treated as a separate methbook slug quality_tilt with base_methbook=quality listing only its delta (no select_fixed_number rule; universe expands to all parent constituents with available Quality Scores)."
+    },
+    {
+      "quote": "Appendix VI: Constructing MSCI Sector Neutral Quality Index",
+      "concern": "Defines a distinct variant index with sector-relative Z-score computation (standardized within GICS sector, winsorized at +/-3) and sector-neutral weighting (intra-sector normalization to parent sector weights). Treated as a separate methbook slug sector_neutral_quality with base_methbook=quality."
+    },
+    {
+      "quote": "Appendix VII: Methodology Set",
+      "concern": "External URL list for the Methodology Set documents. No transformations defined. All referenced documents captured in external_references."
+    },
+    {
+      "quote": "Appendix VIII: Changes to this Document",
+      "concern": "Changelog of modifications since March 2014. No transformations defined; historical record only."
+    },
+    {
+      "quote": "1 Introduction",
+      "concern": "Narrative description of the Quality factor investment thesis and index family overview. No transformations defined."
+    },
+    {
+      "quote": "Contact us / Notice and disclaimer",
+      "concern": "Legal boilerplate and contact information. No methodology content."
+    }
+  ]
+}

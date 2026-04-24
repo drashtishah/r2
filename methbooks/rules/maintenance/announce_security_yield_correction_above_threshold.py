@@ -37,8 +37,8 @@ def announce_security_yield_correction_above_threshold(df: pl.DataFrame) -> pl.D
     )
     all_revised = out["security_historical_revision_required"].all()
     assert all_revised, (
-        "security_historical_revision_required is not True for all rows; "
-        "historical data must always be revised regardless of error magnitude"
+        f"security_historical_revision_required not True for all rows: "
+        f"all_revised={all_revised}"
     )
     bv_rows = out.filter(
         (pl.col("ratio_type") == "book_value_yield")

@@ -1,6 +1,6 @@
 .PHONY: install update typecheck test report clean check \
     setup planner critique implementer deterministic semantic index pr \
-    methbook graph
+    methbook graph enrich-graph
 
 export PYTHONPATH := $(CURDIR)
 
@@ -59,3 +59,8 @@ methbook:
 
 graph:
 	graphify update methbooks/
+	uv run python -m methbooks.pipeline.rules_index
+	$(MAKE) enrich-graph
+
+enrich-graph:
+	uv run python -m methbooks.pipeline.enrich_graph

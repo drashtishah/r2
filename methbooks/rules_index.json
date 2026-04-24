@@ -83,6 +83,9 @@
       "eligibility.exclude_controversial_weapons_involvement",
       "eligibility.exclude_unrated_capital_goods_materials"
     ],
+    "MSCI/index_calculation": [
+      "event_handling.optional_dividend_cash_default"
+    ],
     "MSCI/index_policies": []
   },
   "rules": {
@@ -211,6 +214,9 @@
     "event_handling.neutralize_intermediate_parent_reviews": [
       "MSCI/eu_ctb_pab_overlay"
     ],
+    "event_handling.optional_dividend_cash_default": [
+      "MSCI/index_calculation"
+    ],
     "event_handling.quarterly_controversies_bisr_deletion": [
       "MSCI/climate_action"
     ],
@@ -299,16 +305,25 @@
     "event_handling.announcement_file_delivery",
     "event_handling.announcement_status_policy",
     "event_handling.apply_loss_per_share_restatement",
+    "event_handling.apply_negative_reinvestment_on_payment_default",
+    "event_handling.apply_negative_wht_reinvestment_for_special_dividend_net_dtr",
+    "event_handling.apply_negative_wht_reinvestment_for_taiwanese_stock_dividend",
+    "event_handling.apply_paf_for_extraordinary_capital_repayment",
+    "event_handling.apply_paf_for_special_dividend_gte_5pct",
+    "event_handling.apply_paf_for_stock_dividend",
     "event_handling.apply_paf_to_per_share_data_nominal_event",
     "event_handling.apply_proforma_for_loss_making_acquisition",
     "event_handling.apply_proforma_fundamental_business_structure_change",
+    "event_handling.apply_redemption_right_paf_usa",
     "event_handling.apply_structure_review_to_fixed_income",
+    "event_handling.apply_withholding_tax_to_net_dtr_reinvestment",
     "event_handling.bankruptcy_deletion_policy",
     "event_handling.capital_repayment_paf",
     "event_handling.capped_nonmcap_cf_calculation",
     "event_handling.component_index_carryforward_on_unavailability",
     "event_handling.compute_proforma_bvps_real_event",
     "event_handling.country_classification_review_at_event",
+    "event_handling.defer_reinvestment_when_security_not_traded",
     "event_handling.delisting_price_source_change",
     "event_handling.derived_index_suspension_treatment",
     "event_handling.early_deletion_policy",
@@ -328,6 +343,7 @@
     "event_handling.market_outage_partial_day_prices",
     "event_handling.merger_historical_link_paf",
     "event_handling.no_adjustment_for_buyback_special_dividend_debt_swap",
+    "event_handling.no_dividend_reinvestment_sunday_intermediary",
     "event_handling.nonindex_acquiring_index_early_inclusion",
     "event_handling.nonindex_constituent_acquisition_threshold",
     "event_handling.nonmcap_placement_vwf_recalculation",
@@ -335,7 +351,6 @@
     "event_handling.nos_change_country_specifics",
     "event_handling.nos_change_implementation_threshold",
     "event_handling.nos_change_implementation_timing",
-    "event_handling.optional_dividend_cash_default",
     "event_handling.optional_dividend_stock_default",
     "event_handling.optional_dividend_us_trigger",
     "event_handling.partial_tender_dutch_auction_no_paf",
@@ -346,6 +361,10 @@
     "event_handling.proforma_float_placements",
     "event_handling.prolonged_suspension_deletion",
     "event_handling.redemption_paf",
+    "event_handling.reinvest_dividends_in_sunday_thursday_calendar",
+    "event_handling.reinvest_estimated_dividend_japan_on_exdate",
+    "event_handling.reinvest_korean_dividend_estimate_enhanced_methodology",
+    "event_handling.reinvest_regular_distribution_on_exdate",
     "event_handling.reverse_spinoff_history_link",
     "event_handling.rights_issue_discount_nos",
     "event_handling.rights_issue_discount_paf",
@@ -388,7 +407,9 @@
     "maintenance.apply_ifrs_goodwill_amortization_adjustment",
     "maintenance.apply_index_revision_above_yield_threshold",
     "maintenance.apply_nos_change_at_review",
+    "maintenance.compute_atvr_from_12m_monthly_traded_value",
     "maintenance.constituent_omission_restatement_override",
+    "maintenance.correct_dividend_within_12m_window",
     "maintenance.correction_restatement_threshold",
     "maintenance.correction_window_12_month",
     "maintenance.exclude_egrlf_single_contributor_outlier",
@@ -400,8 +421,10 @@
     "maintenance.light_rebalancing_tighter_buffers",
     "maintenance.methodology_change_announcement_lead",
     "maintenance.propagate_gics_equity_to_corporate_bonds",
+    "maintenance.restate_index_at_50bps_error_threshold",
     "maintenance.review_fixed_income_gics_annually",
     "maintenance.update_micro_cap_minimum_size_at_review",
+    "maintenance.use_wmr_closing_spot_rate_for_fx",
     "scoring.compute_dps_annualized",
     "scoring.compute_egro_ols",
     "scoring.compute_egrsf",
@@ -410,6 +433,8 @@
     "scoring.compute_evar",
     "scoring.compute_roe",
     "scoring.compute_sgro_ols",
-    "scoring.use_average_shares_us_canada_uk_ireland"
+    "scoring.use_average_shares_us_canada_uk_ireland",
+    "weighting.blend_component_indexes_by_fixed_weight",
+    "weighting.compute_price_index_level_laspeyres"
   ]
 }

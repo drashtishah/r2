@@ -1,3 +1,30 @@
 datapoint,description,source
 security_id,Random 6-character security identifier.,methbooks/mock_universe.py
 weight,Initial weight from base universe normalised to sum to 1.,methbooks/mock_universe.py
+affected_security_count,TODO,TODO
+change_announcement_date,TODO,TODO
+change_effective_date,TODO,TODO
+closing_price,TODO,TODO
+component_availability_flag,TODO,TODO
+component_index_level,TODO,TODO
+correction_eligible_flag,TODO,TODO
+discontinued_flag,TODO,TODO
+eic_fast_track_flag,TODO,TODO
+eligible_security_count,TODO,TODO
+error_discovery_date,TODO,TODO
+error_impact_bps,TODO,TODO
+error_occurrence_date,TODO,TODO
+error_type,TODO,TODO
+index_level_scope,TODO,TODO
+intraday_price,TODO,TODO
+is_constituent_omission,TODO,TODO
+is_provisional_index,TODO,TODO
+is_trading,TODO,TODO
+market_outage_timestamp,TODO,TODO
+market_status,TODO,TODO
+methodology_minimum_securities,TODO,TODO
+restatement_flag,TODO,TODO
+termination_announcement_date,TODO,TODO
+termination_cause,TODO,TODO
+termination_effective_date,TODO,TODO
+total_market_security_count,TODO,TODO

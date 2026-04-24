@@ -1,0 +1,3 @@
+datapoint,description,source
+security_id,Random 6-character security identifier.,methbooks/mock_universe.py
+weight,Initial weight from base universe normalised to sum to 1.,methbooks/mock_universe.py

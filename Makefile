@@ -29,7 +29,7 @@ check: typecheck test
 
 setup:
 	@test -n "$(SRC)" || (echo "SRC=<pdf-or-md-path> required" && exit 1)
-	@uv run python -m methbooks.pipeline.setup $(SRC)
+	@uv run python -m methbooks.pipeline.setup "$(SRC)"
 
 planner:
 	uv run python -m methbooks.pipeline.planner --run-dir $(RUN_DIR)
@@ -55,7 +55,7 @@ pr:
 
 methbook:
 	@test -n "$(SRC)" || (echo "SRC=<pdf-or-md-path> required" && exit 1)
-	@RUN_DIR=$$(uv run python -m methbooks.pipeline.setup $(SRC)) && \
+	@RUN_DIR=$$(uv run python -m methbooks.pipeline.setup "$(SRC)") && \
 	  $(MAKE) planner RUN_DIR=$$RUN_DIR && \
 	  $(MAKE) critique RUN_DIR=$$RUN_DIR && \
 	  $(MAKE) implementer RUN_DIR=$$RUN_DIR && \

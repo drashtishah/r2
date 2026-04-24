@@ -1,0 +1,493 @@
+{
+  "identification": {
+    "provider": "MSCI",
+    "family": "Global ex Controversial Weapons",
+    "slug": "global_ex_controversial_weapons",
+    "version_date": "2025-12-11",
+    "index_type": "esg_screen",
+    "regulatory_framework": {
+      "name": "International Conventions on Controversial Weapons",
+      "key_requirements": [
+        "Cluster Munitions Convention (cluster bombs)",
+        "Mine Ban Treaty (landmines)",
+        "Chemical Weapons Convention (chemical weapons)",
+        "Biological Weapons Convention (biological weapons)",
+        "Convention on Certain Conventional Weapons Protocol IV (blinding laser weapons)",
+        "Convention on Certain Conventional Weapons Protocol I (non-detectable fragments)",
+        "Convention on Certain Conventional Weapons Protocol III (incendiary weapons)",
+        "National regulations prohibiting investment in certain weapons, e.g., Belgium on depleted uranium weapons"
+      ]
+    }
+  },
+  "document_metadata": {
+    "title": "MSCI Global ex Controversial Weapons Indexes Methodology",
+    "publication_month": "December 2025",
+    "source_file": "meth-pipeline/MSCI_Global_ex_Controversial_Weapons_Indexes_Methodology_20251211/2026-04-23T20-59-13Z/input/markdown.md"
+  },
+  "universe": {
+    "applicable_universe": {
+      "methbook": "gimi"
+    }
+  },
+  "eligibility": {
+    "rule_names": [
+      "exclude_controversial_weapons_involvement",
+      "exclude_unrated_capital_goods_materials"
+    ]
+  },
+  "selection": {
+    "method": "screen_only",
+    "content": {
+      "description": "All GIMI constituents not excluded by the eligibility criteria are included in the index."
+    }
+  },
+  "weighting": {
+    "method": "ff_mcap"
+  },
+  "unrated_treatment": {
+    "policy": "exclude_if_gics_capital_goods_or_materials",
+    "details": {
+      "condition": "Company not assessed by MSCI Solutions on BISR data",
+      "excluded_gics_industry_groups": [
+        "Capital Goods",
+        "Materials"
+      ],
+      "source_section": "2.3 Treatment of Unrated Companies",
+      "source_line": 108
+    }
+  },
+  "review_cadence": {
+    "schedules": [
+      {
+        "name": "Quarterly Index Review",
+        "frequency": "quarterly",
+        "months": [
+          "February",
+          "May",
+          "August",
+          "November"
+        ],
+        "announcement_lead": "pro forma Indexes are generally announced nine business days before the effective date",
+        "data_cutoff": "MSCI Business Involvement Screening Research as of the end of the month preceding the Index Reviews; for securities whose data is not published by end of month, MSCI uses ESG data published after the end of month when available"
+      }
+    ]
+  },
+  "event_handling": {
+    "defers_to": {
+      "methbook": "corporate_events"
+    },
+    "rule_names": [
+      "xcw_new_addition_deferred_to_review",
+      "xcw_spinoff_deferred_to_review",
+      "xcw_ma_delete_acquired_constituent",
+      "xcw_ma_no_add_nonconstituent_acquirer",
+      "xcw_characteristics_change_no_deletion",
+      "xcw_parent_deletion_propagates"
+    ],
+    "intra_review_invariants": [
+      {
+        "quote": "There are no deletions from the Index between Index Reviews on account of a security becoming involved in controversial weapons.",
+        "concern": "No intra-review deletion triggered by a new weapons involvement finding between reviews."
+      },
+      {
+        "quote": "No new securities will be added (except where noted below) to the Index between Index Reviews. Parent Index deletions will be reflected simultaneously.",
+        "concern": "Parent index deletions propagate immediately; all other additions are held until the next quarterly review."
+      }
+    ]
+  },
+  "data_requirements": {
+    "mandatory_products": [
+      {
+        "methbook": "bisr",
+        "section": "MSCI Business Involvement Screening Research"
+      },
+      {
+        "methbook": "gics"
+      }
+    ],
+    "mandatory_fields": [
+      {
+        "name": "bisr_controversial_weapons_flag",
+        "description": "BISR flag indicating involvement in the value chain of at least one of the seven controversial weapon categories",
+        "source": "MSCI Solutions BISR"
+      },
+      {
+        "name": "bisr_assessed",
+        "description": "Whether the company has been assessed by MSCI Solutions on BISR data",
+        "source": "MSCI Solutions BISR"
+      },
+      {
+        "name": "gics_industry_group",
+        "description": "GICS Industry Group classification",
+        "source": "GICS"
+      }
+    ],
+    "preprocessing": [
+      {
+        "step": "data_cutoff_alignment",
+        "description": "Use BISR data as of end of month preceding the Index Review; if not available by then, use data published after end of month when available before the review effective date"
+      }
+    ]
+  },
+  "new_rules": [
+    {
+      "category": "eligibility",
+      "name": "exclude_controversial_weapons_involvement",
+      "purpose": "Exclude companies with BISR-assessed involvement in the value chain of any of the seven controversial weapon categories (cluster bombs, landmines, depleted uranium weapons, chemical and biological weapons, blinding laser weapons, non-detectable fragments, incendiary weapons). The flag incorporates direct production, component production, delivery-platform production, 50%+ ownership by a manufacturer, and significant-stake ownership of a manufacturer as defined by BISR.",
+      "datapoints": [
+        "bisr_controversial_weapons_flag"
+      ],
+      "thresholds": {},
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_ex_Controversial_Weapons_Indexes_Methodology_20251211/2026-04-23T20-59-13Z/input/markdown.md",
+        "section": "2.2 Eligibility Criteria",
+        "line": 87
+      },
+      "asserts": {
+        "technical": [
+          "bisr_controversial_weapons_flag column present after filter",
+          "no row with bisr_controversial_weapons_flag == True survives"
+        ],
+        "business": [
+          "no surviving company is flagged by BISR as involved in any of the 7 controversial weapon categories"
+        ]
+      },
+      "canonical_concept": "msci_bisr_controversial_weapons_exclusion"
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_unrated_capital_goods_materials",
+      "purpose": "Exclude companies in GICS Industry Groups Capital Goods or Materials that have not been assessed by MSCI Solutions on BISR data.",
+      "datapoints": [
+        "bisr_assessed",
+        "gics_industry_group"
+      ],
+      "thresholds": {},
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_ex_Controversial_Weapons_Indexes_Methodology_20251211/2026-04-23T20-59-13Z/input/markdown.md",
+        "section": "2.3 Treatment of Unrated Companies",
+        "line": 108
+      },
+      "asserts": {
+        "technical": [
+          "bisr_assessed and gics_industry_group columns present after filter"
+        ],
+        "business": [
+          "no surviving row has bisr_assessed == False and gics_industry_group in ['Capital Goods', 'Materials']"
+        ]
+      },
+      "canonical_concept": "msci_bisr_unrated_exclusion_by_gics"
+    },
+    {
+      "category": "event_handling",
+      "name": "xcw_new_addition_deferred_to_review",
+      "purpose": "Do not add securities newly added to the parent GIMI index (IPOs, other early inclusions, size-segment migrations) to this index at the time of event implementation; consider them at the subsequent Index Review.",
+      "datapoints": [
+        "is_new_parent_addition"
+      ],
+      "thresholds": {},
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_ex_Controversial_Weapons_Indexes_Methodology_20251211/2026-04-23T20-59-13Z/input/markdown.md",
+        "section": "3.2 Ongoing Event-Related Maintenance",
+        "line": 164
+      },
+      "asserts": {
+        "technical": [
+          "is_new_parent_addition column present"
+        ],
+        "business": [
+          "no security flagged as a new parent addition is added to the index between reviews"
+        ]
+      },
+      "canonical_concept": "xcw_intra_review_no_new_addition"
+    },
+    {
+      "category": "event_handling",
+      "name": "xcw_spinoff_deferred_to_review",
+      "purpose": "Do not add spin-off securities created from an existing index constituent to this index at the time of event implementation; reevaluate at the subsequent Index Review.",
+      "datapoints": [
+        "is_spinoff_from_constituent"
+      ],
+      "thresholds": {},
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_ex_Controversial_Weapons_Indexes_Methodology_20251211/2026-04-23T20-59-13Z/input/markdown.md",
+        "section": "3.2 Ongoing Event-Related Maintenance",
+        "line": 175
+      },
+      "asserts": {
+        "technical": [
+          "is_spinoff_from_constituent column present"
+        ],
+        "business": [
+          "no spin-off security is added to the index at the time of the spin-off event implementation"
+        ]
+      },
+      "canonical_concept": "xcw_intra_review_no_spinoff_addition"
+    },
+    {
+      "category": "event_handling",
+      "name": "xcw_ma_delete_acquired_constituent",
+      "purpose": "Delete an existing index constituent that is acquired by a non-index-constituent at the time of the M&A event.",
+      "datapoints": [
+        "is_acquisition_target",
+        "acquirer_is_index_constituent"
+      ],
+      "thresholds": {},
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_ex_Controversial_Weapons_Indexes_Methodology_20251211/2026-04-23T20-59-13Z/input/markdown.md",
+        "section": "3.2 Ongoing Event-Related Maintenance",
+        "line": 194
+      },
+      "asserts": {
+        "technical": [
+          "is_acquisition_target and acquirer_is_index_constituent columns present"
+        ],
+        "business": [
+          "an index constituent acquired by a non-constituent is removed from the index at event time"
+        ]
+      },
+      "canonical_concept": "xcw_ma_delete_acquired_constituent"
+    },
+    {
+      "category": "event_handling",
+      "name": "xcw_ma_no_add_nonconstituent_acquirer",
+      "purpose": "Do not add a non-index-constituent acquirer to the index at the time of an M&A event in which it acquires an index constituent.",
+      "datapoints": [
+        "is_acquisition_target",
+        "acquirer_is_index_constituent"
+      ],
+      "thresholds": {},
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_ex_Controversial_Weapons_Indexes_Methodology_20251211/2026-04-23T20-59-13Z/input/markdown.md",
+        "section": "3.2 Ongoing Event-Related Maintenance",
+        "line": 194
+      },
+      "asserts": {
+        "technical": [
+          "is_acquisition_target and acquirer_is_index_constituent columns present"
+        ],
+        "business": [
+          "a non-constituent acquirer of an index constituent is not added to the index at event time"
+        ]
+      },
+      "canonical_concept": "xcw_ma_no_add_nonconstituent_acquirer"
+    },
+    {
+      "category": "event_handling",
+      "name": "xcw_characteristics_change_no_deletion",
+      "purpose": "Retain a constituent in the index when its characteristics (country, sector, size segment, etc.) change intra-review; reevaluate at the subsequent Index Review.",
+      "datapoints": [
+        "has_characteristics_change"
+      ],
+      "thresholds": {},
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_ex_Controversial_Weapons_Indexes_Methodology_20251211/2026-04-23T20-59-13Z/input/markdown.md",
+        "section": "3.2 Ongoing Event-Related Maintenance",
+        "line": 199
+      },
+      "asserts": {
+        "technical": [
+          "has_characteristics_change column present"
+        ],
+        "business": [
+          "no constituent is deleted solely on account of a characteristics change between reviews"
+        ]
+      },
+      "canonical_concept": "xcw_characteristics_change_no_deletion"
+    },
+    {
+      "category": "event_handling",
+      "name": "xcw_parent_deletion_propagates",
+      "purpose": "Delete a constituent from this index at event time when it is deleted from the parent GIMI index; parent deletions are reflected simultaneously.",
+      "datapoints": [
+        "is_parent_deletion_event"
+      ],
+      "thresholds": {},
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_ex_Controversial_Weapons_Indexes_Methodology_20251211/2026-04-23T20-59-13Z/input/markdown.md",
+        "section": "3.2 Ongoing Event-Related Maintenance",
+        "line": 154
+      },
+      "asserts": {
+        "technical": [
+          "is_parent_deletion_event column present"
+        ],
+        "business": [
+          "every security with is_parent_deletion_event == True is removed from the index simultaneously with the parent deletion"
+        ]
+      },
+      "canonical_concept": "xcw_parent_deletion_propagates"
+    }
+  ],
+  "reused_rules": [],
+  "mock_datapoints": [
+    {
+      "name": "bisr_controversial_weapons_flag",
+      "type": "Boolean",
+      "distribution": "Bernoulli(p=0.02)",
+      "description": "BISR-assessed flag indicating the company is involved in the value chain of at least one of the seven controversial weapon categories defined in Appendix II.",
+      "canonical_concept": "msci_bisr_controversial_weapons_flag",
+      "source_section": "Appendix II: Controversial Weapons Involvement Criteria",
+      "taxonomy": "BISR Controversial Weapons Involvement (7 weapon categories x 4 involvement tiers: direct production, component/delivery production, 50%+ owned by manufacturer, significant-stake ownership of manufacturer)",
+      "semantic_threshold": "involved in the value chain of these controversial weapons",
+      "definition_notes": [
+        "Covers direct production of weapons, component manufacturers, and makers of delivery vehicles.",
+        "Ownership tie: being 50% or more owned by a weapons manufacturer triggers the flag.",
+        "Significant-stake ownership of a manufacturer triggers the flag for financial institutions and fund providers at 50%+ and for non-financial institutions or fund providers at 20%-49.99%.",
+        "Applies subject to availability of corresponding data from MSCI Solutions."
+      ]
+    },
+    {
+      "name": "bisr_assessed",
+      "type": "Boolean",
+      "distribution": "Bernoulli(p=0.85)",
+      "description": "Indicates whether the company has been assessed by MSCI Solutions on MSCI Business Involvement Screening Research data.",
+      "canonical_concept": "msci_bisr_assessed",
+      "source_section": "2.3 Treatment of Unrated Companies",
+      "definition_notes": [
+        "Companies not assessed are excluded only if they are classified in GICS Industry Groups Capital Goods or Materials."
+      ]
+    },
+    {
+      "name": "gics_industry_group",
+      "type": "String",
+      "distribution": "Categorical over GICS industry groups",
+      "description": "GICS Industry Group classification of the company, used to determine exclusion treatment for companies not assessed by BISR.",
+      "canonical_concept": "gics_industry_group",
+      "source_section": "2.3 Treatment of Unrated Companies",
+      "taxonomy": "GICS Industry Group",
+      "definition_notes": [
+        "Only the Capital Goods and Materials industry groups trigger exclusion for unrated companies."
+      ]
+    },
+    {
+      "name": "is_new_parent_addition",
+      "type": "Boolean",
+      "distribution": "Bernoulli(p=0.005)",
+      "description": "Indicates the security was newly added to the parent GIMI index since the last Index Review (IPO, other early inclusion, or size-segment migration).",
+      "source_section": "3.2 Ongoing Event-Related Maintenance",
+      "definition_notes": [
+        "Covers IPOs, other early inclusions, and migrations from a different size segment.",
+        "Such securities are considered for addition at the subsequent Index Review, not at event implementation."
+      ]
+    },
+    {
+      "name": "is_spinoff_from_constituent",
+      "type": "Boolean",
+      "distribution": "Bernoulli(p=0.003)",
+      "description": "Indicates the security was created as a result of a spin-off from an existing index constituent.",
+      "source_section": "3.2 Ongoing Event-Related Maintenance",
+      "definition_notes": [
+        "Spin-off securities are not added at event implementation; reevaluation for addition occurs at the subsequent Index Review."
+      ]
+    },
+    {
+      "name": "is_acquisition_target",
+      "type": "Boolean",
+      "distribution": "Bernoulli(p=0.002)",
+      "description": "Indicates the security is an existing index constituent being acquired in an M&A event.",
+      "source_section": "3.2 Ongoing Event-Related Maintenance",
+      "definition_notes": [
+        "Used with acquirer_is_index_constituent to determine deletion and non-addition behavior."
+      ]
+    },
+    {
+      "name": "acquirer_is_index_constituent",
+      "type": "Boolean",
+      "distribution": "Bernoulli(p=0.5)",
+      "description": "Indicates whether the acquiring company in an M&A event is itself an index constituent.",
+      "source_section": "3.2 Ongoing Event-Related Maintenance",
+      "definition_notes": [
+        "When the acquirer is a non-constituent: the target constituent is deleted and the acquirer is not added."
+      ]
+    },
+    {
+      "name": "has_characteristics_change",
+      "type": "Boolean",
+      "distribution": "Bernoulli(p=0.01)",
+      "description": "Indicates the security has had a change in index characteristics (country, sector, size segment, etc.) since the last review.",
+      "source_section": "3.2 Ongoing Event-Related Maintenance",
+      "definition_notes": [
+        "Characteristics changes do not trigger deletion; reevaluation occurs at the subsequent Index Review."
+      ]
+    },
+    {
+      "name": "is_parent_deletion_event",
+      "type": "Boolean",
+      "distribution": "Bernoulli(p=0.005)",
+      "description": "Indicates the security has been deleted from the parent GIMI index at this event time.",
+      "source_section": "3.2 Ongoing Event-Related Maintenance",
+      "definition_notes": [
+        "Parent Index deletions are reflected in the Index simultaneously."
+      ]
+    }
+  ],
+  "composition_order": [
+    "exclude_controversial_weapons_involvement",
+    "exclude_unrated_capital_goods_materials"
+  ],
+  "final_asserts": [
+    "No constituent has bisr_controversial_weapons_flag == True",
+    "No constituent has bisr_assessed == False and gics_industry_group in ['Capital Goods', 'Materials']",
+    "Constituent weights sum to 1.0",
+    "All constituent weights are non-negative"
+  ],
+  "external_references": [
+    {
+      "methbook": "read_me"
+    },
+    {
+      "methbook": "corporate_events"
+    },
+    {
+      "methbook": "fundamental_data"
+    },
+    {
+      "methbook": "index_calculation"
+    },
+    {
+      "methbook": "index_glossary"
+    },
+    {
+      "methbook": "index_policies"
+    },
+    {
+      "methbook": "gics"
+    },
+    {
+      "methbook": "gimi"
+    }
+  ],
+  "clarifications_needed": [
+    {
+      "quote": "For some securities, such data may not be published by MSCI Solutions by the end of the month preceding the Index Review. For such securities, MSCI will use ESG data published after the end of month, when available, for the rebalancing of the Indexes.",
+      "concern": "The 'when available' cutoff is not specified: it is unclear whether there is a hard deadline before the effective date and how late after end-of-month BISR data can still be used for rebalancing."
+    },
+    {
+      "quote": "This exclusion applies to companies directly involved in manufacturing the weapons themselves, as well as those component manufacturers, makers of delivery vehicles, and companies with indirect ownership ties to manufacturers \u2013 subject to availability of corresponding datafrom MSCI Solutions.",
+      "concern": "The phrase 'subject to availability' suggests a company could avoid exclusion when BISR data is unavailable. Section 2.3 handles unrated Capital Goods and Materials companies explicitly, but it is unclear whether the data-availability caveat applies uniformly across involvement tiers and GICS sectors outside Capital Goods and Materials."
+    },
+    {
+      "quote": "Existing constituents may be deleted from the Indexes if they become involved in controversial weapons and are screened according to the criteria described in Section 3.",
+      "concern": "Section 3.1 references 'criteria described in Section 3' for intra-review screening of existing constituents, but the screening criteria live in Section 2.2 and Appendix II. It is unclear whether this is a cross-reference typo or whether Section 3 is intended to introduce distinct criteria."
+    }
+  ],
+  "scoped_out": [
+    {
+      "quote": "Appendix IV: Changes to this Document",
+      "concern": "Historical changelog only; no transformation rules or current methodology instructions."
+    },
+    {
+      "quote": "Contact us [contact information block]",
+      "concern": "Contact directory; no methodology content."
+    },
+    {
+      "quote": "Notice and disclaimer [full disclaimer block]",
+      "concern": "Legal disclaimer; no methodology content."
+    },
+    {
+      "quote": "ESG Factors In Methodology*",
+      "concern": "Referenced in Appendix III as part of the Methodology Set but no URL is shown in this document and no methodology rules are derived from it here."
+    }
+  ]
+}

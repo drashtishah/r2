@@ -3,7 +3,7 @@ Purpose: Rank securities within each GICS sector by security_level_assessment as
     then ff_mcap descending; ties in assessment broken by larger market cap first.
 Datapoints: security_level_assessment, ff_mcap, gics_sector.
 Thresholds: none.
-Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Ranking" near line 1.
+Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "2.3.2 Ranked Universe" near line 261.
 See also: methbooks/rules/selection/select_top_50pct_with_buffer.py (consumes sector_rank).
 """
 from __future__ import annotations

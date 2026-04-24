@@ -2,7 +2,7 @@
 Purpose: Assign sector-relative quartile intensity score (1-4); score 4 = highest emission intensity.
 Datapoints: emission_intensity, ff_mcap, gics_sector.
 Thresholds: none (quartile boundaries computed per sector).
-Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Scoring" near line 1.
+Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "2.3.1 Security-Level Assessment" near line 206.
 See also: methbooks/rules/scoring/score_climate_risk_management.py (companion scoring rule).
 """
 from __future__ import annotations

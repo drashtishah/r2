@@ -3,7 +3,7 @@ Purpose: Assign sector-relative quartile emission track record score (1-4, nulla
     score 1 = strongest historical emission reduction; null for securities without a track record.
 Datapoints: emission_track_record, ff_mcap, gics_sector.
 Thresholds: none (quartile boundaries computed per sector among eligible rows).
-Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Scoring" near line 1.
+Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Appendix II: Calculation of Security Level Scores" near line 720.
 See also: methbooks/rules/scoring/assess_credible_track_record.py (derived from this score).
 """
 from __future__ import annotations

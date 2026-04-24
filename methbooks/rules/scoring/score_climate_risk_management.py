@@ -2,7 +2,7 @@
 Purpose: Assign sector-relative quartile climate risk management score (1-4); score 4 = best CRM.
 Datapoints: crm_weighted_avg_score, ff_mcap, gics_sector.
 Thresholds: none (quartile boundaries computed per sector).
-Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Scoring" near line 1.
+Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Appendix II: Calculation of Security Level Scores" near line 714.
 See also: methbooks/rules/eligibility/exclude_bottom_quartile_climate_risk_management.py (CRM used in eligibility too).
 """
 from __future__ import annotations

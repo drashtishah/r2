@@ -6,7 +6,7 @@ Datapoints: msci_controversies_score, tobacco_producer_flag, tobacco_revenue_pct
     thermal_coal_mining_revenue_pct, oil_sands_extraction_revenue_pct, has_oil_sands_reserves,
     nuclear_weapons_flag, weight.
 Thresholds: see individual eligibility rules.
-Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Event Handling" near line 1.
+Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "3.2 Quarterly Index Reviews" near line 364.
 See also: methbooks/rules/eligibility/exclude_red_flag_controversies.py (rule reused here).
 """
 from __future__ import annotations

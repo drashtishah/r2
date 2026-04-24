@@ -2,7 +2,7 @@
 Purpose: Exclude tobacco producers and companies deriving >= 5% revenue from tobacco.
 Datapoints: tobacco_producer_flag, tobacco_revenue_pct.
 Thresholds: 5.0 (revenue pct).
-Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Eligibility Criteria" near line 1.
+Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Appendix I: ESG Business Involvement Eligibility" near line 596.
 See also: methbooks/rules/event_handling/quarterly_controversies_bisr_deletion.py (re-applied at quarterly review).
 """
 from __future__ import annotations

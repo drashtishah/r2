@@ -4,7 +4,7 @@ Purpose: Compute security-level assessment score (1-4) combining intensity, gree
 Datapoints: approved_sbti, credible_track_record, intensity_score, climate_risk_management_score,
     green_business_score, green_business_revenue_pct.
 Thresholds: green_business_revenue_pct >= 5.0 for Tier 2 green business condition.
-Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Scoring" near line 1.
+Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "2.3.1 Security-Level Assessment" near line 237.
 See also: methbooks/rules/ranking/rank_by_assessment_then_mcap.py (uses this output).
 """
 from __future__ import annotations

@@ -3,7 +3,7 @@ Purpose: Set each selected security's weight proportional to its parent index we
     renormalized to sum to 1.
 Datapoints: parent_index_weight.
 Thresholds: none.
-Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Weighting" near line 1.
+Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "2.4 Weighting Of Selected Securities" near line 300.
 See also: methbooks/rules/weighting/cap_issuer_weight_5pct.py (applied after this).
 """
 from __future__ import annotations

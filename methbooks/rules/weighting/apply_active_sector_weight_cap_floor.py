@@ -4,7 +4,7 @@ Purpose: Cap active sector weight at +5% and floor at -5% relative to parent ind
     Single pass (per methbook clarification).
 Datapoints: weight, parent_index_weight, gics_sector.
 Thresholds: +0.05 active weight cap, -0.05 active weight floor.
-Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Weighting" near line 1.
+Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "2.4.1 Active GICS Sector Weight Cap and Floor" near line 305.
 See also: methbooks/rules/weighting/cap_issuer_weight_5pct.py (applied before this).
 """
 from __future__ import annotations

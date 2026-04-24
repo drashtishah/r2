@@ -3,7 +3,7 @@ Purpose: Select top securities per sector: guaranteed top 40%, buffer band up to
     preferring existing constituents, then fill to reach 50% target.
 Datapoints: sector_rank, gics_sector, is_current_constituent.
 Thresholds: 0.40 (guaranteed cutoff), 0.50 (target), 0.60 (buffer band upper bound).
-Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Selection" near line 1.
+Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "2.3.3 Security Selection" near line 266.
 See also: methbooks/rules/ranking/rank_by_assessment_then_mcap.py (provides sector_rank).
 """
 from __future__ import annotations

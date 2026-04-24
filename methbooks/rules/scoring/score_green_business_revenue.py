@@ -2,7 +2,7 @@
 Purpose: Assign sector-relative quartile green business score (1-4); score 4 = highest green revenue.
 Datapoints: green_business_revenue_pct, ff_mcap, gics_sector.
 Thresholds: none (quartile boundaries computed per sector).
-Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Scoring" near line 1.
+Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Appendix II: Calculation of Security Level Scores" near line 710.
 See also: methbooks/rules/scoring/score_intensity.py (companion scoring rule).
 """
 from __future__ import annotations

@@ -2,7 +2,7 @@
 Purpose: Flag securities with a credible emission reduction track record (track_record_score == 1).
 Datapoints: track_record_score.
 Thresholds: track_record_score == 1.
-Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Scoring" near line 1.
+Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Appendix II: Calculation of Security Level Scores" near line 776.
 See also: methbooks/rules/scoring/score_emission_track_record.py (source of track_record_score).
 """
 from __future__ import annotations

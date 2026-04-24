@@ -6,7 +6,7 @@ Datapoints: has_emission_intensity_data, emission_intensity, fossil_fuel_reserve
     total_potential_carbon_emissions_ex_met_coal, approved_sbti.
 Thresholds: 95th percentile of emission_intensity (computed from df); 95th percentile of
     total_potential_carbon_emissions_ex_met_coal among fossil fuel reserves companies (computed from df).
-Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Eligibility Criteria" near line 1.
+Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "2.2.3 Emission Eligibility" near line 176.
 See also: methbooks/rules/eligibility/exclude_bottom_quartile_climate_risk_management.py (subsequent eligibility step).
 """
 from __future__ import annotations

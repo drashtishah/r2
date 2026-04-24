@@ -2,7 +2,7 @@
 Purpose: Exclude companies with >= 5% oil sands extraction revenue AND proven oil sands reserves.
 Datapoints: oil_sands_extraction_revenue_pct, has_oil_sands_reserves.
 Thresholds: 5.0 (revenue pct).
-Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Eligibility Criteria" near line 1.
+Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Appendix I: ESG Business Involvement Eligibility" near line 613.
 See also: methbooks/rules/event_handling/quarterly_controversies_bisr_deletion.py (re-applied at quarterly review).
 """
 from __future__ import annotations

@@ -3,7 +3,7 @@ Purpose: Exclude securities in the bottom quartile of climate risk management sc
     within their GICS sector.
 Datapoints: crm_weighted_avg_score, gics_sector.
 Thresholds: quartile 1 (bottom 25% per sector).
-Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Eligibility Criteria" near line 1.
+Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "2.2.4 Climate Risk Management Eligibility" near line 194.
 See also: methbooks/rules/scoring/score_climate_risk_management.py (CRM score used in scoring phase).
 """
 from __future__ import annotations

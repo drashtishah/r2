@@ -2,7 +2,7 @@
 Purpose: Exclude companies deriving >= 1% revenue from thermal coal mining.
 Datapoints: thermal_coal_mining_revenue_pct.
 Thresholds: 1.0 (revenue pct).
-Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Eligibility Criteria" near line 1.
+Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Appendix I: ESG Business Involvement Eligibility" near line 604.
 See also: methbooks/rules/event_handling/quarterly_controversies_bisr_deletion.py (re-applied at quarterly review).
 """
 from __future__ import annotations

@@ -53,7 +53,7 @@ pr:
 	@test -n "$(RUN_DIR)" || (echo "RUN_DIR=<path> required" && exit 1)
 	@SLUG=$$(basename $$(dirname "$(RUN_DIR)")); \
 	  git push -u origin "methbook/$$SLUG" && \
-	  gh pr create --title "methbook: $$SLUG" --body "$$(cat "$(RUN_DIR)/methbook_v2.json")" && \
+	  gh pr create --title "methbook: $$SLUG" --body "Methbook pipeline output. See branch commits for the generated module, data dictionary, and rule files." && \
 	  gh pr merge --auto --merge --delete-branch
 
 methbook:

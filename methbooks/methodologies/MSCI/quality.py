@@ -89,6 +89,13 @@ def build_mock_data() -> pl.DataFrame:
         else:
             acquirer_col.append(None)
 
+    # Derived columns added by apply(); listed here so the data dictionary check finds them.
+    _derived = [
+        "roe_winsorized", "debt_to_equity_winsorized", "earnings_variability_winsorized",
+        "roe_z_score", "debt_to_equity_z_score", "earnings_variability_z_score",
+        "composite_quality_z_score", "quality_score", "quality_rank", "inclusion_factor",
+    ]
+
     return df.with_columns(
         _col("roe", roe),
         _col("debt_to_equity", de),

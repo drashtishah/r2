@@ -182,8 +182,8 @@ def apply(df: pl.DataFrame) -> pl.DataFrame:
     assert MIN_ROWS <= out.height <= MAX_ROWS, (
         f"unexpected row count: {out.height} not in [{MIN_ROWS}, {MAX_ROWS}]"
     )
-    assert out["msci_controversies_score"].max() == 0 or out.height == 0, (
-        f"red flag controversy rows in output: {out['msci_controversies_score'].max()}"
+    assert out.height == 0 or out["msci_controversies_score"].min() > 0, (
+        f"red flag (score==0) rows in output: min={out['msci_controversies_score'].min()}"
     )
     assert out["nuclear_weapons_flag"].sum() == 0, (
         f"nuclear weapons rows in output: {out['nuclear_weapons_flag'].sum()}"

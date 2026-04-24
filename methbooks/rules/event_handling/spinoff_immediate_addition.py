@@ -1,7 +1,7 @@
 """
 Purpose: Pass-through stub for spinoff immediate addition policy; business logic
     requires case-by-case review and is not transformable in a batch pipeline.
-Datapoints: none.
+Datapoints: (pass-through; no datapoints consumed).
 Thresholds: none.
 Source: methbooks/data/markdown/MSCI_Climate_Action_Indexes_Methodology_20251211.md section "Event Handling" near line 1.
 See also: methbooks/rules/event_handling/ma_acquirer_proportionate_weight.py (companion event stub).

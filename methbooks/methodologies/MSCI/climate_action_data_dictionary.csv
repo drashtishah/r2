@@ -26,4 +26,4 @@ track_record_score,Sector-relative quartile (1-4) by emission track record; 1 = 
 credible_track_record,True if track_record_score == 1 (strongest sector reduction); null if no track record.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Scoring"""
 security_level_assessment,Security-level assessment (1-4) combining intensity score with SBTi/track record and CRM/green business adjustments.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Scoring"""
 sector_rank,Rank within GICS sector (ascending by security_level_assessment then descending by ff_mcap).,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Ranking"""
-none,TODO,TODO
+(pass-through; no datapoints consumed),TODO,TODO

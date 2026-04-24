@@ -123,6 +123,22 @@ def build_mock_data() -> pl.DataFrame:
         pl.Series("is_acquisition_target", [rng.random() < 0.002 for _ in range(n)]),
         pl.Series("acquirer_is_index_constituent", [rng.random() < 0.5 for _ in range(n)]),
         pl.Series("has_characteristics_change", [rng.random() < 0.01 for _ in range(n)]),
+        # Computed columns mocked for unit testing of downstream rules in isolation
+        pl.Series("intensity_score", [rng.randint(1, 4) for _ in range(n)]),
+        pl.Series("green_business_score", [rng.randint(1, 4) for _ in range(n)]),
+        pl.Series("climate_risk_management_score", [rng.randint(1, 4) for _ in range(n)]),
+        pl.Series(
+            "track_record_score",
+            [rng.choice([1, 2, 3, 4, None]) for _ in range(n)],
+            dtype=pl.Int32,
+        ),
+        pl.Series(
+            "credible_track_record",
+            [True if rng.random() < 0.15 else False for _ in range(n)],
+        ),
+        pl.Series("security_level_assessment", [rng.randint(1, 4) for _ in range(n)]),
+        pl.Series("sector_rank", [rng.randint(1, 50) for _ in range(n)]),
+        pl.Series("selected", [rng.random() < 0.5 for _ in range(n)]),
     )
 
 

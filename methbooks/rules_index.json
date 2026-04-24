@@ -41,6 +41,32 @@
       "weighting.optimize_index_weights"
     ],
     "MSCI/fundamental_data": [],
+    "MSCI/gimi": [
+      "eligibility.apply_china_suspension_screen",
+      "eligibility.apply_dm_em_minimum_liquidity_requirement",
+      "eligibility.apply_equity_universe_minimum_float_adjusted_mcap_requirement",
+      "eligibility.apply_equity_universe_minimum_size_requirement",
+      "eligibility.apply_financial_reporting_requirement",
+      "eligibility.apply_fm_minimum_liquidity_requirement",
+      "eligibility.apply_global_minimum_fif_requirement",
+      "eligibility.apply_micro_cap_maximum_size_requirement",
+      "eligibility.apply_micro_cap_minimum_liquidity_requirement",
+      "eligibility.apply_micro_cap_minimum_size_requirement",
+      "eligibility.apply_minimum_foreign_room_requirement",
+      "eligibility.apply_minimum_length_of_trading_requirement",
+      "eligibility.apply_non_constituent_high_price_liquidity_screen",
+      "eligibility.exclude_ineligible_alert_board_securities",
+      "eligibility.exclude_ineligible_preferred_shares",
+      "eligibility.exclude_mutual_funds_etfs_equity_derivatives",
+      "maintenance.apply_foreign_room_adjustment_factor",
+      "maintenance.apply_liquidity_adjustment_factor_em_fm",
+      "maintenance.update_equity_universe_minimum_size_at_review",
+      "maintenance.update_segment_number_of_companies_at_review",
+      "ranking.rank_standard_index_candidates_by_stability_weighted_ff_mcap",
+      "selection.apply_extreme_price_increase_standard_index_block",
+      "selection.apply_standard_index_minimum_constituents",
+      "weighting.apply_initial_foreign_room_adjustment_factor"
+    ],
     "MSCI/global_ex_controversial_weapons": [
       "eligibility.exclude_controversial_weapons_involvement",
       "eligibility.exclude_unrated_capital_goods_materials"
@@ -48,6 +74,45 @@
     "MSCI/index_policies": []
   },
   "rules": {
+    "eligibility.apply_china_suspension_screen": [
+      "MSCI/gimi"
+    ],
+    "eligibility.apply_dm_em_minimum_liquidity_requirement": [
+      "MSCI/gimi"
+    ],
+    "eligibility.apply_equity_universe_minimum_float_adjusted_mcap_requirement": [
+      "MSCI/gimi"
+    ],
+    "eligibility.apply_equity_universe_minimum_size_requirement": [
+      "MSCI/gimi"
+    ],
+    "eligibility.apply_financial_reporting_requirement": [
+      "MSCI/gimi"
+    ],
+    "eligibility.apply_fm_minimum_liquidity_requirement": [
+      "MSCI/gimi"
+    ],
+    "eligibility.apply_global_minimum_fif_requirement": [
+      "MSCI/gimi"
+    ],
+    "eligibility.apply_micro_cap_maximum_size_requirement": [
+      "MSCI/gimi"
+    ],
+    "eligibility.apply_micro_cap_minimum_liquidity_requirement": [
+      "MSCI/gimi"
+    ],
+    "eligibility.apply_micro_cap_minimum_size_requirement": [
+      "MSCI/gimi"
+    ],
+    "eligibility.apply_minimum_foreign_room_requirement": [
+      "MSCI/gimi"
+    ],
+    "eligibility.apply_minimum_length_of_trading_requirement": [
+      "MSCI/gimi"
+    ],
+    "eligibility.apply_non_constituent_high_price_liquidity_screen": [
+      "MSCI/gimi"
+    ],
     "eligibility.exclude_bottom_quartile_climate_risk_management": [
       "MSCI/climate_action"
     ],
@@ -61,6 +126,15 @@
     ],
     "eligibility.exclude_high_emitters_without_sbti": [
       "MSCI/climate_action"
+    ],
+    "eligibility.exclude_ineligible_alert_board_securities": [
+      "MSCI/gimi"
+    ],
+    "eligibility.exclude_ineligible_preferred_shares": [
+      "MSCI/gimi"
+    ],
+    "eligibility.exclude_mutual_funds_etfs_equity_derivatives": [
+      "MSCI/gimi"
     ],
     "eligibility.exclude_nuclear_weapons": [
       "MSCI/climate_action"
@@ -113,8 +187,23 @@
     "event_handling.spinoff_immediate_addition": [
       "MSCI/climate_action"
     ],
+    "maintenance.apply_foreign_room_adjustment_factor": [
+      "MSCI/gimi"
+    ],
+    "maintenance.apply_liquidity_adjustment_factor_em_fm": [
+      "MSCI/gimi"
+    ],
+    "maintenance.update_equity_universe_minimum_size_at_review": [
+      "MSCI/gimi"
+    ],
+    "maintenance.update_segment_number_of_companies_at_review": [
+      "MSCI/gimi"
+    ],
     "ranking.rank_by_assessment_then_mcap": [
       "MSCI/climate_action"
+    ],
+    "ranking.rank_standard_index_candidates_by_stability_weighted_ff_mcap": [
+      "MSCI/gimi"
     ],
     "scoring.assess_credible_track_record": [
       "MSCI/climate_action"
@@ -134,11 +223,20 @@
     "scoring.score_intensity": [
       "MSCI/climate_action"
     ],
+    "selection.apply_extreme_price_increase_standard_index_block": [
+      "MSCI/gimi"
+    ],
+    "selection.apply_standard_index_minimum_constituents": [
+      "MSCI/gimi"
+    ],
     "selection.select_top_50pct_with_buffer": [
       "MSCI/climate_action"
     ],
     "weighting.apply_active_sector_weight_cap_floor": [
       "MSCI/climate_action"
+    ],
+    "weighting.apply_initial_foreign_room_adjustment_factor": [
+      "MSCI/gimi"
     ],
     "weighting.cap_issuer_weight_5pct": [
       "MSCI/climate_action"
@@ -166,6 +264,9 @@
     "event_handling.country_classification_review_at_event",
     "event_handling.delisting_price_source_change",
     "event_handling.derived_index_suspension_treatment",
+    "event_handling.early_deletion_policy",
+    "event_handling.early_inclusion_non_index_constituents_and_ipos",
+    "event_handling.gics_classification_review_at_event",
     "event_handling.highly_dilutive_rights_issue",
     "event_handling.index_review_delay_reverse_turnover",
     "event_handling.ipo_early_inclusion_effective_date",
@@ -208,6 +309,7 @@
     "event_handling.share_class_conversion_mandatory",
     "event_handling.share_class_conversion_voluntary_discretion",
     "event_handling.share_freeze",
+    "event_handling.size_segment_migration_on_large_corporate_event",
     "event_handling.special_dividend_paf_threshold",
     "event_handling.spinoff_capped_index_cf",
     "event_handling.spinoff_exdate_inclusion",
@@ -231,19 +333,25 @@
     "event_handling.xcw_parent_deletion_propagates",
     "event_handling.xcw_spinoff_deferred_to_review",
     "maintenance.adjust_trailing_eps_real_estate_revaluation",
+    "maintenance.announce_index_review_results",
     "maintenance.announce_security_yield_correction_above_threshold",
+    "maintenance.apply_fif_change_at_review",
     "maintenance.apply_hyperinflationary_currency_substitution",
     "maintenance.apply_ifrs_goodwill_amortization_adjustment",
     "maintenance.apply_index_revision_above_yield_threshold",
+    "maintenance.apply_nos_change_at_review",
     "maintenance.constituent_omission_restatement_override",
     "maintenance.correction_restatement_threshold",
     "maintenance.correction_window_12_month",
     "maintenance.exclude_egrlf_single_contributor_outlier",
+    "maintenance.gics_non_event_change_announcement_schedule",
     "maintenance.index_discontinued_minimum_securities",
     "maintenance.index_termination_notice_provisional",
     "maintenance.index_termination_notice_standard",
     "maintenance.large_scale_error_restatement_override",
+    "maintenance.light_rebalancing_tighter_buffers",
     "maintenance.methodology_change_announcement_lead",
+    "maintenance.update_micro_cap_minimum_size_at_review",
     "scoring.compute_dps_annualized",
     "scoring.compute_egro_ols",
     "scoring.compute_egrsf",

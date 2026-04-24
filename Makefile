@@ -51,10 +51,7 @@ index:
 
 pr:
 	@test -n "$(RUN_DIR)" || (echo "RUN_DIR=<path> required" && exit 1)
-	@SLUG=$$(basename $$(dirname "$(RUN_DIR)")); \
-	  git push -u origin "methbook/$$SLUG" && \
-	  gh pr create --title "methbook: $$SLUG" --body "Methbook pipeline output. See branch commits for the generated module, data dictionary, and rule files." && \
-	  gh pr merge --auto --merge --delete-branch
+	uv run python -m methbooks.pipeline.pr --run-dir "$(RUN_DIR)"
 
 methbook:
 	@test -n "$(SRC)" || (echo "SRC=<pdf-or-md-path> required" && exit 1)

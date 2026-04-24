@@ -15,3 +15,4 @@ high_climate_impact_sector,True if the company is classified as belonging to a h
 is_rated_msci_controversies,True if the company has been assessed by MSCI Solutions for MSCI Controversies.,"methbooks/data/markdown/MSCI_EU_CTB_PAB_Overlay_Indexes_Methodology_20260211.md section ""2.7 Treatment of Unrated Companies"""
 is_rated_msci_climate,True if the company has been assessed by MSCI Solutions for MSCI Climate Change Metrics.,"methbooks/data/markdown/MSCI_EU_CTB_PAB_Overlay_Indexes_Methodology_20260211.md section ""2.7 Treatment of Unrated Companies"""
 is_rated_msci_bisr,True if the company has been assessed by MSCI Solutions for MSCI BISR.,"methbooks/data/markdown/MSCI_EU_CTB_PAB_Overlay_Indexes_Methodology_20260211.md section ""2.7 Treatment of Unrated Companies"""
+none,TODO,TODO

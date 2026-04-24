@@ -50,3 +50,16 @@ dictionary.
 Do not write outside methbooks/rules/, methbooks/methodologies/, or
 methbooks/mock_universe.py; the deterministic verifier will fail the
 run if you do.
+
+Before finishing, run these three checks from the repo root via Bash
+and fix anything non-zero, then rerun:
+
+1. `make typecheck`
+2. `uv run python -c "from methbooks.methodologies.{provider}.{slug} import apply, build_mock_data; apply(build_mock_data())"`
+3. `uv run python -m methbooks.pipeline.deterministic --run-dir meth-pipeline/<slug>/<ts>`
+
+Substitute {provider}/{slug} from identification, and <slug>/<ts> from
+the run_dir above. Only stop when all three exit zero. Commit any fixes
+you make during this loop on the current branch alongside your other
+commits. The deterministic check writes its report to run_dir; read it
+to see which item failed.

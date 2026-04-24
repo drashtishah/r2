@@ -15,6 +15,7 @@ import ast
 import json
 import subprocess
 from pathlib import Path
+from typing import TypedDict
 
 METHODOLOGIES = Path("methbooks/methodologies")
 RULES_DIR = Path("methbooks/rules")
@@ -49,7 +50,13 @@ def _present_rules() -> set[str]:
     return found
 
 
-def build_index() -> dict[str, object]:
+class Index(TypedDict):
+    methodologies: dict[str, list[str]]
+    rules: dict[str, list[str]]
+    orphans: list[str]
+
+
+def build_index() -> Index:
     by_meth: dict[str, list[str]] = {}
     for p in sorted(METHODOLOGIES.rglob("*.py")):
         if p.name == "__init__.py":

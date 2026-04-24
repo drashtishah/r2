@@ -41,6 +41,18 @@
       "weighting.optimize_index_weights"
     ],
     "MSCI/fundamental_data": [],
+    "MSCI/gics": [
+      "eligibility.classify_by_largest_combined_contribution",
+      "eligibility.classify_by_majority_revenue_and_earnings",
+      "eligibility.classify_by_primary_revenue",
+      "eligibility.classify_by_qualitative_research",
+      "eligibility.classify_diversified_conglomerate",
+      "eligibility.classify_tracking_stock_by_underlying",
+      "eligibility.gics_equity_issuer_eligibility",
+      "maintenance.minimize_reclassification_on_temporary_fluctuations",
+      "maintenance.propagate_gics_from_company_to_equity_securities",
+      "maintenance.restrict_reclassification_to_sustained_60pct"
+    ],
     "MSCI/global_ex_controversial_weapons": [
       "eligibility.exclude_controversial_weapons_involvement",
       "eligibility.exclude_unrated_capital_goods_materials"
@@ -48,6 +60,24 @@
     "MSCI/index_policies": []
   },
   "rules": {
+    "eligibility.classify_by_largest_combined_contribution": [
+      "MSCI/gics"
+    ],
+    "eligibility.classify_by_majority_revenue_and_earnings": [
+      "MSCI/gics"
+    ],
+    "eligibility.classify_by_primary_revenue": [
+      "MSCI/gics"
+    ],
+    "eligibility.classify_by_qualitative_research": [
+      "MSCI/gics"
+    ],
+    "eligibility.classify_diversified_conglomerate": [
+      "MSCI/gics"
+    ],
+    "eligibility.classify_tracking_stock_by_underlying": [
+      "MSCI/gics"
+    ],
     "eligibility.exclude_bottom_quartile_climate_risk_management": [
       "MSCI/climate_action"
     ],
@@ -95,6 +125,9 @@
     "eligibility.exclude_unrated_msci_solutions": [
       "MSCI/eu_ctb_pab_overlay"
     ],
+    "eligibility.gics_equity_issuer_eligibility": [
+      "MSCI/gics"
+    ],
     "event_handling.block_non_spinoff_parent_additions": [
       "MSCI/eu_ctb_pab_overlay"
     ],
@@ -112,6 +145,15 @@
     ],
     "event_handling.spinoff_immediate_addition": [
       "MSCI/climate_action"
+    ],
+    "maintenance.minimize_reclassification_on_temporary_fluctuations": [
+      "MSCI/gics"
+    ],
+    "maintenance.propagate_gics_from_company_to_equity_securities": [
+      "MSCI/gics"
+    ],
+    "maintenance.restrict_reclassification_to_sustained_60pct": [
+      "MSCI/gics"
     ],
     "ranking.rank_by_assessment_then_mcap": [
       "MSCI/climate_action"
@@ -151,13 +193,18 @@
     ]
   },
   "orphans": [
+    "eligibility.classify_bond_only_issuer_by_parent_gics",
+    "eligibility.classify_bond_only_issuer_without_parent_gics",
+    "eligibility.classify_spv_by_related_entity",
     "eligibility.exclude_stale_fundamental_data_18m",
+    "eligibility.gics_fixed_income_corporate_eligibility",
     "event_handling.announcement_file_delivery",
     "event_handling.announcement_status_policy",
     "event_handling.apply_loss_per_share_restatement",
     "event_handling.apply_paf_to_per_share_data_nominal_event",
     "event_handling.apply_proforma_for_loss_making_acquisition",
     "event_handling.apply_proforma_fundamental_business_structure_change",
+    "event_handling.apply_structure_review_to_fixed_income",
     "event_handling.bankruptcy_deletion_policy",
     "event_handling.capital_repayment_paf",
     "event_handling.capped_nonmcap_cf_calculation",
@@ -224,6 +271,7 @@
     "event_handling.tender_offer_friendly_deletion",
     "event_handling.tender_offer_standard_size_override",
     "event_handling.tender_offer_uncertain_results_decision",
+    "event_handling.trigger_review_on_restructuring_or_new_annual_report",
     "event_handling.xcw_characteristics_change_no_deletion",
     "event_handling.xcw_ma_delete_acquired_constituent",
     "event_handling.xcw_ma_no_add_nonconstituent_acquirer",
@@ -244,6 +292,8 @@
     "maintenance.index_termination_notice_standard",
     "maintenance.large_scale_error_restatement_override",
     "maintenance.methodology_change_announcement_lead",
+    "maintenance.propagate_gics_equity_to_corporate_bonds",
+    "maintenance.review_fixed_income_gics_annually",
     "scoring.compute_dps_annualized",
     "scoring.compute_egro_ols",
     "scoring.compute_egrsf",

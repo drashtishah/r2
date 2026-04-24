@@ -22,10 +22,6 @@ def apply_loss_per_share_restatement(df: pl.DataFrame) -> pl.DataFrame:
         .then(
             pl.col("trailing_12m_earnings") / pl.col("shares_outstanding_post_event")
         )
-        .when(pl.col("shares_outstanding_post_event") > 0)
-        .then(
-            pl.col("trailing_12m_earnings") / pl.col("shares_outstanding_post_event")
-        )
         .otherwise(pl.lit(None).cast(pl.Float64))
         .alias("loss_per_share_restated")
     )
@@ -44,4 +40,15 @@ def apply_loss_per_share_restatement(df: pl.DataFrame) -> pl.DataFrame:
         assert bad == 0, (
             f"loss_per_share_restated not equal to earnings / post_event_shares for {bad} rows"
         )
+    non_trigger = out.filter(
+        ~(
+            (pl.col("trailing_12m_earnings") < 0)
+            & (pl.col("shares_outstanding_post_event") > pl.col("shares_outstanding_pre_event"))
+        )
+        & pl.col("loss_per_share_restated").is_not_null()
+    ).height
+    assert non_trigger == 0, (
+        f"loss_per_share_restated populated for {non_trigger} rows without trigger "
+        f"(earnings < 0 and post > pre shares)"
+    )
     return out

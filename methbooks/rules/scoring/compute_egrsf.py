@@ -32,4 +32,14 @@ def compute_egrsf(df: pl.DataFrame) -> pl.DataFrame:
         pl.col("eps12b").is_null() & pl.col("egrsf").is_not_null()
     ).height
     assert bad_null_b == 0, f"egrsf not null for {bad_null_b} rows where eps12b is null"
+    populated = out.filter(pl.col("egrsf").is_not_null()).head(1)
+    if populated.height > 0:
+        eps12f_v = float(populated["eps12f"][0])
+        eps12b_v = float(populated["eps12b"][0])
+        egrsf_v = float(populated["egrsf"][0])
+        expected = (eps12f_v - eps12b_v) / abs(eps12b_v)
+        assert abs(egrsf_v - expected) < 1e-9, (
+            f"egrsf formula mismatch: got {egrsf_v}, expected {expected} "
+            f"from eps12f={eps12f_v}, eps12b={eps12b_v}"
+        )
     return out

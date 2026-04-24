@@ -13,7 +13,7 @@ import polars as pl
 
 def exclude_bottom_quartile_climate_risk_management(df: pl.DataFrame) -> pl.DataFrame:
     # Rank ascending: lowest crm_weighted_avg_score = rank 1 = quartile 1 (excluded)
-    out = (
+    ranked = (
         df.with_columns(
             pl.col("crm_weighted_avg_score")
             .rank(method="ordinal", descending=False)
@@ -26,10 +26,15 @@ def exclude_bottom_quartile_climate_risk_management(df: pl.DataFrame) -> pl.Data
         .with_columns(
             (((pl.col("_rank") - 1) * 4) // pl.col("_n") + 1).cast(pl.Int32).alias("_quartile")
         )
-        .filter(pl.col("_quartile") > 1)
-        .drop(["_rank", "_n", "_quartile"])
     )
+    out = ranked.filter(pl.col("_quartile") > 1).drop(["_rank", "_n", "_quartile"])
     assert "crm_weighted_avg_score" in out.columns, (
         f"crm_weighted_avg_score column missing: {out.columns}"
+    )
+    survivors_in_q1 = ranked.filter(pl.col("_quartile") == 1).filter(
+        pl.col("security_id").is_in(out["security_id"])
+    )
+    assert survivors_in_q1.height == 0, (
+        f"rows with sector-relative CRM quartile 1 survived: {survivors_in_q1.height}"
     )
     return out

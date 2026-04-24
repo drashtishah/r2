@@ -1,0 +1,1542 @@
+{
+  "identification": {
+    "provider": "MSCI",
+    "family": "Global Investable Market Indexes",
+    "slug": "gimi",
+    "version_date": "2026-03-31",
+    "index_type": "reference",
+    "base_methbook": null,
+    "regulatory_framework": null
+  },
+  "document_metadata": {
+    "title": "MSCI Global Investable Market Indexes Methodology",
+    "publication_month": "March 2026",
+    "last_updated": "February 2026",
+    "source_file": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+    "page_count": 191
+  },
+  "universe": {
+    "applicable_universe": "Self-defining: the MSCI GIMI is the universe-defining document for MSCI Global Investable Market Indexes.",
+    "reference_index": null,
+    "eligibility_scope": "All listed equity securities across Developed, Emerging, Frontier, and Standalone markets that meet investability screens."
+  },
+  "eligibility": {
+    "rule_names": [
+      "exclude_mutual_funds_etfs_equity_derivatives",
+      "exclude_ineligible_preferred_shares",
+      "exclude_ineligible_alert_board_securities",
+      "apply_equity_universe_minimum_size_requirement",
+      "apply_equity_universe_minimum_float_adjusted_mcap_requirement",
+      "apply_dm_em_minimum_liquidity_requirement",
+      "apply_non_constituent_high_price_liquidity_screen",
+      "apply_china_suspension_screen",
+      "apply_global_minimum_fif_requirement",
+      "apply_minimum_length_of_trading_requirement",
+      "apply_minimum_foreign_room_requirement",
+      "apply_financial_reporting_requirement",
+      "apply_micro_cap_maximum_size_requirement",
+      "apply_micro_cap_minimum_size_requirement",
+      "apply_micro_cap_minimum_liquidity_requirement",
+      "apply_fm_minimum_liquidity_requirement"
+    ]
+  },
+  "selection": {
+    "method": "coverage_cutoff",
+    "content": {
+      "size_segments": [
+        "Large Cap",
+        "Mid Cap",
+        "Small Cap",
+        "Investable Market Index"
+      ],
+      "large_cap_coverage_target": "70% +/- 5%",
+      "standard_coverage_target": "85% +/- 5%",
+      "imi_coverage_target": "99% +1% or -0.5%",
+      "mid_cap_derived_as": "Standard minus Large Cap",
+      "small_cap_derived_as": "IMI minus Standard",
+      "micro_cap": "all DM securities not in GIMI meeting micro cap screens",
+      "global_minimum_size_range_multiplier": "0.5x to 1.15x Global Minimum Size Reference",
+      "size_priority_over_coverage": true
+    }
+  },
+  "weighting": {
+    "method": "ff_mcap",
+    "caps": [
+      {
+        "description": "Foreign room < 25% and >= 15%: adjustment factor 0.5 applied to FIF; foreign room < 3.75%: adjustment factor 0"
+      }
+    ],
+    "buffers": [
+      {
+        "description": "Size-segment buffer zones: lower bound 2/3 of Market Size-Segment Cutoff, upper bound 1.5x Market Size-Segment Cutoff; at light rebalancing 0.5x and 1.8x"
+      },
+      {
+        "description": "Small Cap Entry Buffer: 1.5x IMI Market Size-Segment Cutoff for non-current IMI constituents"
+      }
+    ],
+    "floors": []
+  },
+  "review_cadence": {
+    "schedules": [
+      {
+        "name": "Quarterly Index Review",
+        "frequency": "quarterly",
+        "months": [
+          "February",
+          "May",
+          "August",
+          "November"
+        ],
+        "data_cutoff": "Equity Universe Cutoff: last business day of Nov/Feb/May/Aug; Liquidity Cutoff: last business day of Dec/Mar/Jun/Sep; Price Cutoff: any of last 10 business days of Jan/Apr/Jul/Oct",
+        "announcement_lead": "The results of the Index Reviews are announced at least two weeks in advance of their effective implementation dates, which are generally set at the close of the last business day of February, May, August and November."
+      }
+    ],
+    "base_date_reset": {
+      "equity_universe_minimum_size": "reset when cumulative ff-mcap coverage at prior rank falls outside 99%-99.25% band",
+      "global_minimum_size_references": "reset quarterly per Appendix X process"
+    }
+  },
+  "new_rules": [
+    {
+      "category": "eligibility",
+      "name": "exclude_mutual_funds_etfs_equity_derivatives",
+      "purpose": "Remove instruments that are not direct equity exposures (mutual funds, ETFs, equity derivatives, most investment trusts) from the Equity Universe.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "2.1.1 Identifying Eligible Equity Securities",
+        "line": 845
+      },
+      "datapoints": [
+        "security_type"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "security_type column present",
+          "no mutual fund, ETF, or equity derivative rows survive"
+        ],
+        "business": [
+          "only listed equity securities, REITs, eligible Canadian income trusts, eligible preferred shares, and stapled securities remain"
+        ]
+      },
+      "canonical_concept": "msci_equity_universe_security_type_eligibility"
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_ineligible_preferred_shares",
+      "purpose": "Exclude preferred shares whose terms resemble fixed-income instruments (fixed dividend entitlement or par-value-capped liquidation claim), retaining only those whose only difference from common shares is limited voting power.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "2.1.1 Identifying Eligible Equity Securities",
+        "line": 866
+      },
+      "datapoints": [
+        "preferred_share_flag",
+        "fixed_dividend_flag",
+        "par_value_liquidation_flag"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "preferred_share_flag column present"
+        ],
+        "business": [
+          "no preferred share with fixed_dividend_flag=True or par_value_liquidation_flag=True survives"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "exclude_ineligible_alert_board_securities",
+      "purpose": "Remove securities listed on exchange alert/watch/suspension boards (e.g. Tokyo Securities Under Supervision, Borsa Istanbul Watch List, India Graded Surveillance Measure) from the Equity Universe; re-addition blocked for 12 months after deletion.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "Appendix I: Ineligible Alert Boards",
+        "line": 4064
+      },
+      "datapoints": [
+        "alert_board_flag"
+      ],
+      "thresholds": {
+        "readmission_lockout_months": 12
+      },
+      "asserts": {
+        "technical": [
+          "alert_board_flag column present"
+        ],
+        "business": [
+          "no security with alert_board_flag=True survives; deleted securities absent for fewer than 12 months are not re-added"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "apply_equity_universe_minimum_size_requirement",
+      "purpose": "Exclude companies whose full market capitalization falls below the Equity Universe Minimum Size Requirement, derived as the full market cap of the DM Equity Universe company at 99% cumulative ff-adjusted coverage.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "2.2.3 Equity Universe Minimum Size Requirement",
+        "line": 983
+      },
+      "datapoints": [
+        "full_market_cap_usd",
+        "market_type",
+        "is_existing_imi_constituent"
+      ],
+      "thresholds": {
+        "dm_em_coverage_target_pct": 99,
+        "fm_coverage_target_pct": 99,
+        "example_feb_2026_dm_em_usd_mm": 507,
+        "example_feb_2026_fm_usd_mm": 13
+      },
+      "asserts": {
+        "technical": [
+          "full_market_cap_usd column present",
+          "no non-constituent with full_market_cap_usd below threshold survives"
+        ],
+        "business": [
+          "existing IMI constituents are exempt from this screen at review; new companies below threshold are excluded"
+        ]
+      },
+      "canonical_concept": "msci_equity_universe_minimum_size"
+    },
+    {
+      "category": "eligibility",
+      "name": "apply_equity_universe_minimum_float_adjusted_mcap_requirement",
+      "purpose": "Exclude individual securities whose ff-adjusted market cap is below 50% of the Equity Universe Minimum Size Requirement to ensure minimum investable float.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "2.2.4 Equity Universe Minimum Float-Adjusted Market Capitalization Requirement",
+        "line": 1033
+      },
+      "datapoints": [
+        "ff_adjusted_mcap_usd",
+        "equity_universe_min_size_usd",
+        "is_existing_imi_constituent"
+      ],
+      "thresholds": {
+        "ff_mcap_pct_of_min_size": 50
+      },
+      "asserts": {
+        "technical": [
+          "ff_adjusted_mcap_usd column present"
+        ],
+        "business": [
+          "no non-constituent security with ff_adjusted_mcap_usd < 0.5 * equity_universe_min_size_usd survives; existing IMI constituents exempt"
+        ]
+      },
+      "canonical_concept": "msci_equity_universe_minimum_float_mcap"
+    },
+    {
+      "category": "eligibility",
+      "name": "apply_dm_em_minimum_liquidity_requirement",
+      "purpose": "Exclude securities that fail the DM or EM Minimum Liquidity Requirement measured by 12-month ATVR, 3-month ATVR, and 3-month Frequency of Trading over the last 4 consecutive quarters.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "2.2.5 DM and EM Minimum Liquidity Requirement",
+        "line": 1039
+      },
+      "datapoints": [
+        "atvr_12m_pct",
+        "atvr_3m_pct",
+        "freq_of_trading_3m_pct",
+        "market_type",
+        "is_existing_imi_constituent"
+      ],
+      "thresholds": {
+        "dm_atvr_12m_min_pct": 20,
+        "dm_atvr_3m_min_pct": 20,
+        "dm_freq_3m_min_pct": 90,
+        "em_atvr_12m_min_pct": 15,
+        "em_atvr_3m_min_pct": 15,
+        "em_freq_3m_min_pct": 80,
+        "consecutive_quarters_required": 4,
+        "existing_constituent_dm_atvr_12m_floor_pct": 13.3,
+        "existing_constituent_em_atvr_12m_floor_pct": 10,
+        "existing_constituent_atvr_3m_min_pct": 5,
+        "existing_constituent_dm_freq_3m_min_pct": 80,
+        "existing_constituent_em_freq_3m_min_pct": 70
+      },
+      "asserts": {
+        "technical": [
+          "atvr_12m_pct, atvr_3m_pct, freq_of_trading_3m_pct columns present"
+        ],
+        "business": [
+          "non-constituent DM securities with atvr_12m_pct < 20 or atvr_3m_pct < 20 or freq_of_trading_3m_pct < 90 excluded; non-constituent EM securities with atvr_12m_pct < 15 or atvr_3m_pct < 15 or freq_of_trading_3m_pct < 80 excluded; existing constituents use lower buffers"
+        ]
+      },
+      "canonical_concept": "msci_minimum_liquidity_requirement"
+    },
+    {
+      "category": "eligibility",
+      "name": "apply_non_constituent_high_price_liquidity_screen",
+      "purpose": "Fail the liquidity screening for any non-constituent security whose stock price exceeds USD 10,000; current constituents remain eligible at prices above this threshold.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "2.2.5 DM and EM Minimum Liquidity Requirement",
+        "line": 1122
+      },
+      "datapoints": [
+        "stock_price_usd",
+        "is_existing_imi_constituent"
+      ],
+      "thresholds": {
+        "max_stock_price_usd_non_constituent": 10000
+      },
+      "asserts": {
+        "technical": [
+          "stock_price_usd column present"
+        ],
+        "business": [
+          "no non-constituent with stock_price_usd > 10000 survives; existing constituents with stock_price_usd > 10000 are retained"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "apply_china_suspension_screen",
+      "purpose": "Exclude MSCI China Equity Universe securities that are suspended on the Price Cutoff Date or have been suspended for 50 or more consecutive business days in the past 12 months.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "2.2.5 DM and EM Minimum Liquidity Requirement",
+        "line": 1078
+      },
+      "datapoints": [
+        "market_type",
+        "china_suspension_flag",
+        "china_suspension_consecutive_business_days"
+      ],
+      "thresholds": {
+        "china_suspension_consecutive_days_max": 50
+      },
+      "asserts": {
+        "technical": [
+          "china_suspension_flag and china_suspension_consecutive_business_days columns present for China securities"
+        ],
+        "business": [
+          "no MSCI China Equity Universe security with china_suspension_flag=True on Price Cutoff Date or china_suspension_consecutive_business_days >= 50 survives"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "apply_global_minimum_fif_requirement",
+      "purpose": "Exclude securities whose Foreign Inclusion Factor is below 0.15 unless the company is very large and exclusion would compromise Standard Index representation of the market.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "2.2.6 Global Minimum Foreign Inclusion Factor Requirement",
+        "line": 1198
+      },
+      "datapoints": [
+        "fif",
+        "is_existing_imi_constituent",
+        "ff_adjusted_mcap_usd",
+        "standard_index_interim_cutoff_usd"
+      ],
+      "thresholds": {
+        "min_fif": 0.15,
+        "low_fif_standard_override_ff_mcap_multiplier": 1.8,
+        "low_fif_standard_override_half_cutoff_multiplier": 0.5
+      },
+      "asserts": {
+        "technical": [
+          "fif column present"
+        ],
+        "business": [
+          "non-constituent securities with fif < 0.15 excluded unless ff_adjusted_mcap_usd >= 1.8 * 0.5 * standard_index_interim_cutoff_usd; existing constituents exempt"
+        ]
+      },
+      "canonical_concept": "msci_global_minimum_fif"
+    },
+    {
+      "category": "eligibility",
+      "name": "apply_minimum_length_of_trading_requirement",
+      "purpose": "Require IPOs to have traded at least three months before Index Review implementation; large IPOs and large primary/secondary offerings are exempt from this screen.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "2.2.7 Minimum Length of Trading Requirement",
+        "line": 1217
+      },
+      "datapoints": [
+        "months_since_first_trading",
+        "is_large_ipo_flag",
+        "full_market_cap_usd",
+        "ff_adjusted_mcap_usd",
+        "standard_index_interim_cutoff_usd"
+      ],
+      "thresholds": {
+        "min_months_trading": 3,
+        "small_ipo_override_full_mcap_multiplier": 1.8,
+        "small_ipo_override_ff_mcap_multiplier": 0.9
+      },
+      "asserts": {
+        "technical": [
+          "months_since_first_trading column present"
+        ],
+        "business": [
+          "non-large IPOs with months_since_first_trading < 3 excluded unless full_market_cap_usd >= 1.8 * standard_index_interim_cutoff_usd and ff_adjusted_mcap_usd >= 0.9 * standard_index_interim_cutoff_usd"
+        ]
+      },
+      "canonical_concept": "msci_minimum_length_of_trading"
+    },
+    {
+      "category": "eligibility",
+      "name": "apply_minimum_foreign_room_requirement",
+      "purpose": "Exclude securities subject to a Foreign Ownership Limit (FOL) whose foreign room is below 15%.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "2.2.8 Minimum Foreign Room Requirement",
+        "line": 1237
+      },
+      "datapoints": [
+        "foreign_room_pct",
+        "has_fol_flag"
+      ],
+      "thresholds": {
+        "min_foreign_room_pct": 15
+      },
+      "asserts": {
+        "technical": [
+          "foreign_room_pct column present when has_fol_flag=True"
+        ],
+        "business": [
+          "no security with has_fol_flag=True and foreign_room_pct < 15 survives"
+        ]
+      },
+      "canonical_concept": "msci_minimum_foreign_room"
+    },
+    {
+      "category": "weighting",
+      "name": "apply_initial_foreign_room_adjustment_factor",
+      "purpose": "Apply a 0.5 adjustment factor to FIF for securities whose foreign room is less than 25% and equal to or higher than 15%, to reflect the actual level of foreign room in the final FIF.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "2.3.6.2 Minimum Foreign Room Requirement",
+        "line": 1641
+      },
+      "datapoints": [
+        "foreign_room_pct",
+        "has_fol_flag",
+        "fif"
+      ],
+      "thresholds": {
+        "adjustment_factor_upper_threshold_pct": 25,
+        "adjustment_factor_lower_threshold_pct": 15,
+        "fif_adjustment_factor": 0.5
+      },
+      "asserts": {
+        "technical": [
+          "fif column present"
+        ],
+        "business": [
+          "securities with foreign_room_pct in [15, 25) have fif multiplied by 0.5; conformity with the minimum ff-adjusted mcap requirement for IMI is assessed on ff-adjusted mcap before the adjustment factor"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "apply_financial_reporting_requirement",
+      "purpose": "Exclude US-classified companies that have not filed Form 10-K or 10-Q from the USA Investable Equity Universe.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "2.2.9 Financial Reporting Requirement",
+        "line": 1248
+      },
+      "datapoints": [
+        "country_classification",
+        "has_filed_10k_10q"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "country_classification and has_filed_10k_10q columns present"
+        ],
+        "business": [
+          "US-classified companies with has_filed_10k_10q=False excluded"
+        ]
+      }
+    },
+    {
+      "category": "selection",
+      "name": "apply_extreme_price_increase_standard_index_block",
+      "purpose": "Prevent securities exhibiting extreme price increase (excess return breaching any monitoring-period threshold) from being added to the Standard Indexes; they remain in the IMI and are re-evaluated at the next review.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "2.3.6.3 Treatment of Securities that Exhibit Extreme Price Increase",
+        "line": 1661
+      },
+      "datapoints": [
+        "excess_return_5d_pct",
+        "excess_return_10d_pct",
+        "excess_return_15d_pct",
+        "excess_return_20d_pct",
+        "excess_return_25d_pct",
+        "excess_return_30d_pct",
+        "excess_return_35d_pct",
+        "excess_return_40d_pct",
+        "excess_return_45d_pct",
+        "excess_return_50d_pct",
+        "excess_return_55d_pct",
+        "excess_return_60d_pct",
+        "excess_return_90d_pct",
+        "excess_return_120d_pct",
+        "excess_return_150d_pct",
+        "excess_return_180d_pct",
+        "excess_return_250d_pct",
+        "is_standard_index_addition_candidate"
+      ],
+      "thresholds": {
+        "threshold_5d_pct": 100,
+        "threshold_10d_pct": 100,
+        "threshold_15d_pct": 100,
+        "threshold_20d_pct": 100,
+        "threshold_25d_pct": 200,
+        "threshold_30d_pct": 200,
+        "threshold_35d_pct": 200,
+        "threshold_40d_pct": 200,
+        "threshold_45d_pct": 400,
+        "threshold_50d_pct": 400,
+        "threshold_55d_pct": 400,
+        "threshold_60d_pct": 400,
+        "threshold_90d_pct": 500,
+        "threshold_120d_pct": 800,
+        "threshold_150d_pct": 1500,
+        "threshold_180d_pct": 1500,
+        "threshold_250d_pct": 2500
+      },
+      "asserts": {
+        "technical": [
+          "excess return columns present for applicable periods"
+        ],
+        "business": [
+          "no security breaching any monitoring-period threshold is added to Standard Indexes; IPOs not meeting minimum length of trading are exempt"
+        ]
+      },
+      "canonical_concept": "msci_extreme_price_increase_block"
+    },
+    {
+      "category": "ranking",
+      "name": "rank_standard_index_candidates_by_stability_weighted_ff_mcap",
+      "purpose": "Rank securities in the updated Market Investable Equity Universe by descending free float-adjusted market capitalization; multiply the ff-adjusted mcap of prior Standard Index constituents by 1.5 to increase index stability at subsequent Index Reviews.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "2.4 Index Continuity Rules",
+        "line": 1786
+      },
+      "datapoints": [
+        "ff_adjusted_mcap_usd",
+        "is_standard_index_constituent",
+        "market_type"
+      ],
+      "thresholds": {
+        "existing_constituent_stability_multiplier": 1.5
+      },
+      "asserts": {
+        "technical": [
+          "ff_adjusted_mcap_usd and is_standard_index_constituent columns present"
+        ],
+        "business": [
+          "ranking values equal ff_adjusted_mcap_usd for non-constituents and 1.5 * ff_adjusted_mcap_usd for existing Standard Index constituents at subsequent reviews"
+        ]
+      }
+    },
+    {
+      "category": "selection",
+      "name": "apply_standard_index_minimum_constituents",
+      "purpose": "Add the top-ranked Market Investable Equity Universe securities to the Standard Index to reach a minimum of five constituents in a Developed Market and three constituents in an Emerging Market.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "2.4 Index Continuity Rules",
+        "line": 1774
+      },
+      "datapoints": [
+        "market_type",
+        "stability_weighted_ff_mcap_rank"
+      ],
+      "thresholds": {
+        "dm_min_standard_index_constituents": 5,
+        "em_min_standard_index_constituents": 3
+      },
+      "asserts": {
+        "technical": [
+          "stability_weighted_ff_mcap_rank computed per market_type"
+        ],
+        "business": [
+          "each DM Standard Index has at least 5 constituents; each EM Standard Index has at least 3 constituents"
+        ]
+      },
+      "canonical_concept": "msci_index_continuity"
+    },
+    {
+      "category": "eligibility",
+      "name": "apply_micro_cap_maximum_size_requirement",
+      "purpose": "Exclude from Micro Cap any company with full market cap exceeding the Small Cap Entry Buffer (1.5x IMI Market Size-Segment Cutoff) to maintain clean boundary between IMI and Micro Cap.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "4.1.1 Micro Cap Maximum Size Requirement",
+        "line": 3328
+      },
+      "datapoints": [
+        "full_market_cap_usd",
+        "imi_market_size_segment_cutoff_usd"
+      ],
+      "thresholds": {
+        "small_cap_entry_buffer_multiplier": 1.5
+      },
+      "asserts": {
+        "technical": [
+          "full_market_cap_usd and imi_market_size_segment_cutoff_usd columns present"
+        ],
+        "business": [
+          "no company with full_market_cap_usd > 1.5 * imi_market_size_segment_cutoff_usd assigned to Micro Cap"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "apply_micro_cap_minimum_size_requirement",
+      "purpose": "Exclude from Micro Cap companies whose full company and full security market cap falls below the Micro Cap Minimum Size Requirement (99.8% DM Equity Universe coverage equivalent).",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "4.1.2 Micro Cap Minimum Size Requirement",
+        "line": 3341
+      },
+      "datapoints": [
+        "full_market_cap_usd",
+        "full_security_market_cap_usd",
+        "micro_cap_min_size_usd"
+      ],
+      "thresholds": {
+        "dm_equity_universe_coverage_target_pct": 99.8
+      },
+      "asserts": {
+        "technical": [
+          "micro_cap_min_size_usd column present"
+        ],
+        "business": [
+          "no company with full_market_cap_usd < micro_cap_min_size_usd or full_security_market_cap_usd < micro_cap_min_size_usd assigned to Micro Cap"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "apply_micro_cap_minimum_liquidity_requirement",
+      "purpose": "Exclude from Micro Cap securities that fail the Micro Cap liquidity screen: 12-month ATVR >= 5% and 12-month frequency of trading >= 50%.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "4.1.3 Micro Cap Minimum Liquidity Requirement",
+        "line": 3355
+      },
+      "datapoints": [
+        "atvr_12m_pct",
+        "freq_of_trading_12m_pct",
+        "atvr_3m_available_flag"
+      ],
+      "thresholds": {
+        "min_atvr_12m_pct": 5,
+        "min_freq_12m_pct": 50
+      },
+      "asserts": {
+        "technical": [
+          "atvr_12m_pct and freq_of_trading_12m_pct columns present"
+        ],
+        "business": [
+          "no security with atvr_12m_pct < 5 or freq_of_trading_12m_pct < 50 included in Micro Cap"
+        ]
+      }
+    },
+    {
+      "category": "eligibility",
+      "name": "apply_fm_minimum_liquidity_requirement",
+      "purpose": "Apply Frontier Market tiered liquidity requirements (very low/low/average) based on each market's liquidity category; require 12-month ATVR >= 2.5%, 5%, or 15% and 12-month frequency of trading >= 50%.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "5.2.3 FM Minimum Liquidity Requirement",
+        "line": 3611
+      },
+      "datapoints": [
+        "atvr_12m_pct",
+        "freq_of_trading_12m_pct",
+        "fm_liquidity_category",
+        "is_existing_imi_constituent",
+        "ff_adjusted_mcap_usd"
+      ],
+      "thresholds": {
+        "very_low_atvr_12m_min_pct": 2.5,
+        "low_atvr_12m_min_pct": 5,
+        "average_atvr_12m_min_pct": 15,
+        "all_categories_freq_12m_min_pct": 50,
+        "existing_constituent_average_atvr_floor_pct": 10,
+        "existing_constituent_low_atvr_floor_pct": 3.33,
+        "existing_constituent_very_low_atvr_floor_pct": 1,
+        "existing_constituent_freq_12m_min_pct": 10
+      },
+      "asserts": {
+        "technical": [
+          "fm_liquidity_category column present with values in {very_low, low, average}"
+        ],
+        "business": [
+          "non-constituents pass category-specific ATVR threshold; existing constituents use lower-bound buffers"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "update_equity_universe_minimum_size_at_review",
+      "purpose": "Refresh the Equity Universe Minimum Size Requirement each Index Review by checking cumulative ff-adjusted coverage at the prior reference rank; reset to 99% or 99.25% coverage company when coverage drifts outside 99%-99.25% band.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "3.1.2.2 Updating the Equity Universe Minimum Size Requirement",
+        "line": 2021
+      },
+      "datapoints": [
+        "cumulative_ff_mcap_coverage_pct",
+        "prior_reference_rank",
+        "full_market_cap_usd"
+      ],
+      "thresholds": {
+        "lower_band_pct": 99,
+        "upper_band_pct": 99.25
+      },
+      "asserts": {
+        "technical": [
+          "cumulative_ff_mcap_coverage_pct computable for updated DM Equity Universe"
+        ],
+        "business": [
+          "updated Equity Universe Minimum Size Requirement reflects company at coverage band appropriate to current universe"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "update_segment_number_of_companies_at_review",
+      "purpose": "Reassess Segment Number of Companies at each Index Review within stability limits: cap reduction at 5% then 20% of Initial Segment Number; additions fill above Global Minimum Size Range upper bound first.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "3.1.4.2 Changes in the Segment Number of Companies",
+        "line": 2248
+      },
+      "datapoints": [
+        "full_market_cap_usd",
+        "global_min_size_range_lower_usd",
+        "global_min_size_range_upper_usd",
+        "cumulative_ff_mcap_coverage_pct",
+        "initial_segment_number_of_companies"
+      ],
+      "thresholds": {
+        "max_reduction_step1_pct": 5,
+        "max_reduction_step2_pct": 20,
+        "lower_proximity_area_lower_multiplier": 0.5,
+        "lower_proximity_area_upper_multiplier": 0.575,
+        "upper_proximity_area_lower_multiplier": 1,
+        "upper_proximity_area_upper_multiplier": 1.15
+      },
+      "asserts": {
+        "technical": [
+          "full_market_cap_usd and global_min_size_range columns present"
+        ],
+        "business": [
+          "Segment Number of Companies change does not exceed 20% reduction from Initial Segment Number unless small-segment first-two-company exception applies"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "apply_fif_change_at_review",
+      "purpose": "Implement FIF changes at quarterly reviews only when the absolute change in free float exceeds thresholds that vary by current free float level, to limit turnover from small float corrections.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "3.1.7 Index Review of Changes in Foreign Inclusion Factors (FIFs)",
+        "line": 2594
+      },
+      "datapoints": [
+        "free_float_pct",
+        "current_dif_pct",
+        "updated_free_float_pct",
+        "is_addition_flag",
+        "fol_change_flag"
+      ],
+      "thresholds": {
+        "high_float_threshold_pct": 25,
+        "mid_float_lower_pct": 5,
+        "high_float_min_abs_change_pct": 2.5,
+        "mid_float_min_abs_change_pct": 0.5,
+        "low_float_min_abs_change_pct": 0.1
+      },
+      "asserts": {
+        "technical": [
+          "free_float_pct and current_dif_pct columns present"
+        ],
+        "business": [
+          "FIF changes below threshold are deferred to next review unless triggered by addition, FOL change, or correction"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "apply_nos_change_at_review",
+      "purpose": "Implement NOS changes at quarterly reviews when absolute NOS change >= 1,000 shares or relative change >= 0.02%; changes after Price Cutoff Date deferred to next review.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "3.1.8 Index Review of Changes in Number of Shares (NOS)",
+        "line": 2654
+      },
+      "datapoints": [
+        "current_nos",
+        "updated_nos"
+      ],
+      "thresholds": {
+        "min_abs_nos_change": 1000,
+        "min_rel_nos_change_pct": 0.02
+      },
+      "asserts": {
+        "technical": [
+          "current_nos and updated_nos columns present"
+        ],
+        "business": [
+          "NOS updated at review when abs(updated_nos - current_nos) >= 1000 or abs(updated_nos - current_nos) / current_nos >= 0.0002"
+        ]
+      }
+    },
+    {
+      "category": "event_handling",
+      "name": "size_segment_migration_on_large_corporate_event",
+      "purpose": "Reassign constituents to appropriate size-segments when a corporate event causes a market cap change of >= +50% or <= -33% relative to pre-event full market cap.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "3.2.4 Changes in Size segment of Existing Index Constituents as a Result of a Large Corporate Event",
+        "line": 2906
+      },
+      "datapoints": [
+        "pre_event_full_market_cap_usd",
+        "post_event_full_market_cap_usd",
+        "fif",
+        "ff_adjusted_mcap_usd",
+        "interim_standard_cutoff_usd",
+        "interim_small_cap_cutoff_usd",
+        "interim_micro_cap_cutoff_usd"
+      ],
+      "thresholds": {
+        "significant_increase_pct": 50,
+        "significant_decrease_pct": 33
+      },
+      "asserts": {
+        "technical": [
+          "pre_event and post_event full_market_cap_usd columns present"
+        ],
+        "business": [
+          "size-segment reviewed when mcap change >= 50% or <= -33%; post-event segment assigned per lookup table in section 3.2.4"
+        ]
+      }
+    },
+    {
+      "category": "event_handling",
+      "name": "early_deletion_policy",
+      "purpose": "Delete existing constituents outside of Index Reviews when they file for bankruptcy, face delisting, have FIF fall below 0.15, are subject to prolonged suspension, or are involved in corporate events that render them ineligible.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "3.2.6 Early Deletions of Existing Index Constituents",
+        "line": 3115
+      },
+      "datapoints": [
+        "bankruptcy_flag",
+        "delisting_flag",
+        "fif",
+        "suspension_flag",
+        "corporate_event_type"
+      ],
+      "thresholds": {
+        "min_fif_for_retention": 0.15
+      },
+      "asserts": {
+        "technical": [
+          "bankruptcy_flag, delisting_flag, fif, suspension_flag columns present"
+        ],
+        "business": [
+          "constituent with bankruptcy_flag=True, delisting_flag=True, or fif < 0.15 is deleted; Standard Index constituent with fif already < 0.15 deleted on further decrease"
+        ]
+      }
+    },
+    {
+      "category": "event_handling",
+      "name": "early_inclusion_non_index_constituents_and_ipos",
+      "purpose": "Allow immediate inclusion of non-index constituents and IPOs that are significant in size and meet eligibility criteria (except length-of-trading and liquidity), triggered by a corporate event or large IPO; included after close of tenth day of trading for large IPOs.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "3.2.7 Early Inclusions of Non-Index Constituents and IPOs",
+        "line": 3166
+      },
+      "datapoints": [
+        "full_market_cap_usd",
+        "ff_adjusted_mcap_usd",
+        "is_large_ipo_flag",
+        "days_since_ipo",
+        "interim_standard_cutoff_usd",
+        "interim_imi_cutoff_usd"
+      ],
+      "thresholds": {
+        "large_ipo_effective_date_trading_days": 10,
+        "spinoff_standard_ff_mcap_min_pct_of_cutoff": 50,
+        "spinoff_small_cap_ff_mcap_min_pct_of_cutoff": 50
+      },
+      "asserts": {
+        "technical": [
+          "full_market_cap_usd and interim_standard_cutoff_usd columns present"
+        ],
+        "business": [
+          "large IPOs included after 10th trading day; non-index constituents involved in events included if they meet size investability criteria"
+        ]
+      }
+    },
+    {
+      "category": "event_handling",
+      "name": "gics_classification_review_at_event",
+      "purpose": "Review and update GICS classification when a non-index constituent or Micro Cap constituent is added to GIMI, or a Small Cap constituent migrates up to Standard; also reviews parent classification at spin-off.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "3.2.5 Changes in Style Segment or Industry Classification due to the Corporate Event",
+        "line": 3090
+      },
+      "datapoints": [
+        "gics_sub_industry",
+        "size_segment",
+        "event_type"
+      ],
+      "thresholds": {},
+      "asserts": {
+        "technical": [
+          "gics_sub_industry column present"
+        ],
+        "business": [
+          "GICS is not reviewed for securities remaining in same size segment or migrating downward"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "apply_foreign_room_adjustment_factor",
+      "purpose": "Adjust existing constituent FIF by a lookup-table factor based on current foreign room level and prior adjustment factor; upward adjustment blocked for 12 months after prior weight reduction or deletion unless driven by FOL change.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "3.1.6.2 For Existing Constituents",
+        "line": 2524
+      },
+      "datapoints": [
+        "foreign_room_pct",
+        "current_adjustment_factor",
+        "fif",
+        "last_weight_reduction_date"
+      ],
+      "thresholds": {
+        "foreign_room_tier_1_pct": 25,
+        "foreign_room_tier_2_pct": 15,
+        "foreign_room_tier_3_pct": 7.5,
+        "foreign_room_tier_4_pct": 3.75,
+        "upward_adjustment_lockout_months": 12
+      },
+      "asserts": {
+        "technical": [
+          "foreign_room_pct and current_adjustment_factor columns present"
+        ],
+        "business": [
+          "post-review adjustment factor set per lookup table; upward adjustment not applied within 12 months of prior reduction unless FOL-driven"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "apply_liquidity_adjustment_factor_em_fm",
+      "purpose": "Apply a 0.5 Liquidity Adjustment Factor to weight of EM Standard Index constituents that fail liquidity but hold > 10% country weight and ff-adjusted mcap > 0.5x Global Minimum Size Reference; delete or restore LAF at subsequent reviews per criteria.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "3.1.2.4 Minimum Liquidity Requirement for Existing Constituents",
+        "line": 2087
+      },
+      "datapoints": [
+        "atvr_12m_pct",
+        "country_weight_pct",
+        "ff_adjusted_mcap_usd",
+        "global_min_size_reference_em_usd",
+        "market_type",
+        "liquidity_adjustment_factor",
+        "consecutive_reviews_meeting_new_constituent_liquidity"
+      ],
+      "thresholds": {
+        "country_weight_threshold_pct": 10,
+        "fm_composite_weight_threshold_pct": 1,
+        "ff_mcap_pct_of_gmsr": 50,
+        "laf_value": 0.5,
+        "reviews_to_restore_laf": 3
+      },
+      "asserts": {
+        "technical": [
+          "liquidity_adjustment_factor column present"
+        ],
+        "business": [
+          "LAF=0.5 applied when constituent fails liquidity but meets size+weight criteria; removed after 3 consecutive reviews meeting new-constituent liquidity; deleted if fails even with LAF applied"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "update_micro_cap_minimum_size_at_review",
+      "purpose": "Refresh the Micro Cap Minimum Size Requirement at each Index Review by tracking DM Equity Universe coverage at the prior reference rank; reset when coverage falls outside 99.7%-99.8% band.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "4.2.1.1 Updating the Micro Cap Minimum Size Requirement",
+        "line": 3433
+      },
+      "datapoints": [
+        "cumulative_ff_mcap_coverage_pct",
+        "prior_micro_cap_reference_rank",
+        "full_market_cap_usd"
+      ],
+      "thresholds": {
+        "lower_band_pct": 99.7,
+        "upper_band_pct": 99.8
+      },
+      "asserts": {
+        "technical": [
+          "cumulative_ff_mcap_coverage_pct computable for updated DM Equity Universe"
+        ],
+        "business": [
+          "Micro Cap Minimum Size Requirement reflects company at 99.7%-99.8% coverage band"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "gics_non_event_change_announcement_schedule",
+      "purpose": "Implement non-event GICS Sub-Industry reclassifications monthly at close of last US business day of each month, with dual announcement cycle: first US business day and at least 10 US business days before month-end.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "3.3.2 Global Industry Classification Standard (GICS)",
+        "line": 3273
+      },
+      "datapoints": [
+        "gics_sub_industry",
+        "reclassification_effective_date"
+      ],
+      "thresholds": {
+        "announcement_lead_business_days_minimum": 10
+      },
+      "asserts": {
+        "technical": [
+          "gics_sub_industry and reclassification_effective_date columns present"
+        ],
+        "business": [
+          "all GICS changes announced in a given month effective at close of last US business day of that month"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "announce_index_review_results",
+      "purpose": "Announce Index Review results at least two calendar weeks before the effective date (close of last business day of February, May, August, or November).",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "3.3 Announcement Policy",
+        "line": 3256
+      },
+      "datapoints": [
+        "review_effective_date",
+        "announcement_date"
+      ],
+      "thresholds": {
+        "min_announcement_lead_weeks": 2
+      },
+      "asserts": {
+        "technical": [
+          "review_effective_date and announcement_date columns present"
+        ],
+        "business": [
+          "announcement_date <= review_effective_date - 14 calendar days"
+        ]
+      }
+    },
+    {
+      "category": "maintenance",
+      "name": "light_rebalancing_tighter_buffers",
+      "purpose": "Under Market Stress Light Rebalancing conditions, replace standard buffer zones (2/3x and 1.5x) with tighter zones (0.5x and 1.8x) and restrict Standard Index additions and migrations per Appendix VIII criteria.",
+      "source": {
+        "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
+        "section": "Appendix VIII: Market Monitoring Framework and Potential Switch to a Light Rebalancing under Conditions of Market Stress",
+        "line": 455
+      },
+      "datapoints": [
+        "light_rebalancing_flag",
+        "full_market_cap_usd",
+        "market_size_segment_cutoff_usd"
+      ],
+      "thresholds": {
+        "light_rebalancing_lower_buffer_multiplier": 0.5,
+        "light_rebalancing_upper_buffer_multiplier": 1.8,
+        "standard_lower_buffer_multiplier": 0.667,
+        "standard_upper_buffer_multiplier": 1.5
+      },
+      "asserts": {
+        "technical": [
+          "light_rebalancing_flag column present"
+        ],
+        "business": [
+          "when light_rebalancing_flag=True, buffer zone boundaries use 0.5x and 1.8x multipliers instead of 0.667x and 1.5x"
+        ]
+      }
+    }
+  ],
+  "reused_rules": [
+    {
+      "methbook": "corporate_events",
+      "name": "spinoff_exdate_inclusion",
+      "justification": "GIMI section 3.2.7 explicitly delegates technical handling of spin-offs to the MSCI Corporate Events Methodology book."
+    },
+    {
+      "methbook": "corporate_events",
+      "name": "nos_change_implementation_threshold",
+      "justification": "GIMI section 3.2.3 states NOS changes between QIRs follow implementation thresholds defined in the MSCI Corporate Events Methodology."
+    },
+    {
+      "methbook": "corporate_events",
+      "name": "prolonged_suspension_deletion",
+      "justification": "GIMI section 3.2.6 references Corporate Events Methodology section 5.1.1 for the definition of prolonged suspension triggering early deletion."
+    },
+    {
+      "methbook": "corporate_events",
+      "name": "ipo_early_inclusion_standard_size_test",
+      "justification": "GIMI section 3.2.7 references Corporate Events Methodology section 6 for the detailed IPO early inclusion size test rules."
+    }
+  ],
+  "event_handling": {
+    "rule_names": [
+      "size_segment_migration_on_large_corporate_event",
+      "early_deletion_policy",
+      "early_inclusion_non_index_constituents_and_ipos",
+      "gics_classification_review_at_event",
+      "apply_fif_change_at_review",
+      "apply_nos_change_at_review"
+    ],
+    "defers_to": {
+      "methbook": "corporate_events",
+      "section": "Technical handling of specific corporate event types",
+      "item": null,
+      "item_type": null
+    },
+    "intra_review_invariants": [
+      {
+        "quote": "As a general rule, price movements after the Price Cutoff Date will not impact the results of the Index Review.",
+        "concern": "Post-cutoff price movements do not change size-segment assignments already announced, except for extraordinary events such as fraud allegations, accounting falsification, or takeover bids."
+      },
+      {
+        "quote": "Market cap fluctuations or suspensions of trading after the Index Review announcement date typically would not result in the reversion of an already announced decision on the company's size-segment allocation.",
+        "concern": "Announced decisions are not reversed by ordinary post-announcement price moves; only extraordinary events may trigger amendment."
+      }
+    ]
+  },
+  "data_requirements": {
+    "mandatory_products": [
+      {
+        "methbook": "gics",
+        "section": "GICS classification for all securities"
+      }
+    ],
+    "mandatory_fields": [
+      {
+        "name": "full_market_cap_usd",
+        "description": "Full company market capitalization in USD, aggregating all listed and unlisted security lines"
+      },
+      {
+        "name": "ff_adjusted_mcap_usd",
+        "description": "Free float-adjusted market capitalization after relevant adjustment factors (FIF, Liquidity Adjustment Factor, foreign room adjustment)"
+      },
+      {
+        "name": "fif",
+        "description": "Foreign Inclusion Factor: proportion of shares available for purchase by international investors"
+      },
+      {
+        "name": "atvr_12m_pct",
+        "description": "12-month Annual Traded Value Ratio"
+      },
+      {
+        "name": "atvr_3m_pct",
+        "description": "3-month Annual Traded Value Ratio"
+      },
+      {
+        "name": "freq_of_trading_3m_pct",
+        "description": "3-month Frequency of Trading"
+      },
+      {
+        "name": "foreign_room_pct",
+        "description": "Proportion of shares still available to foreign investors relative to the Foreign Ownership Limit maximum"
+      },
+      {
+        "name": "gics_sub_industry",
+        "description": "GICS Sub-Industry classification code"
+      }
+    ],
+    "preprocessing": [
+      {
+        "step": "Identify eligible listing per priority (local > same-region foreign > different-region foreign); select highest 3-month ATVR when multiple eligible listings exist"
+      },
+      {
+        "step": "Apply free float estimation per Appendix VI to derive FIF and ff-adjusted market cap"
+      },
+      {
+        "step": "Compute full company market capitalization as sum across all listed and unlisted security lines, applying conversion factors for unlisted lines"
+      }
+    ]
+  },
+  "mock_datapoints": [
+    {
+      "name": "full_market_cap_usd",
+      "type": "Float",
+      "distribution": "LogNormal(mean=log(1e9), sigma=2.0)",
+      "description": "Full company market capitalization in USD.",
+      "canonical_concept": "msci_full_market_cap",
+      "source_section": "2.2.3 Equity Universe Minimum Size Requirement",
+      "definition_notes": [
+        "Aggregates all listed and unlisted security lines of an issuer",
+        "Unlisted lines multiplied by listed price and conversion factor",
+        "Unlisted securities with no economic rights excluded"
+      ]
+    },
+    {
+      "name": "ff_adjusted_mcap_usd",
+      "type": "Float",
+      "distribution": "LogNormal(mean=log(5e8), sigma=2.0)",
+      "description": "Free float-adjusted market capitalization after FIF, foreign room adjustment factor, and Liquidity Adjustment Factor.",
+      "canonical_concept": "msci_ff_adjusted_mcap",
+      "source_section": "Appendix VI: Free Float Definition and Estimation Guidelines"
+    },
+    {
+      "name": "fif",
+      "type": "Float",
+      "distribution": "Uniform(0.0, 1.0)",
+      "description": "Foreign Inclusion Factor: proportion of shares outstanding available to international investors.",
+      "canonical_concept": "msci_fif",
+      "source_section": "2.2.6 Global Minimum Foreign Inclusion Factor Requirement",
+      "semantic_threshold": "In general, a security must have a FIF equal to or larger than 0.15 to be eligible for inclusion in a Market Investable Equity Universe."
+    },
+    {
+      "name": "atvr_12m_pct",
+      "type": "Float",
+      "distribution": "LogNormal(mean=log(30), sigma=1.5)",
+      "description": "12-month Annual Traded Value Ratio as a percentage.",
+      "canonical_concept": "msci_atvr_12m",
+      "source_section": "2.2.5 DM and EM Minimum Liquidity Requirement",
+      "semantic_threshold": "20% of 12-month ATVR are required for the inclusion of a security in a Market Investable Equity Universe of a Developed Market; 15% of 12-month ATVR for an Emerging Market."
+    },
+    {
+      "name": "atvr_3m_pct",
+      "type": "Float",
+      "distribution": "LogNormal(mean=log(25), sigma=1.5)",
+      "description": "3-month Annual Traded Value Ratio as a percentage.",
+      "canonical_concept": "msci_atvr_3m",
+      "source_section": "2.2.5 DM and EM Minimum Liquidity Requirement"
+    },
+    {
+      "name": "freq_of_trading_3m_pct",
+      "type": "Float",
+      "distribution": "Beta(alpha=8, beta=2) scaled to 100",
+      "description": "3-month Frequency of Trading as a percentage.",
+      "canonical_concept": "msci_frequency_of_trading_3m",
+      "source_section": "2.2.5 DM and EM Minimum Liquidity Requirement",
+      "semantic_threshold": "90% of 3-month Frequency of Trading over the last 4 consecutive quarters are required for a Developed Market; 80% for an Emerging Market."
+    },
+    {
+      "name": "freq_of_trading_12m_pct",
+      "type": "Float",
+      "distribution": "Beta(alpha=8, beta=2) scaled to 100",
+      "description": "12-month Frequency of Trading as a percentage.",
+      "source_section": "4.1.3 Micro Cap Minimum Liquidity Requirement"
+    },
+    {
+      "name": "foreign_room_pct",
+      "type": "Float",
+      "distribution": "Uniform(0, 100)",
+      "description": "Proportion of shares still available to foreign investors relative to the FOL maximum; null when has_fol_flag=False.",
+      "canonical_concept": "msci_foreign_room",
+      "source_section": "2.2.8 Minimum Foreign Room Requirement",
+      "semantic_threshold": "The proportion of shares still available to foreign investors relative to the maximum allowed (referred to as 'foreign room') must be at least 15%."
+    },
+    {
+      "name": "has_fol_flag",
+      "type": "Boolean",
+      "distribution": "Bernoulli(p=0.3)",
+      "description": "True if the security is subject to a Foreign Ownership Limit.",
+      "source_section": "2.2.8 Minimum Foreign Room Requirement"
+    },
+    {
+      "name": "market_type",
+      "type": "Categorical",
+      "distribution": "Categorical(DM=0.5, EM=0.35, FM=0.1, Standalone=0.05)",
+      "description": "Market classification of the security's country (Developed, Emerging, Frontier, Standalone).",
+      "canonical_concept": "msci_market_type",
+      "source_section": "Appendix II: Market Classification Framework",
+      "taxonomy": "MSCI market classification (DM / EM / FM / Standalone)"
+    },
+    {
+      "name": "gics_sub_industry",
+      "type": "String",
+      "distribution": "Categorical(163 sub-industries, uniform)",
+      "description": "GICS Sub-Industry code assigned to the security.",
+      "canonical_concept": "gics_sub_industry",
+      "source_section": "2.5.3 GICS-Based Indexes",
+      "taxonomy": "GICS Sub-Industry (lowest level of the 4-tier Global Industry Classification Standard)"
+    },
+    {
+      "name": "is_existing_imi_constituent",
+      "type": "Boolean",
+      "distribution": "Bernoulli(p=0.7)",
+      "description": "True if the security is an existing constituent of the Investable Market Index prior to the current review.",
+      "source_section": "3.1.2 Updating the Market Investable Equity Universes"
+    },
+    {
+      "name": "security_type",
+      "type": "Categorical",
+      "distribution": "Categorical(ordinary_share=0.75, preferred_share=0.1, reit=0.05, trust=0.03, adr=0.04, etf=0.02, mutual_fund=0.01)",
+      "description": "Type of security; ETFs and mutual funds are ineligible.",
+      "source_section": "2.1.1 Identifying Eligible Equity Securities"
+    },
+    {
+      "name": "alert_board_flag",
+      "type": "Boolean",
+      "distribution": "Bernoulli(p=0.02)",
+      "description": "True if the security is listed on an exchange ineligible alert/watch board.",
+      "source_section": "Appendix I: Ineligible Alert Boards"
+    },
+    {
+      "name": "months_since_first_trading",
+      "type": "Float",
+      "distribution": "LogNormal(mean=log(48), sigma=1.0)",
+      "description": "Number of months elapsed since the security's first day of trading.",
+      "source_section": "2.2.7 Minimum Length of Trading Requirement",
+      "semantic_threshold": "The new issue must have started trading at least three months before the implementation of an Index Review."
+    },
+    {
+      "name": "is_large_ipo_flag",
+      "type": "Boolean",
+      "distribution": "Bernoulli(p=0.05)",
+      "description": "True if the IPO or primary/secondary offering exceeds the large-IPO size threshold.",
+      "source_section": "3.2.7 Early Inclusions of Non-Index Constituents and IPOs"
+    },
+    {
+      "name": "stock_price_usd",
+      "type": "Float",
+      "distribution": "LogNormal(mean=log(50), sigma=1.5)",
+      "description": "Current stock price in USD; non-constituents above USD 10,000 fail liquidity screening.",
+      "source_section": "2.2.5 DM and EM Minimum Liquidity Requirement",
+      "semantic_threshold": "A limit of USD 10,000 has been set and securities with stock prices above USD 10,000 fail the liquidity screening. This rule applies only for non-constituents of the MSCI Global Investable Market Indexes."
+    },
+    {
+      "name": "preferred_share_flag",
+      "type": "Boolean",
+      "distribution": "Bernoulli(p=0.1)",
+      "description": "True if the security is a preferred share.",
+      "source_section": "2.1.1 Identifying Eligible Equity Securities"
+    },
+    {
+      "name": "fixed_dividend_flag",
+      "type": "Boolean",
+      "distribution": "Bernoulli(p=0.05)",
+      "description": "True if the preferred share has a fixed dividend entitlement.",
+      "source_section": "2.1.1 Identifying Eligible Equity Securities"
+    },
+    {
+      "name": "par_value_liquidation_flag",
+      "type": "Boolean",
+      "distribution": "Bernoulli(p=0.04)",
+      "description": "True if the preferred share has a liquidation claim limited to par value.",
+      "source_section": "2.1.1 Identifying Eligible Equity Securities"
+    },
+    {
+      "name": "fm_liquidity_category",
+      "type": "Categorical",
+      "distribution": "Categorical(very_low=0.2, low=0.4, average=0.4)",
+      "description": "Liquidity category assigned to the Frontier Market (very low / low / average).",
+      "source_section": "5.2.3.1 Categorization of Frontier Markets into very low, low or average liquidity markets",
+      "taxonomy": "MSCI Frontier Market liquidity category (very low / low / average)"
+    },
+    {
+      "name": "current_adjustment_factor",
+      "type": "Categorical",
+      "distribution": "Categorical(1.0=0.75, 0.5=0.15, 0.25=0.07, 0.0=0.03)",
+      "description": "Current foreign room adjustment factor applied to FIF (1, 0.5, 0.25, or 0).",
+      "source_section": "3.1.6.2 For Existing Constituents",
+      "taxonomy": "MSCI foreign room adjustment factor tier (1.0 / 0.5 / 0.25 / 0.0)"
+    },
+    {
+      "name": "light_rebalancing_flag",
+      "type": "Boolean",
+      "distribution": "Bernoulli(p=0.05)",
+      "description": "True when MSCI has declared a Light Rebalancing under Market Stress conditions per Appendix VIII.",
+      "source_section": "Appendix VIII: Market Monitoring Framework and Potential Switch to a Light Rebalancing under Conditions of Market Stress"
+    },
+    {
+      "name": "china_suspension_flag",
+      "type": "Boolean",
+      "distribution": "Bernoulli(p=0.02)",
+      "description": "True if a China A share security was suspended on the Price Cutoff Date.",
+      "source_section": "2.2.5 DM and EM Minimum Liquidity Requirement",
+      "semantic_threshold": "Are suspended on the Price Cutoff Date (as defined in section 3.1.9) of the Index Review."
+    },
+    {
+      "name": "china_suspension_consecutive_business_days",
+      "type": "Integer",
+      "distribution": "Geometric(p=0.05) clipped at 250",
+      "description": "Consecutive business days the China A share was suspended in the past 12 months.",
+      "source_section": "2.2.5 DM and EM Minimum Liquidity Requirement",
+      "semantic_threshold": "Have been suspended for 50 consecutive business days or more in the past 12 months."
+    }
+  ],
+  "composition_order": [
+    "exclude_mutual_funds_etfs_equity_derivatives",
+    "exclude_ineligible_preferred_shares",
+    "exclude_ineligible_alert_board_securities",
+    "apply_equity_universe_minimum_size_requirement",
+    "apply_equity_universe_minimum_float_adjusted_mcap_requirement",
+    "apply_dm_em_minimum_liquidity_requirement",
+    "apply_non_constituent_high_price_liquidity_screen",
+    "apply_china_suspension_screen",
+    "apply_fm_minimum_liquidity_requirement",
+    "apply_global_minimum_fif_requirement",
+    "apply_minimum_foreign_room_requirement",
+    "apply_initial_foreign_room_adjustment_factor",
+    "apply_minimum_length_of_trading_requirement",
+    "apply_financial_reporting_requirement",
+    "apply_extreme_price_increase_standard_index_block",
+    "update_equity_universe_minimum_size_at_review",
+    "update_segment_number_of_companies_at_review",
+    "rank_standard_index_candidates_by_stability_weighted_ff_mcap",
+    "apply_standard_index_minimum_constituents",
+    "apply_foreign_room_adjustment_factor",
+    "apply_liquidity_adjustment_factor_em_fm",
+    "apply_micro_cap_maximum_size_requirement",
+    "apply_micro_cap_minimum_size_requirement",
+    "apply_micro_cap_minimum_liquidity_requirement"
+  ],
+  "final_asserts": [
+    "weights sum to 1.0 within each market size-segment index",
+    "no security has fif < 0.15 in the Small Cap Index (unless Standard Index constituent exception applies)",
+    "DM Standard Index has at least 5 constituents per market after index continuity rules applied",
+    "EM Standard Index has at least 3 constituents per market after index continuity rules applied",
+    "no security with alert_board_flag=True is present",
+    "no Micro Cap security has full_market_cap_usd > 1.5 * imi_market_size_segment_cutoff_usd",
+    "no security with foreign_room_pct < 15 and has_fol_flag=True is present (unless existing Standard Index exception)",
+    "non-constituent security with stock_price_usd > 10000 is absent",
+    "Large Cap, Mid Cap, and Small Cap segments are non-overlapping and together equal the IMI"
+  ],
+  "external_references": [
+    {
+      "methbook": "corporate_events",
+      "section": "MSCI Corporate Events Methodology book (www.msci.com/index-methodology)",
+      "item": null,
+      "item_type": null
+    },
+    {
+      "methbook": "index_calculation",
+      "section": "MSCI Index Calculation Methodology",
+      "item": null,
+      "item_type": null
+    },
+    {
+      "methbook": "gics",
+      "section": "Global Industry Classification Standard",
+      "item": null,
+      "item_type": null
+    },
+    {
+      "methbook": "free_float_data",
+      "section": "MSCI Free Float Data Methodology (www.msci.com/index-methodology)",
+      "item": null,
+      "item_type": null
+    },
+    {
+      "methbook": "liquidity_data",
+      "section": "MSCI Liquidity Data Methodology (www.msci.com/index-methodology)",
+      "item": null,
+      "item_type": null
+    },
+    {
+      "methbook": "index_glossary",
+      "section": "MSCI Index Glossary (www.msci.com/index-methodology)",
+      "item": null,
+      "item_type": null
+    }
+  ],
+  "scoped_out": [
+    {
+      "quote": "Outline of the Methodology Book",
+      "concern": "Document navigation section; no transformations defined."
+    },
+    {
+      "quote": "Introduction to the MSCI Global Investable Market Indexes",
+      "concern": "Section 1 is background and objectives narrative; no transformation rules."
+    },
+    {
+      "quote": "Appendix XVIII: Transition to the MSCI GIMI Methodology",
+      "concern": "Historical transition timeline (2007-2008); rules are superseded and no longer operative. Scoped out as historical changelog."
+    },
+    {
+      "quote": "Appendix XIX: Transition to a Quarterly Comprehensive Index Review",
+      "concern": "Historical transition; describes change from prior review schedule, no currently operative rules."
+    },
+    {
+      "quote": "Appendix XX: Changes to the MSCI Frontier Markets Indexes Methodology",
+      "concern": "Historical changelog of methodology changes; no current operative transformations."
+    },
+    {
+      "quote": "Changes to the Methodology Book",
+      "concern": "Version history section; no transformations."
+    },
+    {
+      "quote": "Appendix XII: MSCI DR Indexes",
+      "concern": "Describes a specific derived index type (Depositary Receipt indexes) with specialized NOS/FIF and dividend treatment. Scoped out as a specialist overlay not part of the standard GIMI pipeline; warrants a separate methbook variant."
+    },
+    {
+      "quote": "Appendix XIII: MSCI Domestic Indexes / MSCI China A Onshore Indexes / MSCI K-Series Indexes",
+      "concern": "Domestic-only index variants with market-specific eligibility deviations. Scoped out as specialist variants warranting separate methbooks."
+    },
+    {
+      "quote": "Appendix XIV: MSCI China Indexes Offering",
+      "concern": "Descriptive product listing of China index variants; no standalone transformations not already covered by GIMI + Appendix XV."
+    },
+    {
+      "quote": "Appendix XVII: MSCI China A Indexes",
+      "concern": "China A-only index; largely follows GIMI with Stock Connect-specific additions. Scoped out as a variant methbook."
+    },
+    {
+      "quote": "Appendix XVI: MSCI China A Inclusion Indexes",
+      "concern": "Partial-inclusion overlay index; warrants a separate variant methbook."
+    },
+    {
+      "quote": "Appendix VII: Price Source for Securities (markets open Saturday/Sunday)",
+      "concern": "Operational price-sourcing detail; no eligibility or weighting transformation."
+    }
+  ],
+  "clarifications_needed": [
+    {
+      "quote": "MSCI may implement the changes as part of a given Index Review even if they are effective after the Price Cutoff Date. Such changes may be announced by MSCI until 3 business days before the Index Review effective date.",
+      "concern": "The source grants MSCI discretion to include post-cutoff FIF/NOS changes but does not define the triggering criteria for exercising this discretion. The rule boundary between 'generally postponed' and 'may implement' is ambiguous and cannot be codified without further guidance."
+    },
+    {
+      "quote": "In some circumstances, MSCI may apply relevant adjustments to the liquidity values at the time of the regular Index Reviews, in those cases where the ATVR and/or Frequency of Trading are the decisive elements for a security impacting the Market Investable Universe.",
+      "concern": "The conditions for applying ATVR adjustments (e.g. large public offering, re-addition of recently deleted security, FIF change from zero) are enumerated but framed as a non-exhaustive list ('for example'). It is unclear whether additional undocumented conditions exist."
+    },
+    {
+      "quote": "For companies trading on a conditional basis (when-issued trading) prior to their listing and unconditional trading, MSCI assesses the inclusion of the company in the MSCI Indexes based on its first day of conditional trading.",
+      "concern": "The methodology does not specify how ATVR and frequency of trading are computed for the conditional trading period, or whether standard liquidity screens apply during this period."
+    },
+    {
+      "quote": "Appendix XV: Index Maintenance of the MSCI China Indexes, Stock Connect Daily Limit Breach",
+      "concern": "The Stock Connect Daily Limit Breach rule (Appendix XV) describes an event-handling procedure that is China-specific and appears to modify size-segment treatment; insufficient context in the read portion to determine whether this is fully covered by the early_deletion_policy rule or requires a separate rule."
+    },
+    {
+      "quote": "MSCI reserves the right to handle specific cases differently if more appropriate.",
+      "concern": "Multiple sections (3.2.4, 3.2.8) contain this catch-all discretion clause. No quantitative threshold defines when MSCI exercises this override. Cannot be modelled as a rule."
+    },
+    {
+      "quote": "Other indexes, such as Large, Mid or Small Market Indexes or indexes based on the GICS segmentation may have as little as one constituent.",
+      "concern": "Section 2.4 Index Continuity Rules specifies minimum constituent counts only for DM Standard (5) and EM Standard (3). FM Standard Index minimums and any non-Standard minimum thresholds are not enumerated; the draft's earlier fm_min_standard_index_constituents=1 was not traceable to the source and has been removed."
+    }
+  ]
+}

@@ -22,6 +22,7 @@ from methbooks.rules.weighting.renormalize_parent_weights import renormalize_par
 
 
 def quarterly_controversies_bisr_deletion(df: pl.DataFrame) -> pl.DataFrame:
+    assert isinstance(df, pl.DataFrame), f"expected pl.DataFrame, got {type(df)}"
     out = exclude_red_flag_controversies(df)
     out = exclude_tobacco(out)
     out = exclude_thermal_coal_mining(out)

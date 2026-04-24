@@ -12,4 +12,5 @@ import polars as pl
 
 
 def spinoff_immediate_addition(df: pl.DataFrame) -> pl.DataFrame:
+    assert isinstance(df, pl.DataFrame), f"expected pl.DataFrame, got {type(df)}"
     return df

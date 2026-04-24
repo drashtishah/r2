@@ -20,10 +20,10 @@ ff_mcap,Free-float market capitalization (USD).,"meth-pipeline/MSCI_Climate_Acti
 is_current_constituent,True if the security is currently in the index (before this review).,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Selection"""
 parent_index_weight,Weight of the security in the parent index.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Weighting"""
 issuer_id,Issuer-level identifier; multiple securities may share an issuer.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Weighting"""
-climate_risk_management_score,TODO,TODO
-credible_track_record,TODO,TODO
-intensity_score,TODO,TODO
+intensity_score,Sector-relative quartile (1-4) by emission intensity; 4 = highest intensity.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Scoring"""
+climate_risk_management_score,Sector-relative quartile (1-4) by CRM weighted average score; 4 = best CRM.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Scoring"""
+track_record_score,Sector-relative quartile (1-4) by emission track record; 1 = strongest reduction; null if no track record.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Scoring"""
+credible_track_record,True if track_record_score == 1 (strongest sector reduction); null if no track record.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Scoring"""
+security_level_assessment,Security-level assessment (1-4) combining intensity score with SBTi/track record and CRM/green business adjustments.,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Scoring"""
+sector_rank,Rank within GICS sector (ascending by security_level_assessment then descending by ff_mcap).,"meth-pipeline/MSCI_Climate_Action_Indexes_Methodology_20251211/2026-04-24T03-51-26Z/input/markdown.md section ""Ranking"""
 none,TODO,TODO
-sector_rank,TODO,TODO
-security_level_assessment,TODO,TODO
-track_record_score,TODO,TODO

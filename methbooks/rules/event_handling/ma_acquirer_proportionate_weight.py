@@ -12,4 +12,5 @@ import polars as pl
 
 
 def ma_acquirer_proportionate_weight(df: pl.DataFrame) -> pl.DataFrame:
+    assert isinstance(df, pl.DataFrame), f"expected pl.DataFrame, got {type(df)}"
     return df

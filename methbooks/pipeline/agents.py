@@ -177,6 +177,27 @@ async def run_implementer(run_dir: Path, slug: str, ts: str) -> None:
     )
 
 
+_SEMANTIC_REPORT_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "overall": {"type": "string", "enum": ["pass", "fail"]},
+        "items": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "integer"},
+                    "pass": {"type": "boolean"},
+                    "evidence": {"type": "string"},
+                },
+                "required": ["id", "pass", "evidence"],
+            },
+        },
+    },
+    "required": ["overall", "items"],
+}
+
+
 async def run_semantic_verifier(
     run_dir: Path, slug: str, ts: str,
 ) -> dict[str, Any]:
@@ -184,18 +205,21 @@ async def run_semantic_verifier(
     options = _make_options(
         SEMANTIC_VERIFIER, "semantic_verifier",
         allowed_tools=["Read", "Glob", "Grep", "Write", "Edit", "Bash"],
-        output_format=None,
+        output_format={"type": "json_schema", "schema": _SEMANTIC_REPORT_SCHEMA},
         include_mcp=False,
     )
     log_event("semantic_verifier", "agent_start", model=SEMANTIC_VERIFIER.model)
     t0 = time.time()
     result = await _drain(prompt, options, "semantic_verifier")
     duration = int((time.time() - t0) * 1000)
-    text = result.result or ""
-    try:
-        report: dict[str, Any] = json.loads(text)
-    except json.JSONDecodeError:
-        report = {"overall": "fail", "items": [], "raw": text}
+    structured = result.structured_output
+    if structured is None:
+        log_event("semantic_verifier", "error", note="no structured_output")
+        report: dict[str, Any] = {
+            "overall": "fail", "items": [], "raw": result.result or "",
+        }
+    else:
+        report = structured
     log_event(
         "semantic_verifier", "agent_end",
         duration_ms=duration, stop_reason=result.stop_reason,

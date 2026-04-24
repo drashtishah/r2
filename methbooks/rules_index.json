@@ -86,7 +86,28 @@
     "MSCI/index_calculation": [
       "event_handling.optional_dividend_cash_default"
     ],
-    "MSCI/index_policies": []
+    "MSCI/index_policies": [],
+    "MSCI/selection": [
+      "eligibility.exclude_alcohol_above_10pct",
+      "eligibility.exclude_arctic_oil_gas_above_5pct",
+      "eligibility.exclude_civilian_firearms_producer",
+      "eligibility.exclude_civilian_firearms_revenue_above_5pct",
+      "eligibility.exclude_controversial_weapons_involvement",
+      "eligibility.exclude_conventional_weapons_above_10pct",
+      "eligibility.exclude_fossil_fuel_extraction_above_5pct",
+      "eligibility.exclude_gambling_above_10pct",
+      "eligibility.exclude_nuclear_power_above_10pct",
+      "eligibility.exclude_nuclear_weapons",
+      "eligibility.exclude_palm_oil_above_5pct",
+      "eligibility.exclude_thermal_coal_power_above_5pct",
+      "eligibility.exclude_tobacco_producer",
+      "eligibility.exclude_tobacco_revenue_above_5pct",
+      "eligibility.require_controversies_score_3_or_above",
+      "eligibility.require_esg_rating_bb_or_above",
+      "eligibility.retain_existing_if_controversies_score_1_or_above",
+      "ranking.rank_by_esg_rating_membership_industry_score_ff_mcap",
+      "selection.select_by_sector_coverage_tiers"
+    ]
   },
   "rules": {
     "eligibility.apply_china_suspension_screen": [
@@ -146,16 +167,38 @@
     "eligibility.classify_tracking_stock_by_underlying": [
       "MSCI/gics"
     ],
+    "eligibility.exclude_alcohol_above_10pct": [
+      "MSCI/selection"
+    ],
+    "eligibility.exclude_arctic_oil_gas_above_5pct": [
+      "MSCI/selection"
+    ],
     "eligibility.exclude_bottom_quartile_climate_risk_management": [
       "MSCI/climate_action"
+    ],
+    "eligibility.exclude_civilian_firearms_producer": [
+      "MSCI/selection"
+    ],
+    "eligibility.exclude_civilian_firearms_revenue_above_5pct": [
+      "MSCI/selection"
     ],
     "eligibility.exclude_controversial_weapons_involvement": [
       "MSCI/climate_action",
       "MSCI/eu_ctb_pab_overlay",
-      "MSCI/global_ex_controversial_weapons"
+      "MSCI/global_ex_controversial_weapons",
+      "MSCI/selection"
+    ],
+    "eligibility.exclude_conventional_weapons_above_10pct": [
+      "MSCI/selection"
+    ],
+    "eligibility.exclude_fossil_fuel_extraction_above_5pct": [
+      "MSCI/selection"
     ],
     "eligibility.exclude_fossil_fuel_power_generation_pab": [
       "MSCI/eu_ctb_pab_overlay"
+    ],
+    "eligibility.exclude_gambling_above_10pct": [
+      "MSCI/selection"
     ],
     "eligibility.exclude_high_emitters_without_sbti": [
       "MSCI/climate_action"
@@ -169,14 +212,21 @@
     "eligibility.exclude_mutual_funds_etfs_equity_derivatives": [
       "MSCI/gimi"
     ],
+    "eligibility.exclude_nuclear_power_above_10pct": [
+      "MSCI/selection"
+    ],
     "eligibility.exclude_nuclear_weapons": [
-      "MSCI/climate_action"
+      "MSCI/climate_action",
+      "MSCI/selection"
     ],
     "eligibility.exclude_oil_gas_activities_pab": [
       "MSCI/eu_ctb_pab_overlay"
     ],
     "eligibility.exclude_oil_sands": [
       "MSCI/climate_action"
+    ],
+    "eligibility.exclude_palm_oil_above_5pct": [
+      "MSCI/selection"
     ],
     "eligibility.exclude_red_flag_controversies": [
       "MSCI/climate_action",
@@ -192,9 +242,18 @@
       "MSCI/climate_action",
       "MSCI/eu_ctb_pab_overlay"
     ],
+    "eligibility.exclude_thermal_coal_power_above_5pct": [
+      "MSCI/selection"
+    ],
     "eligibility.exclude_tobacco": [
       "MSCI/climate_action",
       "MSCI/eu_ctb_pab_overlay"
+    ],
+    "eligibility.exclude_tobacco_producer": [
+      "MSCI/selection"
+    ],
+    "eligibility.exclude_tobacco_revenue_above_5pct": [
+      "MSCI/selection"
     ],
     "eligibility.exclude_unrated_capital_goods_materials": [
       "MSCI/global_ex_controversial_weapons"
@@ -204,6 +263,15 @@
     ],
     "eligibility.gics_equity_issuer_eligibility": [
       "MSCI/gics"
+    ],
+    "eligibility.require_controversies_score_3_or_above": [
+      "MSCI/selection"
+    ],
+    "eligibility.require_esg_rating_bb_or_above": [
+      "MSCI/selection"
+    ],
+    "eligibility.retain_existing_if_controversies_score_1_or_above": [
+      "MSCI/selection"
     ],
     "event_handling.block_non_spinoff_parent_additions": [
       "MSCI/eu_ctb_pab_overlay"
@@ -250,6 +318,9 @@
     "ranking.rank_by_assessment_then_mcap": [
       "MSCI/climate_action"
     ],
+    "ranking.rank_by_esg_rating_membership_industry_score_ff_mcap": [
+      "MSCI/selection"
+    ],
     "ranking.rank_standard_index_candidates_by_stability_weighted_ff_mcap": [
       "MSCI/gimi"
     ],
@@ -277,6 +348,9 @@
     "selection.apply_standard_index_minimum_constituents": [
       "MSCI/gimi"
     ],
+    "selection.select_by_sector_coverage_tiers": [
+      "MSCI/selection"
+    ],
     "selection.select_top_50pct_with_buffer": [
       "MSCI/climate_action"
     ],
@@ -302,6 +376,8 @@
     "eligibility.classify_spv_by_related_entity",
     "eligibility.exclude_stale_fundamental_data_18m",
     "eligibility.gics_fixed_income_corporate_eligibility",
+    "event_handling.add_new_parent_addition_if_eligible_and_sector_below_45pct",
+    "event_handling.add_quarterly_if_eligible_and_sector_below_45pct",
     "event_handling.announcement_file_delivery",
     "event_handling.announcement_status_policy",
     "event_handling.apply_loss_per_share_restatement",
@@ -324,6 +400,7 @@
     "event_handling.compute_proforma_bvps_real_event",
     "event_handling.country_classification_review_at_event",
     "event_handling.defer_reinvestment_when_security_not_traded",
+    "event_handling.delete_quarterly_if_fails_annual_eligibility",
     "event_handling.delisting_price_source_change",
     "event_handling.derived_index_suspension_treatment",
     "event_handling.early_deletion_policy",

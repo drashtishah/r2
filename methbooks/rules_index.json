@@ -12,6 +12,11 @@
       "event_handling.ma_acquirer_proportionate_weight",
       "event_handling.quarterly_controversies_bisr_deletion",
       "event_handling.spinoff_immediate_addition",
+      "event_handling.xcw_characteristics_change_no_deletion",
+      "event_handling.xcw_ma_delete_acquired_constituent",
+      "event_handling.xcw_ma_no_add_nonconstituent_acquirer",
+      "event_handling.xcw_new_addition_deferred_to_review",
+      "event_handling.xcw_parent_deletion_propagates",
       "ranking.rank_by_assessment_then_mcap",
       "scoring.assess_credible_track_record",
       "scoring.compute_security_level_assessment",
@@ -70,6 +75,10 @@
       "eligibility.exclude_ineligible_alert_board_securities",
       "eligibility.exclude_ineligible_preferred_shares",
       "eligibility.exclude_mutual_funds_etfs_equity_derivatives",
+      "event_handling.ipo_early_inclusion_standard_size_test",
+      "event_handling.nos_change_implementation_threshold",
+      "event_handling.prolonged_suspension_deletion",
+      "event_handling.spinoff_exdate_inclusion",
       "maintenance.apply_foreign_room_adjustment_factor",
       "maintenance.apply_liquidity_adjustment_factor_em_fm",
       "maintenance.update_equity_universe_minimum_size_at_review",
@@ -276,14 +285,23 @@
     "event_handling.block_non_spinoff_parent_additions": [
       "MSCI/eu_ctb_pab_overlay"
     ],
+    "event_handling.ipo_early_inclusion_standard_size_test": [
+      "MSCI/gimi"
+    ],
     "event_handling.ma_acquirer_proportionate_weight": [
       "MSCI/climate_action"
     ],
     "event_handling.neutralize_intermediate_parent_reviews": [
       "MSCI/eu_ctb_pab_overlay"
     ],
+    "event_handling.nos_change_implementation_threshold": [
+      "MSCI/gimi"
+    ],
     "event_handling.optional_dividend_cash_default": [
       "MSCI/index_calculation"
+    ],
+    "event_handling.prolonged_suspension_deletion": [
+      "MSCI/gimi"
     ],
     "event_handling.quarterly_controversies_bisr_deletion": [
       "MSCI/climate_action"
@@ -291,7 +309,25 @@
     "event_handling.reflect_parent_deletions": [
       "MSCI/eu_ctb_pab_overlay"
     ],
+    "event_handling.spinoff_exdate_inclusion": [
+      "MSCI/gimi"
+    ],
     "event_handling.spinoff_immediate_addition": [
+      "MSCI/climate_action"
+    ],
+    "event_handling.xcw_characteristics_change_no_deletion": [
+      "MSCI/climate_action"
+    ],
+    "event_handling.xcw_ma_delete_acquired_constituent": [
+      "MSCI/climate_action"
+    ],
+    "event_handling.xcw_ma_no_add_nonconstituent_acquirer": [
+      "MSCI/climate_action"
+    ],
+    "event_handling.xcw_new_addition_deferred_to_review": [
+      "MSCI/climate_action"
+    ],
+    "event_handling.xcw_parent_deletion_propagates": [
       "MSCI/climate_action"
     ],
     "maintenance.apply_foreign_room_adjustment_factor": [
@@ -409,7 +445,6 @@
     "event_handling.highly_dilutive_rights_issue",
     "event_handling.index_review_delay_reverse_turnover",
     "event_handling.ipo_early_inclusion_effective_date",
-    "event_handling.ipo_early_inclusion_standard_size_test",
     "event_handling.large_secondary_offering_lead_time",
     "event_handling.ma_advance_notification_minimum",
     "event_handling.ma_country_specific_us_canada_uk_overrides",
@@ -426,7 +461,6 @@
     "event_handling.nonmcap_placement_vwf_recalculation",
     "event_handling.nonmcap_vwf_recalculation_ma_spinoff",
     "event_handling.nos_change_country_specifics",
-    "event_handling.nos_change_implementation_threshold",
     "event_handling.nos_change_implementation_timing",
     "event_handling.optional_dividend_stock_default",
     "event_handling.optional_dividend_us_trigger",
@@ -436,7 +470,6 @@
     "event_handling.price_limit_postponement",
     "event_handling.proforma_float_ma",
     "event_handling.proforma_float_placements",
-    "event_handling.prolonged_suspension_deletion",
     "event_handling.redemption_paf",
     "event_handling.reinvest_dividends_in_sunday_thursday_calendar",
     "event_handling.reinvest_estimated_dividend_japan_on_exdate",
@@ -455,7 +488,6 @@
     "event_handling.size_segment_migration_on_large_corporate_event",
     "event_handling.special_dividend_paf_threshold",
     "event_handling.spinoff_capped_index_cf",
-    "event_handling.spinoff_exdate_inclusion",
     "event_handling.spinoff_exdate_paf",
     "event_handling.spinoff_no_exdate_detached_security",
     "event_handling.split_consolidation_paf",
@@ -470,11 +502,6 @@
     "event_handling.tender_offer_standard_size_override",
     "event_handling.tender_offer_uncertain_results_decision",
     "event_handling.trigger_review_on_restructuring_or_new_annual_report",
-    "event_handling.xcw_characteristics_change_no_deletion",
-    "event_handling.xcw_ma_delete_acquired_constituent",
-    "event_handling.xcw_ma_no_add_nonconstituent_acquirer",
-    "event_handling.xcw_new_addition_deferred_to_review",
-    "event_handling.xcw_parent_deletion_propagates",
     "event_handling.xcw_spinoff_deferred_to_review",
     "maintenance.adjust_trailing_eps_real_estate_revaluation",
     "maintenance.announce_index_review_results",

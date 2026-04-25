@@ -1,4 +1,4 @@
-.PHONY: install update typecheck test report clean check \
+.PHONY: install update typecheck test clean check \
     setup planner critique commit-plan implementer deterministic semantic index pr \
     methbook graph enrich-graph fetch
 
@@ -11,19 +11,13 @@ update:
 	uv sync --upgrade
 
 typecheck:
-	uv run mypy scripts/ tests/ methbooks/
+	uv run mypy tests/ methbooks/
 
 test:
 	uv run pytest tests/
 
-report:
-	mkdir -p data outputs logs
-	uv run python scripts/01_sample.py > data/01_sample.json
-	uv run python scripts/02_mean.py < data/01_sample.json
-	uv run python scripts/99_report.py > outputs/report.html
-
 clean:
-	rm -rf data/* outputs/* logs/*
+	rm -rf logs/*
 
 check: typecheck test
 

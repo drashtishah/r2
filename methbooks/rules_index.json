@@ -96,6 +96,26 @@
       "event_handling.optional_dividend_cash_default"
     ],
     "MSCI/index_policies": [],
+    "MSCI/quality": [
+      "eligibility.exclude_missing_roe_or_de",
+      "event_handling.block_non_spinoff_parent_additions",
+      "event_handling.capped_nonmcap_cf_calculation",
+      "event_handling.ma_acquirer_proportionate_weight",
+      "event_handling.neutralize_intermediate_parent_reviews",
+      "event_handling.nonmcap_vwf_recalculation_ma_spinoff",
+      "event_handling.reflect_parent_deletions",
+      "event_handling.spinoff_immediate_addition",
+      "ranking.rank_by_quality_score_then_parent_weight",
+      "scoring.compute_composite_quality_z_score",
+      "scoring.compute_quality_score_from_z",
+      "scoring.compute_quality_z_scores",
+      "scoring.winsorize_quality_variables",
+      "selection.apply_quality_buffer_rule",
+      "weighting.apply_quality_score_tilt_weight",
+      "weighting.cap_issuer_weight_broad_quality_index",
+      "weighting.cap_issuer_weight_narrow_quality_index",
+      "weighting.compute_inclusion_factor"
+    ],
     "MSCI/selection": [
       "eligibility.exclude_alcohol_above_10pct",
       "eligibility.exclude_arctic_oil_gas_above_5pct",
@@ -114,6 +134,7 @@
       "eligibility.require_controversies_score_3_or_above",
       "eligibility.require_esg_rating_bb_or_above",
       "eligibility.retain_existing_if_controversies_score_1_or_above",
+      "event_handling.characteristics_change_no_deletion",
       "ranking.rank_by_esg_rating_membership_industry_score_ff_mcap",
       "selection.select_by_sector_coverage_tiers"
     ]
@@ -218,6 +239,9 @@
     "eligibility.exclude_ineligible_preferred_shares": [
       "MSCI/gimi"
     ],
+    "eligibility.exclude_missing_roe_or_de": [
+      "MSCI/quality"
+    ],
     "eligibility.exclude_mutual_funds_etfs_equity_derivatives": [
       "MSCI/gimi"
     ],
@@ -283,16 +307,28 @@
       "MSCI/selection"
     ],
     "event_handling.block_non_spinoff_parent_additions": [
-      "MSCI/eu_ctb_pab_overlay"
+      "MSCI/eu_ctb_pab_overlay",
+      "MSCI/quality"
+    ],
+    "event_handling.capped_nonmcap_cf_calculation": [
+      "MSCI/quality"
+    ],
+    "event_handling.characteristics_change_no_deletion": [
+      "MSCI/selection"
     ],
     "event_handling.ipo_early_inclusion_standard_size_test": [
       "MSCI/gimi"
     ],
     "event_handling.ma_acquirer_proportionate_weight": [
-      "MSCI/climate_action"
+      "MSCI/climate_action",
+      "MSCI/quality"
     ],
     "event_handling.neutralize_intermediate_parent_reviews": [
-      "MSCI/eu_ctb_pab_overlay"
+      "MSCI/eu_ctb_pab_overlay",
+      "MSCI/quality"
+    ],
+    "event_handling.nonmcap_vwf_recalculation_ma_spinoff": [
+      "MSCI/quality"
     ],
     "event_handling.nos_change_implementation_threshold": [
       "MSCI/gimi"
@@ -307,13 +343,15 @@
       "MSCI/climate_action"
     ],
     "event_handling.reflect_parent_deletions": [
-      "MSCI/eu_ctb_pab_overlay"
+      "MSCI/eu_ctb_pab_overlay",
+      "MSCI/quality"
     ],
     "event_handling.spinoff_exdate_inclusion": [
       "MSCI/gimi"
     ],
     "event_handling.spinoff_immediate_addition": [
-      "MSCI/climate_action"
+      "MSCI/climate_action",
+      "MSCI/quality"
     ],
     "event_handling.xcw_characteristics_change_no_deletion": [
       "MSCI/climate_action"
@@ -357,11 +395,23 @@
     "ranking.rank_by_esg_rating_membership_industry_score_ff_mcap": [
       "MSCI/selection"
     ],
+    "ranking.rank_by_quality_score_then_parent_weight": [
+      "MSCI/quality"
+    ],
     "ranking.rank_standard_index_candidates_by_stability_weighted_ff_mcap": [
       "MSCI/gimi"
     ],
     "scoring.assess_credible_track_record": [
       "MSCI/climate_action"
+    ],
+    "scoring.compute_composite_quality_z_score": [
+      "MSCI/quality"
+    ],
+    "scoring.compute_quality_score_from_z": [
+      "MSCI/quality"
+    ],
+    "scoring.compute_quality_z_scores": [
+      "MSCI/quality"
     ],
     "scoring.compute_security_level_assessment": [
       "MSCI/climate_action"
@@ -378,8 +428,14 @@
     "scoring.score_intensity": [
       "MSCI/climate_action"
     ],
+    "scoring.winsorize_quality_variables": [
+      "MSCI/quality"
+    ],
     "selection.apply_extreme_price_increase_standard_index_block": [
       "MSCI/gimi"
+    ],
+    "selection.apply_quality_buffer_rule": [
+      "MSCI/quality"
     ],
     "selection.apply_standard_index_minimum_constituents": [
       "MSCI/gimi"
@@ -396,8 +452,20 @@
     "weighting.apply_initial_foreign_room_adjustment_factor": [
       "MSCI/gimi"
     ],
+    "weighting.apply_quality_score_tilt_weight": [
+      "MSCI/quality"
+    ],
     "weighting.cap_issuer_weight_5pct": [
       "MSCI/climate_action"
+    ],
+    "weighting.cap_issuer_weight_broad_quality_index": [
+      "MSCI/quality"
+    ],
+    "weighting.cap_issuer_weight_narrow_quality_index": [
+      "MSCI/quality"
+    ],
+    "weighting.compute_inclusion_factor": [
+      "MSCI/quality"
     ],
     "weighting.optimize_index_weights": [
       "MSCI/eu_ctb_pab_overlay"
@@ -431,7 +499,6 @@
     "event_handling.apply_withholding_tax_to_net_dtr_reinvestment",
     "event_handling.bankruptcy_deletion_policy",
     "event_handling.capital_repayment_paf",
-    "event_handling.capped_nonmcap_cf_calculation",
     "event_handling.component_index_carryforward_on_unavailability",
     "event_handling.compute_proforma_bvps_real_event",
     "event_handling.country_classification_review_at_event",
@@ -459,7 +526,6 @@
     "event_handling.nonindex_acquiring_index_early_inclusion",
     "event_handling.nonindex_constituent_acquisition_threshold",
     "event_handling.nonmcap_placement_vwf_recalculation",
-    "event_handling.nonmcap_vwf_recalculation_ma_spinoff",
     "event_handling.nos_change_country_specifics",
     "event_handling.nos_change_implementation_timing",
     "event_handling.optional_dividend_stock_default",
@@ -470,6 +536,7 @@
     "event_handling.price_limit_postponement",
     "event_handling.proforma_float_ma",
     "event_handling.proforma_float_placements",
+    "event_handling.quality_ma_nonconstituent_acquirer_treatment",
     "event_handling.redemption_paf",
     "event_handling.reinvest_dividends_in_sunday_thursday_calendar",
     "event_handling.reinvest_estimated_dividend_japan_on_exdate",
@@ -538,6 +605,8 @@
     "scoring.compute_roe",
     "scoring.compute_sgro_ols",
     "scoring.use_average_shares_us_canada_uk_ireland",
+    "selection.round_fixed_number_of_securities",
+    "selection.select_fixed_number_top_quality",
     "weighting.blend_component_indexes_by_fixed_weight",
     "weighting.compute_price_index_level_laspeyres"
   ]

@@ -141,7 +141,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_ex_Controversial_Weapons_Indexes_Methodology_20251211/2026-04-23T20-59-13Z/input/markdown.md",
         "section": "2.2 Eligibility Criteria",
-        "line": 87
+        "line": 87,
+        "page": 4
       },
       "asserts": {
         "technical": [
@@ -166,7 +167,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_ex_Controversial_Weapons_Indexes_Methodology_20251211/2026-04-23T20-59-13Z/input/markdown.md",
         "section": "2.3 Treatment of Unrated Companies",
-        "line": 108
+        "line": 108,
+        "page": 4
       },
       "asserts": {
         "technical": [
@@ -189,7 +191,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_ex_Controversial_Weapons_Indexes_Methodology_20251211/2026-04-23T20-59-13Z/input/markdown.md",
         "section": "3.2 Ongoing Event-Related Maintenance",
-        "line": 164
+        "line": 164,
+        "page": 5
       },
       "asserts": {
         "technical": [
@@ -212,7 +215,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_ex_Controversial_Weapons_Indexes_Methodology_20251211/2026-04-23T20-59-13Z/input/markdown.md",
         "section": "3.2 Ongoing Event-Related Maintenance",
-        "line": 175
+        "line": 175,
+        "page": 5
       },
       "asserts": {
         "technical": [
@@ -236,7 +240,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_ex_Controversial_Weapons_Indexes_Methodology_20251211/2026-04-23T20-59-13Z/input/markdown.md",
         "section": "3.2 Ongoing Event-Related Maintenance",
-        "line": 194
+        "line": 194,
+        "page": 6
       },
       "asserts": {
         "technical": [
@@ -260,7 +265,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_ex_Controversial_Weapons_Indexes_Methodology_20251211/2026-04-23T20-59-13Z/input/markdown.md",
         "section": "3.2 Ongoing Event-Related Maintenance",
-        "line": 194
+        "line": 194,
+        "page": 6
       },
       "asserts": {
         "technical": [
@@ -283,7 +289,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_ex_Controversial_Weapons_Indexes_Methodology_20251211/2026-04-23T20-59-13Z/input/markdown.md",
         "section": "3.2 Ongoing Event-Related Maintenance",
-        "line": 199
+        "line": 199,
+        "page": 6
       },
       "asserts": {
         "technical": [
@@ -306,7 +313,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_ex_Controversial_Weapons_Indexes_Methodology_20251211/2026-04-23T20-59-13Z/input/markdown.md",
         "section": "3.2 Ongoing Event-Related Maintenance",
-        "line": 154
+        "line": 154,
+        "page": 5
       },
       "asserts": {
         "technical": [

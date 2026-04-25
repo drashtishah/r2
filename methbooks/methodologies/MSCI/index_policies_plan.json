@@ -37,7 +37,8 @@
       "source": {
         "markdown": "In case of market closure or if a security does not trade on a specific day or a specific period, MSCI carries forward the latest available closing price to calculate its equity indexes.",
         "section": "Index Calculation and Discretion",
-        "line": 533
+        "line": 533,
+        "page": 13
       },
       "datapoints": [
         "closing_price",
@@ -61,7 +62,8 @@
       "source": {
         "markdown": "In case of market outage, MSCI will use the prices provided up to the point of the outage of that market for calculation of MSCI equity indexes on that day.",
         "section": "Index Calculation and Discretion",
-        "line": 535
+        "line": 535,
+        "page": 13
       },
       "datapoints": [
         "intraday_price",
@@ -84,7 +86,8 @@
       "source": {
         "markdown": "In case of the unavailability of a component index level used in the calculation of an MSCI blended index, MSCI digital assets index or an MSCI ETF linked index, MSCI carries forward the latest available component index level to calculate its blended indexes.",
         "section": "Index Calculation and Discretion",
-        "line": 537
+        "line": 537,
+        "page": 13
       },
       "datapoints": [
         "component_index_level",
@@ -107,7 +110,8 @@
       "source": {
         "markdown": "If the impact of the error on performance is \"important\" at the index level, indexes are restated historically.",
         "section": "Corrections Policy",
-        "line": 485
+        "line": 485,
+        "page": 11
       },
       "datapoints": [
         "error_impact_bps",
@@ -132,7 +136,8 @@
       "source": {
         "markdown": "MSCI applies a 12-month correction period for index errors. Errors discovered that are older than 12 months are generally not corrected.",
         "section": "Corrections Policy",
-        "line": 493
+        "line": 493,
+        "page": 12
       },
       "datapoints": [
         "error_occurrence_date",
@@ -157,7 +162,8 @@
       "source": {
         "markdown": "In certain circumstances, such as errors in the list of index constituents (e.g., a security is unintentionally omitted) ... MSCI may also correct and restate history, even if the aggregate impact is not important.",
         "section": "Corrections Policy",
-        "line": 488
+        "line": 488,
+        "page": 12
       },
       "datapoints": [
         "error_type",
@@ -180,7 +186,8 @@
       "source": {
         "markdown": "In certain circumstances, such as ... the error affects a large number of securities (e.g., a third of the prices in a particular market are in error) MSCI may also correct and restate history, even if the aggregate impact is not important.",
         "section": "Corrections Policy",
-        "line": 489
+        "line": 489,
+        "page": 12
       },
       "datapoints": [
         "affected_security_count",
@@ -203,7 +210,8 @@
       "source": {
         "markdown": "MSCI will generally announce index terminations with at least three months' notice",
         "section": "Index Termination Policy",
-        "line": 437
+        "line": 437,
+        "page": 10
       },
       "datapoints": [
         "termination_announcement_date",
@@ -229,7 +237,8 @@
       "source": {
         "markdown": "The termination of such provisional indexes will be announced at least one week prior to the termination date.",
         "section": "Index Termination Policy",
-        "line": 460
+        "line": 460,
+        "page": 10
       },
       "datapoints": [
         "is_provisional_index",
@@ -255,7 +264,8 @@
       "source": {
         "markdown": "Indexes may also be discontinued if fewer than the required minimum number of securities are eligible for inclusion when applying a given methodology to a market.",
         "section": "Index Termination Policy",
-        "line": 463
+        "line": 463,
+        "page": 10
       },
       "datapoints": [
         "eligible_security_count",
@@ -278,7 +288,8 @@
       "source": {
         "markdown": "Methodology changes are generally announced at least one month prior to their implementation, unless specific circumstances require a faster implementation timeline as determined by the EIC.",
         "section": "Methodology and Index Consultation Process",
-        "line": 372
+        "line": 372,
+        "page": 9
       },
       "datapoints": [
         "change_announcement_date",

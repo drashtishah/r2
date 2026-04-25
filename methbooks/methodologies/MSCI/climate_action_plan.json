@@ -117,7 +117,8 @@
       "source": {
         "markdown": "All companies assessed as having involvement in controversies that are classified as Red Flags (MSCI Controversies Score of 0).",
         "section": "2.2.1 Controversies Score Eligibility",
-        "line": 140
+        "line": 140,
+        "page": 5
       },
       "datapoints": [
         "msci_controversies_score"
@@ -143,7 +144,8 @@
       "source": {
         "markdown": "All companies classified as a 'Producer'. All companies deriving 5% or more aggregate revenue from the production, distribution, retail, supply, and licensing of tobacco related products.",
         "section": "Appendix I: ESG Business Involvement Eligibility",
-        "line": 596
+        "line": 596,
+        "page": 14
       },
       "datapoints": [
         "tobacco_producer_flag",
@@ -169,7 +171,8 @@
       "source": {
         "markdown": "All companies deriving 1% or more revenue (either reported or estimated) from the mining of thermal coal (including lignite, bituminous, anthracite and steam coal) and its sale to external parties.",
         "section": "Appendix I: ESG Business Involvement Eligibility",
-        "line": 604
+        "line": 604,
+        "page": 14
       },
       "datapoints": [
         "thermal_coal_mining_revenue_pct"
@@ -199,7 +202,8 @@
       "source": {
         "markdown": "All companies deriving 5% or more revenue from oil sands extraction, which own oil sands reserves and disclose evidence of deriving revenue from oil sands extraction.",
         "section": "Appendix I: ESG Business Involvement Eligibility",
-        "line": 613
+        "line": 613,
+        "page": 14
       },
       "datapoints": [
         "oil_sands_extraction_revenue_pct",
@@ -229,7 +233,8 @@
       "source": {
         "markdown": "All companies that manufacture nuclear warheads and/or whole nuclear missiles... All companies that manufacture components that were developed or are significantly modified for exclusive use in nuclear weapons...",
         "section": "Appendix I: ESG Business Involvement Eligibility",
-        "line": 622
+        "line": 622,
+        "page": 14
       },
       "datapoints": [
         "nuclear_weapons_flag"
@@ -259,7 +264,8 @@
       "source": {
         "markdown": "Securities which either have higher Emission Intensity than the High Emission Threshold... or higher total potential emission than the High Potential Emission Threshold... and do not yet have approved science-based targets are excluded.",
         "section": "2.2.3 Emission Eligibility",
-        "line": 176
+        "line": 176,
+        "page": 6
       },
       "datapoints": [
         "emission_intensity",
@@ -294,7 +300,8 @@
       "source": {
         "markdown": "All securities which are in the lowest quartile of their GICS sector based on their Climate Risk Management Score are excluded.",
         "section": "2.2.4 Climate Risk Management Eligibility",
-        "line": 194
+        "line": 194,
+        "page": 6
       },
       "datapoints": [
         "crm_weighted_avg_score",
@@ -319,7 +326,8 @@
       "source": {
         "markdown": "Intensity Score - Each security is assigned to a quartile based on its sector relative Scope 1+2+3 Greenhouse Gas (GHG) Intensity.",
         "section": "2.3.1 Security-Level Assessment",
-        "line": 206
+        "line": 206,
+        "page": 6
       },
       "datapoints": [
         "emission_intensity",
@@ -347,7 +355,8 @@
       "source": {
         "markdown": "Green Business Revenue - Security level cumulative % of revenue from a set of 'Clean Tech' themes described in Appendix IV.",
         "section": "Appendix II: Calculation of Security Level Scores",
-        "line": 710
+        "line": 710,
+        "page": 16
       },
       "datapoints": [
         "green_business_revenue_pct",
@@ -373,7 +382,8 @@
       "source": {
         "markdown": "Climate Risk Management Raw Score - Security level weighted average of a set of climate change related key issue management scores which are described in Appendix III.",
         "section": "Appendix II: Calculation of Security Level Scores",
-        "line": 714
+        "line": 714,
+        "page": 16
       },
       "datapoints": [
         "crm_weighted_avg_score",
@@ -399,7 +409,8 @@
       "source": {
         "markdown": "Emission Track Record \u2013 Security level track record is calculated as follows: Security level yearly (YoY) change in emission is calculated for last 4 years (3 yearly changes).",
         "section": "Appendix II: Calculation of Security Level Scores",
-        "line": 720
+        "line": 720,
+        "page": 16
       },
       "datapoints": [
         "emission_track_record",
@@ -431,7 +442,8 @@
       "source": {
         "markdown": "Security is assessed to have Credible Track Record if it is assigned a Track Record Score of 1.",
         "section": "Appendix II: Calculation of Security Level Scores",
-        "line": 776
+        "line": 776,
+        "page": 17
       },
       "datapoints": [
         "track_record_score"
@@ -455,7 +467,8 @@
       "source": {
         "markdown": "Each security is assigned a final Assessment by adjusting the initial Intensity Score according to the following sequence: The Intensity Score is lowered by two quartiles for all securities that either have an approved science-based targets (SBTi) or are assessed to have Credible Track Record.",
         "section": "2.3.1 Security-Level Assessment",
-        "line": 237
+        "line": 237,
+        "page": 6
       },
       "datapoints": [
         "intensity_score",
@@ -495,7 +508,8 @@
       "source": {
         "markdown": "The Ranked Universe is constructed by sorting eligible securities of each GICS sector, in ascending order of Security-Level Assessment and descending order of float adjusted market capitalization.",
         "section": "2.3.2 Ranked Universe",
-        "line": 261
+        "line": 261,
+        "page": 7
       },
       "datapoints": [
         "security_level_assessment",
@@ -519,7 +533,8 @@
       "source": {
         "markdown": "For each GICS sector in the Ranked Universe, 50% of the number of securities in the Applicable Universe are selected in the following order...",
         "section": "2.3.3 Security Selection",
-        "line": 266
+        "line": 266,
+        "page": 7
       },
       "datapoints": [
         "sector_rank",
@@ -554,7 +569,8 @@
       "source": {
         "markdown": "The Parent Index weights of selected securities are renormalized to 100%.",
         "section": "2.4 Weighting Of Selected Securities",
-        "line": 300
+        "line": 300,
+        "page": 7
       },
       "datapoints": [
         "parent_index_weight"
@@ -576,7 +592,8 @@
       "source": {
         "markdown": "Additionally, the max issuer weights are capped at 5%.",
         "section": "2.4 Weighting Of Selected Securities",
-        "line": 300
+        "line": 300,
+        "page": 7
       },
       "datapoints": [
         "issuer_id",
@@ -602,7 +619,8 @@
       "source": {
         "markdown": "Active sector weights are capped in the following steps: Active sector weights are calculated by aggregating the active weight of securities in the Parent Index... Active sector weights which are greater than +5% are capped at +5% and active sector weights which are smaller than -5% are floored at -5%.",
         "section": "2.4.1 Active GICS Sector Weight Cap and Floor",
-        "line": 305
+        "line": 305,
+        "page": 8
       },
       "datapoints": [
         "weight",
@@ -636,7 +654,8 @@
       "source": {
         "markdown": "All securities created as a result of the spin-off of an existing Index constituent will be added to the Index at the time of event implementation. Reevaluation for continued inclusion in the Index will occur at the subsequent Index Review.",
         "section": "3.3 Ongoing Event-Related Changes",
-        "line": 396
+        "line": 396,
+        "page": 9
       },
       "datapoints": [],
       "thresholds": {},
@@ -654,7 +673,8 @@
       "source": {
         "markdown": "For Mergers and Acquisitions, the acquirer's post event weight will account for the proportionate amount of shares involved in deal consideration, while cash proceeds will be invested across the Index.",
         "section": "3.3 Ongoing Event-Related Changes",
-        "line": 418
+        "line": 418,
+        "page": 10
       },
       "datapoints": [],
       "thresholds": {},
@@ -673,7 +693,8 @@
       "source": {
         "markdown": "During quarterly reviews, the 'Controversies Score Eligibility' and 'ESG Business Involvement Eligibility' of existing constituents are reviewed. Existing constituents that meet the exclusion criteria are deleted from the index and the weight of remaining constituents are renormalized to 100%.",
         "section": "3.2 Quarterly Index Reviews",
-        "line": 364
+        "line": 364,
+        "page": 9
       },
       "datapoints": [
         "msci_controversies_score",

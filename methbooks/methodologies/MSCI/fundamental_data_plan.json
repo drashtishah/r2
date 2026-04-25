@@ -125,7 +125,8 @@
       "source": {
         "markdown": "MSCI calculates security per share and ratios if the gap between calculation date and financial reporting period end date is less than 18 months.",
         "section": "1.2 Historical Per Share Data Calculations",
-        "line": 685
+        "line": 685,
+        "page": 12
       },
       "datapoints": [
         "financial_period_end_date",
@@ -152,7 +153,8 @@
       "source": {
         "markdown": "except United States of America, Canada, the United Kingdom and Ireland where average number of shares is used for per share calculations of earnings, cash earnings, and sales",
         "section": "1.1.1 Number of Shares",
-        "line": 584
+        "line": 584,
+        "page": 10
       },
       "datapoints": [
         "country_of_classification",
@@ -178,7 +180,8 @@
       "source": {
         "markdown": "EPS12F = (M x EPS1 + (12-M) x EPS2) / 12 ... For cases where EPS2 is not available and M is greater than or equal to 8, EPS1 is used as an approximation of EPS12F.",
         "section": "1.3 Forecasted Per Share Data",
-        "line": 891
+        "line": 891,
+        "page": 16
       },
       "datapoints": [
         "eps1_consensus_forecast",
@@ -206,7 +209,8 @@
       "source": {
         "markdown": "EPS12B = (M x EPS0 + (12-M) x EPS1) / 12 ... EPS0 is last fiscal year end reported earnings per share",
         "section": "1.3 Forecasted Per Share Data",
-        "line": 969
+        "line": 969,
+        "page": 16
       },
       "datapoints": [
         "eps0_last_fiscal_year_eps",
@@ -231,7 +235,8 @@
       "source": {
         "markdown": "A minimum of the last four comparable EPS or SPS values is needed to compute the historical growth trends. Growth trends for securities without at least four years of comparable EPS or SPS data are not calculated",
         "section": "2.2.1 Long-Term Historical Growth Trends",
-        "line": 1200
+        "line": 1200,
+        "page": 19
       },
       "datapoints": [
         "five_year_eps_history"
@@ -257,7 +262,8 @@
       "source": {
         "markdown": "A minimum of the last four comparable EPS or SPS values is needed to compute the historical growth trends. Growth trends for securities without at least four years of comparable EPS or SPS data are not calculated",
         "section": "2.2.1 Long-Term Historical Growth Trends",
-        "line": 1200
+        "line": 1200,
+        "page": 19
       },
       "datapoints": [
         "five_year_sps_history"
@@ -283,7 +289,8 @@
       "source": {
         "markdown": "ROE is considered meaningful and calculated only if the following conditions are met: the book value is positive; the difference between the book value date and earnings date is less than 18 months; the book value date is equal to or older than the earnings date; book value and earnings are both consolidated or both non-consolidated.",
         "section": "2.2.2 Return on Equity (ROE)",
-        "line": 1239
+        "line": 1239,
+        "page": 20
       },
       "datapoints": [
         "trailing_12m_earnings_per_share",
@@ -315,7 +322,8 @@
       "source": {
         "markdown": "EGRSF = (EPS12F - EPS12B) / |EPS12B|",
         "section": "2.2.5 Short-Term Forward Earnings Per Share Growth Rate (EGRSF)",
-        "line": 1297
+        "line": 1297,
+        "page": 20
       },
       "datapoints": [
         "eps12f",
@@ -339,7 +347,8 @@
       "source": {
         "markdown": "In cases where the LT fwd EPS G is considered an outlier (greater than 50% or less than -33%) and the corresponding estimate is based on only one contributor, the variable will not be used by MSCI.",
         "section": "2.2.6 Long-Term Forward Earnings Per Share Growth Rate (EGRLF)",
-        "line": 1305
+        "line": 1305,
+        "page": 21
       },
       "datapoints": [
         "egrlf_value",
@@ -368,7 +377,8 @@
       "source": {
         "markdown": "A minimum of the last five comparable EPS values are needed to compute the earnings variability",
         "section": "2.2.7 Earnings Variability (EVAR)",
-        "line": 1383
+        "line": 1383,
+        "page": 22
       },
       "datapoints": [
         "five_year_eps_history"
@@ -395,7 +405,8 @@
       "source": {
         "markdown": "if the regular cash distribution frequency is changed... MSCI estimates the current annualized dividend by using the latest 6 months of distribution if resulting in a higher amount than the previous annualized dividend. If the latest 6 months of distribution is lower than the previous annualized dividend, MSCI keeps the previous annualized dividend... In the US and Canada, however, regular cash distributions are annualized by multiplying the latest cash distributions by the frequency",
         "section": "1.2.4 Dividends Per Share (DPS)",
-        "line": 821
+        "line": 821,
+        "page": 14
       },
       "datapoints": [
         "cash_distributions_last_12m",
@@ -425,7 +436,8 @@
       "source": {
         "markdown": "Nominal changes in capital structure, events that have no effect on the capitalization of a security, require fundamental data to be adjusted in the same way that the price of the security is adjusted using the price adjustment factor (PAF).",
         "section": "4.1 Nominal Changes in Capital Structure",
-        "line": 3563
+        "line": 3563,
+        "page": 52
       },
       "datapoints": [
         "price_adjustment_factor",
@@ -450,7 +462,8 @@
       "source": {
         "markdown": "In the case of the current dividend rate, if the adjustment factor is between 0.8 and 1.25, no adjustment is made. MSCI assumes that any event that leads to an adjustment factor within this range will typically not lead to a change in a company's dividend policy.",
         "section": "4.1 Nominal Changes in Capital Structure",
-        "line": 3590
+        "line": 3590,
+        "page": 53
       },
       "datapoints": [
         "price_adjustment_factor",
@@ -477,7 +490,8 @@
       "source": {
         "markdown": "Pro forma book value per share is calculated using the following formula: (Latest BVPS x Latest number of company shares outstanding) + (Number of shares issued x Issue price) / Number of shares after private placement or public offering",
         "section": "4.2 Real Changes in Capital Structure",
-        "line": 3610
+        "line": 3610,
+        "page": 53
       },
       "datapoints": [
         "latest_bvps",
@@ -504,7 +518,8 @@
       "source": {
         "markdown": "If earnings/cash earnings are negative, an adjustment factor is applied according to the change in number of shares (Pre-event number of shares/ Post-event number of shares) in order to avoid increasing losses artificially in P/E and P/CE calculations at index level.",
         "section": "4.2 Real Changes in Capital Structure",
-        "line": 3640
+        "line": 3640,
+        "page": 54
       },
       "datapoints": [
         "trailing_12m_earnings",
@@ -529,7 +544,8 @@
       "source": {
         "markdown": "Whenever post event annual sales increase by more than 50% or decrease by less than 33% and The variation is determined not to be due to normal continuous business operations... MSCI will mark the post event fiscal year reporting as non-comparable in sales and earnings against previous fiscals and drop the 5 year growth rate calculation.",
         "section": "2.2.1 Long-Term Historical Growth Trends",
-        "line": 1217
+        "line": 1217,
+        "page": 19
       },
       "datapoints": [
         "post_event_annual_sales",
@@ -558,7 +574,8 @@
       "source": {
         "markdown": "MSCI uses a threshold of an increase of 50% or greater or a decrease of 33% or more, relative to the company's full market capitalization before the event to identify such significant events.",
         "section": "4.4 Changes in Business Structure",
-        "line": 3669
+        "line": 3669,
+        "page": 54
       },
       "datapoints": [
         "market_cap_pre_event",
@@ -592,7 +609,8 @@
       "source": {
         "markdown": "The acquired loss-making company was a constituent of the MSCI Standard Size Segment before the acquisition; and The 12-month trailing losses of the acquired loss-making company exceeded USD 1bn at the end of the month previous to the ex-date of the acquisition event.",
         "section": "4.4 Changes in Business Structure",
-        "line": 3710
+        "line": 3710,
+        "page": 55
       },
       "datapoints": [
         "acquired_company_trailing_12m_losses_usd",
@@ -619,7 +637,8 @@
       "source": {
         "markdown": "For events such as share buybacks, special cash dividends, and debt-to-equity swaps, no adjustment is made generally.",
         "section": "4 Fundamental Data Treatments for Corporate Events",
-        "line": 3555
+        "line": 3555,
+        "page": 52
       },
       "datapoints": [
         "event_type_flag",
@@ -643,7 +662,8 @@
       "source": {
         "markdown": "MSCI will adjust historical [non-IFRS] earnings by adding back 'amortization of goodwill' for companies where the difference between IFRS earnings and non-IFRS earnings is more than or equal to 10%.",
         "section": "Appendix I: MSCI's Treatment of Some Specific Aspects of IFRS",
-        "line": 3906
+        "line": 3906,
+        "page": 59
       },
       "datapoints": [
         "historical_earnings_non_ifrs",
@@ -671,7 +691,8 @@
       "source": {
         "markdown": "'Revaluation of property' can have a large impact on earnings of Real Estate companies. Therefore, MSCI adjusts the earnings of real estate companies (i.e., companies falling under the GICS Industry Group 'Real Estate' for 'Gain / Loss due to Revaluation of Investment Property'). To compute the trailing EPS of a real estate company that has opted to revalue its investment property, MSCI adjusts the trailing EPS for the 'Gain / Loss due to Revaluation of Investment Property' for the latest trailing period updated by MSCI.",
         "section": "Appendix I: MSCI's Treatment of Some Specific Aspects of IFRS",
-        "line": 3918
+        "line": 3918,
+        "page": 59
       },
       "datapoints": [
         "gics_industry_group",
@@ -697,7 +718,8 @@
       "source": {
         "markdown": "If the incorrect security yields are within +/-0.25% of the correct yields (+/-0.5% for book value yield), no revision is done on the country and industry index. No announcement is made by MSCI. Per share figures and valuation ratios at security level are revised in the MSCI historical database. If the incorrect security yields are not within +/-0.25% of the correct yields (+/-0.5% for book value yield), an announcement is made by MSCI with the revised valuation ratios at the security level.",
         "section": "Appendix III: Correction Policy",
-        "line": 4467
+        "line": 4467,
+        "page": 66
       },
       "datapoints": [
         "security_yield_correct",
@@ -726,7 +748,8 @@
       "source": {
         "markdown": "If the incorrect index yields at country/industry level are within +/-0.1% of the correct yields (+/-0.5% for book value yield), no index revision is done. No announcement is made by MSCI. If the incorrect index yields are not within +/-0.1 of the correct yield (+/-0.5% for book value yield), new valuation ratios are calculated, for all the Indexes in which the security is included.",
         "section": "Appendix III: Correction Policy",
-        "line": 4475
+        "line": 4475,
+        "page": 66
       },
       "datapoints": [
         "index_yield_correct",
@@ -755,7 +778,8 @@
       "source": {
         "markdown": "The cumulative inflation rate over three years is approaching, or exceeds, 100%... If a country qualifies as a hyperinflationary economy, MSCI may opt to publish the fundamental data and all other security ratios and growth rates in a relatively more stable foreign currency",
         "section": "6 Hyperinflationary Economies - Adjustment of Fundamental Data",
-        "line": 3873
+        "line": 3873,
+        "page": 58
       },
       "datapoints": [
         "country_of_classification",

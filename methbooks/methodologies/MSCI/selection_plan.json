@@ -42,7 +42,8 @@
       "source": {
         "markdown": "Companies are required to have an MSCI ESG Rating of 'BB' or above to be eligible for inclusion in the Indexes.",
         "section": "2.2.1 ESG Ratings Eligibility",
-        "line": 141
+        "line": 141,
+        "page": 4
       },
       "datapoints": [
         "msci_esg_rating"
@@ -68,7 +69,8 @@
       "source": {
         "markdown": "Companies are required to have an MSCI Controversies Score of 3 or above to be eligible for inclusion in the Indexes.",
         "section": "2.2.2 Controversies Score Eligibility",
-        "line": 149
+        "line": 149,
+        "page": 4
       },
       "datapoints": [
         "msci_controversies_score",
@@ -95,7 +97,8 @@
       "source": {
         "markdown": "Existing constituents of the Indexes are maintained in the Eligible Universe if they meet all the following conditions: ... MSCI Controversies Score of 1 or above",
         "section": "3.1.1 Updating the Eligible Universe",
-        "line": 353
+        "line": 353,
+        "page": 7
       },
       "datapoints": [
         "msci_controversies_score",
@@ -122,7 +125,8 @@
       "source": {
         "markdown": "All companies classified as \"Producer\" of firearms and small arms ammunitions for civilian markets. It does not include companies that cater to the military, government, and law enforcement markets.",
         "section": "Appendix II: Controversial Business Involvement Criteria",
-        "line": 674
+        "line": 674,
+        "page": 13
       },
       "datapoints": [
         "civilian_firearms_producer_flag"
@@ -144,7 +148,8 @@
       "source": {
         "markdown": "All companies deriving 5% or more aggregate revenue from the production and distribution (wholesale or retail) of firearms or small arms ammunition intended for civilian use",
         "section": "Appendix II: Controversial Business Involvement Criteria",
-        "line": 678
+        "line": 678,
+        "page": 13
       },
       "datapoints": [
         "civilian_firearms_revenue_pct"
@@ -168,7 +173,8 @@
       "source": {
         "markdown": "All companies that manufacture tobacco products, such as cigars, blunts, cigarettes, e-cigarettes, inhalers, beedis, kreteks, smokeless tobacco, snuff, snus, dissolvable and chewing tobacco. This also includes companies that grow or process raw tobacco leaves.",
         "section": "Appendix II: Controversial Business Involvement Criteria",
-        "line": 684
+        "line": 684,
+        "page": 13
       },
       "datapoints": [
         "tobacco_producer_flag"
@@ -190,7 +196,8 @@
       "source": {
         "markdown": "All companies deriving 5% or more aggregate revenue from the production, distribution, retail, supply and licensing of tobacco-related products",
         "section": "Appendix II: Controversial Business Involvement Criteria",
-        "line": 694
+        "line": 694,
+        "page": 13
       },
       "datapoints": [
         "tobacco_revenue_pct"
@@ -214,7 +221,8 @@
       "source": {
         "markdown": "All companies deriving 10% or more revenue from the production of alcohol-related products",
         "section": "Appendix II: Controversial Business Involvement Criteria",
-        "line": 702
+        "line": 702,
+        "page": 13
       },
       "datapoints": [
         "alcohol_revenue_pct"
@@ -238,7 +246,8 @@
       "source": {
         "markdown": "All companies deriving 10% or more revenue from the production of conventional weapons and components",
         "section": "Appendix II: Controversial Business Involvement Criteria",
-        "line": 707
+        "line": 707,
+        "page": 14
       },
       "datapoints": [
         "conventional_weapons_revenue_pct"
@@ -262,7 +271,8 @@
       "source": {
         "markdown": "All companies deriving 10% or more revenue from ownership of operation of gambling-related business activities",
         "section": "Appendix II: Controversial Business Involvement Criteria",
-        "line": 712
+        "line": 712,
+        "page": 14
       },
       "datapoints": [
         "gambling_revenue_pct"
@@ -286,7 +296,8 @@
       "source": {
         "markdown": "All companies deriving 10% or more revenue from the ownership or operation of nuclear power plants",
         "section": "Appendix II: Controversial Business Involvement Criteria",
-        "line": 718
+        "line": 718,
+        "page": 14
       },
       "datapoints": [
         "nuclear_power_revenue_pct"
@@ -310,7 +321,8 @@
       "source": {
         "markdown": "All companies deriving 5% or more aggregate revenue (either reported or estimated) from thermal coal mining and unconventional oil and gas extraction.",
         "section": "Appendix II: Controversial Business Involvement Criteria",
-        "line": 727
+        "line": 727,
+        "page": 14
       },
       "datapoints": [
         "thermal_coal_mining_revenue_pct",
@@ -335,7 +347,8 @@
       "source": {
         "markdown": "All companies deriving 5% or more revenue (either reported or estimated) from thermal coal-based power generation.",
         "section": "Appendix II: Controversial Business Involvement Criteria",
-        "line": 743
+        "line": 743,
+        "page": 14
       },
       "datapoints": [
         "thermal_coal_power_revenue_pct"
@@ -359,7 +372,8 @@
       "source": {
         "markdown": "All companies deriving 5% or more revenue from the production of Palm Oil",
         "section": "Appendix II: Controversial Business Involvement Criteria",
-        "line": 749
+        "line": 749,
+        "page": 14
       },
       "datapoints": [
         "palm_oil_revenue_pct"
@@ -383,7 +397,8 @@
       "source": {
         "markdown": "All companies deriving 5% or more aggregate revenue from arctic oil and arctic gas production. The definition of Arctic is geographical and includes production activities north of the 66.5 latitude.",
         "section": "Appendix II: Controversial Business Involvement Criteria",
-        "line": 753
+        "line": 753,
+        "page": 14
       },
       "datapoints": [
         "arctic_oil_gas_revenue_pct"
@@ -408,7 +423,8 @@
       "source": {
         "markdown": "For each sector, eligible securities of the regional Parent Index as described in Section 2.2 are ranked based on the following criteria: ESG Rating; Current Index membership (existing constituents above non-constituents of the Indexes); Industry-adjusted ESG scores; Decreasing free float-adjusted market capitalization",
         "section": "3.1.2 Ranking of Eligible Securities",
-        "line": 362
+        "line": 362,
+        "page": 7
       },
       "datapoints": [
         "msci_esg_rating",
@@ -436,7 +452,8 @@
       "source": {
         "markdown": "For each sector, eligible securities of the regional Parent Index are then selected from the ranked Eligible Universe in the following order until the target 50% coverage by cumulative free float-adjusted market capitalization is reached: Securities in the top 35% ... 'AAA' rated securities in the top 50% ... Current Index constituents in the top 65% ... Remaining eligible securities",
         "section": "3.1.3 Selection of Eligible Securities",
-        "line": 382
+        "line": 382,
+        "page": 7
       },
       "datapoints": [
         "ff_market_cap",
@@ -472,7 +489,8 @@
       "source": {
         "markdown": "New securities added to the Parent Index (such as IPOs, other early inclusions and migrations from a different size-segment) will be added to the Indexes on the date of security inclusion only if they meet the eligibility criteria described in Section 2.2 and the market capitalization coverage of the sector to which the security belongs is less than 45%.",
         "section": "3.3 Ongoing Event-Related Maintenance",
-        "line": 460
+        "line": 460,
+        "page": 9
       },
       "datapoints": [
         "is_eligible_section_2_2",
@@ -499,7 +517,8 @@
       "source": {
         "markdown": "At the Quarterly Index Reviews, existing constituents are deleted from the Indexes if they do not meet the eligibility criteria described in Section 3.1.1. Existing constituents that meet the eligibility criteria are retained in the index.",
         "section": "3.2 Quarterly Index Reviews",
-        "line": 418
+        "line": 418,
+        "page": 8
       },
       "datapoints": [
         "msci_esg_rating",
@@ -529,7 +548,8 @@
       "source": {
         "markdown": "Additions, from the eligible securities as per Section 2.2, are made only to those sectors where the current market capitalization coverage is less than 45%, until the 50% target is reached. Market price movements may cause small deviations in the sector coverage between two Index Reviews. Therefore, in order to minimize turnover, a buffer of 10% is used on the target coverage of 50% to define under-representation.",
         "section": "3.2 Quarterly Index Reviews",
-        "line": 421
+        "line": 421,
+        "page": 8
       },
       "datapoints": [
         "is_eligible_section_2_2",

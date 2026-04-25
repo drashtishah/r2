@@ -191,7 +191,8 @@
       "source": {
         "markdown": "If ROE is missing, Composite Quality Z Score is not calculated and the security will not be part of the MSCI Quality Index",
         "section": "Appendix II: Quality Z-Score Computation",
-        "line": 444
+        "line": 444,
+        "page": 10
       },
       "datapoints": [
         "roe",
@@ -217,7 +218,8 @@
       "source": {
         "markdown": "for securities that lie below the 5th percentile rank or above the 95th percentile rank, their value is set equal to the value of the 5th percentile ranked or 95th percentile ranked security, as applicable",
         "section": "2.2.1 Winsorizing The Variable",
-        "line": 143
+        "line": 143,
+        "page": 4
       },
       "datapoints": [
         "roe",
@@ -248,7 +250,8 @@
       "source": {
         "markdown": "Z-Score for each of the three variables for each security can be calculated using the mean and standard deviation of the relevant variable within each MSCI Parent Index. A negative Z score is calculated to ensure that a security having higher Debt to Equity or higher Earnings Variability gets a lower respective Z-Score.",
         "section": "2.2.2 Calculating The Z-Scores",
-        "line": 161
+        "line": 161,
+        "page": 4
       },
       "datapoints": [
         "roe_winsorized",
@@ -276,7 +279,8 @@
       "source": {
         "markdown": "Quality Z-Scores are computed by averaging the Z scores of all the three fundamental descriptor as calculated in section 2.2.2. Computation of the Quality Z Score also depends on the availability of fundamental variables as described in Appendix II.",
         "section": "2.2.3 Calculating the Quality Score",
-        "line": 193
+        "line": 193,
+        "page": 5
       },
       "datapoints": [
         "roe_z_score",
@@ -303,7 +307,8 @@
       "source": {
         "markdown": "Quality Score = { 1 + Z, Z > 0 / (1 \u2212 Z)\u22121, Z < 0",
         "section": "2.2.3 Calculating the Quality Score",
-        "line": 199
+        "line": 199,
+        "page": 5
       },
       "datapoints": [
         "composite_quality_z_score"
@@ -329,7 +334,8 @@
       "source": {
         "markdown": "All the existing constituents of the relevant MSCI Parent Index are ranked based on their Quality Scores. If multiple securities have the same Quality Score, then the security having a higher weight in the Parent Index is given a higher rank.",
         "section": "2.3 Security Selection",
-        "line": 213
+        "line": 213,
+        "page": 5
       },
       "datapoints": [
         "quality_score",
@@ -354,7 +360,8 @@
       "source": {
         "markdown": "A fixed number of securities with the highest positive Quality Scores are predetermined for every MSCI Quality Index at initial construction with an aim to attain a high exposure to the Quality factor while maintaining sufficient index market capitalization and number of securities coverage.",
         "section": "2.3 Security Selection",
-        "line": 216
+        "line": 216,
+        "page": 5
       },
       "datapoints": [
         "quality_rank",
@@ -379,7 +386,8 @@
       "source": {
         "markdown": "If NumSec in Previous Step < 100, Upward Rounding Off to 10 Securities / If NumSec in Previous Step >= 100 but < 300, Upward Rounding Off to 25 Securities / If NumSec in Previous Step >= 300, Upward Rounding Off to 50 Securities",
         "section": "Appendix III: Rules to Determine Fixed Number of Securities at Initial Construction and in Ongoing Rebalancing",
-        "line": 488
+        "line": 488,
+        "page": 11
       },
       "datapoints": [
         "raw_fixed_number"
@@ -413,7 +421,8 @@
       "source": {
         "markdown": "buffer rules are applied at 20% of the fixed number of securities in the MSCI Quality Index. The securities in the MSCI Parent Index with a Quality rank at or above 240 will be added to the MSCI World Quality Index on a priority basis. The existing constituents that have a Quality rank between 241 and 360 are then successively added until the number of securities in the MSCI World Quality Index reaches 300.",
         "section": "3.1.1 Buffer Rules",
-        "line": 283
+        "line": 283,
+        "page": 7
       },
       "datapoints": [
         "quality_rank",
@@ -440,7 +449,8 @@
       "source": {
         "markdown": "Quality Weight = Quality Score * Market Capitalization Weight in the Parent Index. The above weights are then normalized to 100%.",
         "section": "2.4 Weighting Scheme",
-        "line": 238
+        "line": 238,
+        "page": 6
       },
       "datapoints": [
         "quality_score",
@@ -467,7 +477,8 @@
       "source": {
         "markdown": "Issuers in the MSCI Quality Indexes based on broad Parent Indexes (e.g. MSCI World Index, MSCI Emerging Markets Index etc.) will be capped at 5%",
         "section": "2.4 Weighting Scheme",
-        "line": 251
+        "line": 251,
+        "page": 6
       },
       "datapoints": [
         "issuer_id",
@@ -495,7 +506,8 @@
       "source": {
         "markdown": "Cap for narrow Country/Regional Indexes = max (10%, maximum issuer weight in the Parent Index)",
         "section": "Appendix IV: Issuer Weight Capping",
-        "line": 521
+        "line": 521,
+        "page": 13
       },
       "datapoints": [
         "issuer_id",
@@ -523,7 +535,8 @@
       "source": {
         "markdown": "The final security level inclusion factor is determined as the ratio of the final security level weight and the security level pro forma market capitalization weight in the relevant MSCI Parent Index.",
         "section": "2.4 Weighting Scheme",
-        "line": 240
+        "line": 240,
+        "page": 6
       },
       "datapoints": [
         "weight",
@@ -548,7 +561,8 @@
       "source": {
         "markdown": "A security will continue to be an Index constituent if there are changes in characteristics (country, sector, size segment, etc.) Reevaluation for continued inclusion in the Index will occur at the subsequent Index Review.",
         "section": "3.2 Ongoing Event Related Changes",
-        "line": 357
+        "line": 357,
+        "page": 8
       },
       "datapoints": [
         "security_id",
@@ -572,7 +586,8 @@
       "source": {
         "markdown": "If an existing Index constituent is acquired by a non-Index constituent, the existing constituent will be deleted from the Index and the acquiring non-constituent will not be added to the Index.",
         "section": "3.2 Ongoing Event Related Changes",
-        "line": 353
+        "line": 353,
+        "page": 8
       },
       "datapoints": [
         "security_id",

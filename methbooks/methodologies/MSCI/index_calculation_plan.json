@@ -75,7 +75,8 @@
       "source": {
         "markdown": "PriceIndexLevelUSD_t = PriceIndexLevelUSD_{t-1} * IndexAdjustedMarketCapUSD_t / IndexInitialMarketCapUSD_t",
         "section": "1.1 Price Index Level",
-        "line": 205
+        "line": 205,
+        "page": 6
       },
       "datapoints": [
         "price_per_share",
@@ -108,7 +109,8 @@
       "source": {
         "markdown": "The amount of an announced regular cash distribution is reinvested on the ex-date of such distribution on its principal exchange.",
         "section": "2.2.1 Timing of Reinvestment",
-        "line": 1388
+        "line": 1388,
+        "page": 25
       },
       "datapoints": [
         "gross_dividend_per_share",
@@ -138,7 +140,8 @@
       "source": {
         "markdown": "If a security does not trade on the ex-date or on the scheduled reinvestment date of the regular cash distribution, the reinvestment is postponed to the day when the security resumes trading.",
         "section": "2.2.1 Timing of Reinvestment",
-        "line": 1393
+        "line": 1393,
+        "page": 25
       },
       "datapoints": [
         "security_traded_flag",
@@ -162,7 +165,8 @@
       "source": {
         "markdown": "if the impact is greater than or equal to 5% of the market price of the underlying security on the date the event is announced in 'confirmed' status, the dividends are reinvested in the MSCI Index through an adjustment on the ex-date.",
         "section": "2.2.4 Dividends Resulting in a Reinvestment or in a Price Adjustment",
-        "line": 1586
+        "line": 1586,
+        "page": 27
       },
       "datapoints": [
         "special_dividend_per_share",
@@ -192,7 +196,8 @@
       "source": {
         "markdown": "For special cash dividends that are greater than or equal to 5% of the market price and subject to a withholding tax, as defined in Section 2.3.7.2, MSCI reinvests a negative amount corresponding to the withholding tax in the MSCI Net DTR Indexes only.  This negative reinvestment is reflected simultaneously with the PAF on the ex-date of the special cash dividend.",
         "section": "2.2.4 Dividends Resulting in a Reinvestment or in a Price Adjustment",
-        "line": 1607
+        "line": 1607,
+        "page": 28
       },
       "datapoints": [
         "special_dividend_per_share",
@@ -224,7 +229,8 @@
       "source": {
         "markdown": "Stock Dividend (stock bonus/gratis issue) - The company issues shares at no direct cost to the shareholders.",
         "section": "2.2.5 Dividends Resulting in a Price Adjustment Only",
-        "line": 1642
+        "line": 1642,
+        "page": 28
       },
       "datapoints": [
         "stock_dividend_ratio",
@@ -250,7 +256,8 @@
       "source": {
         "markdown": "For Taiwanese stock dividends subject to withholding tax, MSCI reinvests a negative amount corresponding to the tax amount in the MSCI Net DTR Indexes only. This negative reinvestment is reflected simultaneously with the PAF on the ex-date of the stock dividend.",
         "section": "2.3.7.3 Country Exceptions - Taiwanese Stock Dividends",
-        "line": 2009
+        "line": 2009,
+        "page": 34
       },
       "datapoints": [
         "country_of_listing",
@@ -278,7 +285,8 @@
       "source": {
         "markdown": "Capital repayments that are deemed to be extraordinary compared to the dividend policy of the company or to the historical cash distributions are reinvested in the MSCI Indexes through an adjustment.",
         "section": "2.2.5 Dividends Resulting in a Price Adjustment Only",
-        "line": 1653
+        "line": 1653,
+        "page": 28
       },
       "datapoints": [
         "capital_repayment_per_share",
@@ -305,7 +313,8 @@
       "source": {
         "markdown": "Action is taken only if the error is discovered within 12 months of the ex-date.",
         "section": "2.3.4 Corrections",
-        "line": 1710
+        "line": 1710,
+        "page": 29
       },
       "datapoints": [
         "ex_date",
@@ -335,7 +344,8 @@
       "source": {
         "markdown": "A correction is applied when a dividend is declared unpaid (payment default). This may result in a negative reinvestment. Past index levels are not corrected.",
         "section": "2.3.5 Payment Default",
-        "line": 1731
+        "line": 1731,
+        "page": 30
       },
       "datapoints": [
         "payment_default_flag",
@@ -364,7 +374,8 @@
       "source": {
         "markdown": "MSCI uses companies' country of incorporation to determine the relevant dividend withholding tax rates in calculating the net dividends and the MSCI Net DTR Indexes.",
         "section": "2.3.7.2 Withholding Tax",
-        "line": 1863
+        "line": 1863,
+        "page": 32
       },
       "datapoints": [
         "gross_dividend_per_share",
@@ -394,7 +405,8 @@
       "source": {
         "markdown": "BlendedIndexDailyReturn_t = sum_c (w_c * ComponentIndexDailyReturn_t); BlendedIndexLevel_t = BlendedIndexLevel_{t-1} * (1 + BlendedIndexDailyReturn_t)",
         "section": "3 Index Calculation for the MSCI Blended Indexes",
-        "line": 2123
+        "line": 2123,
+        "page": 36
       },
       "datapoints": [
         "component_index_level",
@@ -420,7 +432,8 @@
       "source": {
         "markdown": "No dividends are reinvested on Sundays. Consequently, the Daily Total Return (DTR) index performances for Sunday will be equal to the ones of the price index.",
         "section": "Appendix I: Sunday Intermediary Index Calculation for Monday-Friday Index Calculation Methodology",
-        "line": 2174
+        "line": 2174,
+        "page": 38
       },
       "datapoints": [
         "calculation_day_of_week",
@@ -446,7 +459,8 @@
       "source": {
         "markdown": "ATVR_FIFAdj_MonthN = sum_{i in N, N-1, ..., N-11} MTVR_FIFAdj_Month_i",
         "section": "Appendix II: Annualized Traded Value Ratio (ATVR) and Annual Traded Value",
-        "line": 2362
+        "line": 2362,
+        "page": 42
       },
       "datapoints": [
         "daily_security_traded_volume",
@@ -477,7 +491,8 @@
       "source": {
         "markdown": "Since December 31st, 1993, MSCI has been using the WMR Closing Spot Rates, taken at 4PM London time, for all the countries for which it provides indexes.",
         "section": "Appendix III: Exchange Rates",
-        "line": 2430
+        "line": 2430,
+        "page": 43
       },
       "datapoints": [
         "wmr_closing_spot_rate",
@@ -502,7 +517,8 @@
       "source": {
         "markdown": "If the impact of the error is greater or equal to 50 basis points on the country index OR on the World/EM Industry Group (or 50 basis points on the MSCI Frontier Markets region including the MSCI GCC Countries), all of the indexes affected by 50 basis points or more are re stated.",
         "section": "Appendix XI: Index Correction Policy",
-        "line": 14199
+        "line": 14199,
+        "page": 108
       },
       "datapoints": [
         "error_impact_bps",
@@ -531,7 +547,8 @@
       "source": {
         "markdown": "Dividends are reinvested on Sundays. Consequently, the Daily Total Return (DTR) index performances for Sunday will be calculated by comparing DTR Index levels of the previous Thursday.",
         "section": "Appendix XII: Sunday-Thursday Index Calculation Methodology",
-        "line": 14238
+        "line": 14238,
+        "page": 108
       },
       "datapoints": [
         "calculation_day_of_week",
@@ -558,7 +575,8 @@
       "source": {
         "markdown": "an estimation of the dividend is reinvested on the ex-date. When a company does not declare an estimated dividend, MSCI uses the previous year's dividend amount from the same period as the estimation.",
         "section": "2.3.6 Country Exceptions - Japan",
-        "line": 1759
+        "line": 1759,
+        "page": 30
       },
       "datapoints": [
         "country_of_listing",
@@ -583,7 +601,8 @@
       "source": {
         "markdown": "Under the enhanced methodology, MSCI will reinvest an estimated dividend amount for Korean securities on the ex-date of the dividend. The estimate will be calculated as the previous year's dividend amount from the same period, adjusted by any capital changes if necessary. If no dividend was paid from the same period in the previous year or an estimated dividend amount is not available, MSCI will reinvest the dividend amount of zero.",
         "section": "2.3.6 Country Exceptions - Korea",
-        "line": 1788
+        "line": 1788,
+        "page": 31
       },
       "datapoints": [
         "country_of_listing",
@@ -617,7 +636,8 @@
       "source": {
         "markdown": "When a company redeems shares distributed to shareholders due to a poison pill rights issue (applies mainly in USA), there may be a change in the company's capital structure. In this case MSCI will apply a price adjustment.",
         "section": "2.3.6 Country Exceptions - USA: Redemption Right",
-        "line": 1823
+        "line": 1823,
+        "page": 31
       },
       "datapoints": [
         "country_of_listing",

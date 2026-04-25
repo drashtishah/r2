@@ -104,7 +104,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "2.1.1 Identifying Eligible Equity Securities",
-        "line": 845
+        "line": 845,
+        "page": 14
       },
       "datapoints": [
         "security_type"
@@ -128,7 +129,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "2.1.1 Identifying Eligible Equity Securities",
-        "line": 866
+        "line": 866,
+        "page": 14
       },
       "datapoints": [
         "preferred_share_flag",
@@ -152,7 +154,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "Appendix I: Ineligible Alert Boards",
-        "line": 4064
+        "line": 4064,
+        "page": 79
       },
       "datapoints": [
         "alert_board_flag"
@@ -176,7 +179,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "2.2.3 Equity Universe Minimum Size Requirement",
-        "line": 983
+        "line": 983,
+        "page": 16
       },
       "datapoints": [
         "full_market_cap_usd",
@@ -207,7 +211,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "2.2.4 Equity Universe Minimum Float-Adjusted Market Capitalization Requirement",
-        "line": 1033
+        "line": 1033,
+        "page": 18
       },
       "datapoints": [
         "ff_adjusted_mcap_usd",
@@ -234,7 +239,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "2.2.5 DM and EM Minimum Liquidity Requirement",
-        "line": 1039
+        "line": 1039,
+        "page": 18
       },
       "datapoints": [
         "atvr_12m_pct",
@@ -274,7 +280,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "2.2.5 DM and EM Minimum Liquidity Requirement",
-        "line": 1122
+        "line": 1122,
+        "page": 19
       },
       "datapoints": [
         "stock_price_usd",
@@ -299,7 +306,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "2.2.5 DM and EM Minimum Liquidity Requirement",
-        "line": 1078
+        "line": 1078,
+        "page": 19
       },
       "datapoints": [
         "market_type",
@@ -325,7 +333,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "2.2.6 Global Minimum Foreign Inclusion Factor Requirement",
-        "line": 1198
+        "line": 1198,
+        "page": 20
       },
       "datapoints": [
         "fif",
@@ -355,7 +364,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "2.2.7 Minimum Length of Trading Requirement",
-        "line": 1217
+        "line": 1217,
+        "page": 21
       },
       "datapoints": [
         "months_since_first_trading",
@@ -386,7 +396,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "2.2.8 Minimum Foreign Room Requirement",
-        "line": 1237
+        "line": 1237,
+        "page": 21
       },
       "datapoints": [
         "foreign_room_pct",
@@ -412,7 +423,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "2.3.6.2 Minimum Foreign Room Requirement",
-        "line": 1641
+        "line": 1641,
+        "page": 30
       },
       "datapoints": [
         "foreign_room_pct",
@@ -440,7 +452,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "2.2.9 Financial Reporting Requirement",
-        "line": 1248
+        "line": 1248,
+        "page": 21
       },
       "datapoints": [
         "country_classification",
@@ -463,7 +476,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "2.3.6.3 Treatment of Securities that Exhibit Extreme Price Increase",
-        "line": 1661
+        "line": 1661,
+        "page": 30
       },
       "datapoints": [
         "excess_return_5d_pct",
@@ -521,7 +535,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "2.4 Index Continuity Rules",
-        "line": 1786
+        "line": 1786,
+        "page": 31
       },
       "datapoints": [
         "ff_adjusted_mcap_usd",
@@ -547,7 +562,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "2.4 Index Continuity Rules",
-        "line": 1774
+        "line": 1774,
+        "page": 31
       },
       "datapoints": [
         "market_type",
@@ -574,7 +590,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "4.1.1 Micro Cap Maximum Size Requirement",
-        "line": 3328
+        "line": 3328,
+        "page": 58
       },
       "datapoints": [
         "full_market_cap_usd",
@@ -599,7 +616,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "4.1.2 Micro Cap Minimum Size Requirement",
-        "line": 3341
+        "line": 3341,
+        "page": 58
       },
       "datapoints": [
         "full_market_cap_usd",
@@ -625,7 +643,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "4.1.3 Micro Cap Minimum Liquidity Requirement",
-        "line": 3355
+        "line": 3355,
+        "page": 59
       },
       "datapoints": [
         "atvr_12m_pct",
@@ -652,7 +671,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "5.2.3 FM Minimum Liquidity Requirement",
-        "line": 3611
+        "line": 3611,
+        "page": 63
       },
       "datapoints": [
         "atvr_12m_pct",
@@ -687,7 +707,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "3.1.2.2 Updating the Equity Universe Minimum Size Requirement",
-        "line": 2021
+        "line": 2021,
+        "page": 36
       },
       "datapoints": [
         "cumulative_ff_mcap_coverage_pct",
@@ -714,7 +735,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "3.1.4.2 Changes in the Segment Number of Companies",
-        "line": 2248
+        "line": 2248,
+        "page": 40
       },
       "datapoints": [
         "full_market_cap_usd",
@@ -747,7 +769,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "3.1.7 Index Review of Changes in Foreign Inclusion Factors (FIFs)",
-        "line": 2594
+        "line": 2594,
+        "page": 46
       },
       "datapoints": [
         "free_float_pct",
@@ -779,7 +802,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "3.1.8 Index Review of Changes in Number of Shares (NOS)",
-        "line": 2654
+        "line": 2654,
+        "page": 47
       },
       "datapoints": [
         "current_nos",
@@ -805,7 +829,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "3.2.4 Changes in Size segment of Existing Index Constituents as a Result of a Large Corporate Event",
-        "line": 2906
+        "line": 2906,
+        "page": 51
       },
       "datapoints": [
         "pre_event_full_market_cap_usd",
@@ -836,7 +861,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "3.2.6 Early Deletions of Existing Index Constituents",
-        "line": 3115
+        "line": 3115,
+        "page": 54
       },
       "datapoints": [
         "bankruptcy_flag",
@@ -864,7 +890,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "3.2.7 Early Inclusions of Non-Index Constituents and IPOs",
-        "line": 3166
+        "line": 3166,
+        "page": 55
       },
       "datapoints": [
         "full_market_cap_usd",
@@ -895,7 +922,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "3.2.5 Changes in Style Segment or Industry Classification due to the Corporate Event",
-        "line": 3090
+        "line": 3090,
+        "page": 54
       },
       "datapoints": [
         "gics_sub_industry",
@@ -919,7 +947,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "3.1.6.2 For Existing Constituents",
-        "line": 2524
+        "line": 2524,
+        "page": 45
       },
       "datapoints": [
         "foreign_room_pct",
@@ -950,7 +979,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "3.1.2.4 Minimum Liquidity Requirement for Existing Constituents",
-        "line": 2087
+        "line": 2087,
+        "page": 37
       },
       "datapoints": [
         "atvr_12m_pct",
@@ -984,7 +1014,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "4.2.1.1 Updating the Micro Cap Minimum Size Requirement",
-        "line": 3433
+        "line": 3433,
+        "page": 60
       },
       "datapoints": [
         "cumulative_ff_mcap_coverage_pct",
@@ -1011,7 +1042,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "3.3.2 Global Industry Classification Standard (GICS)",
-        "line": 3273
+        "line": 3273,
+        "page": 57
       },
       "datapoints": [
         "gics_sub_industry",
@@ -1036,7 +1068,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "3.3 Announcement Policy",
-        "line": 3256
+        "line": 3256,
+        "page": 57
       },
       "datapoints": [
         "review_effective_date",
@@ -1061,7 +1094,8 @@
       "source": {
         "markdown": "meth-pipeline/MSCI_Global_Investable_Market_Indexes_Methodology_20260331/2026-04-24T07-46-35Z/input/markdown.md",
         "section": "Appendix VIII: Market Monitoring Framework and Potential Switch to a Light Rebalancing under Conditions of Market Stress",
-        "line": 455
+        "line": 455,
+        "page": 7
       },
       "datapoints": [
         "light_rebalancing_flag",

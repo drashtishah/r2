@@ -41,6 +41,7 @@ class Source(BaseModel):
     markdown: str
     section: str
     line: int
+    page: int | None = None
 
 
 class Asserts(BaseModel):

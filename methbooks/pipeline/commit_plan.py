@@ -23,6 +23,19 @@ import json
 import subprocess
 from pathlib import Path
 
+from methbooks.pipeline.page_lookup import page_for_line
+
+
+def _populate_pages(plan: dict, markdown_text: str) -> None:
+    """Fill source.page on every new_rule from the markdown footers in place."""
+    for rule in plan.get("new_rules", []):
+        source = rule.get("source")
+        if not source or source.get("page") is not None:
+            continue
+        line = source.get("line")
+        if isinstance(line, int):
+            source["page"] = page_for_line(markdown_text, line)
+
 
 def main() -> None:
     parser = argparse.ArgumentParser()
@@ -35,6 +48,9 @@ def main() -> None:
     ident = plan["identification"]
     provider = ident["provider"]
     slug = ident["slug"]
+
+    markdown_text = (run_dir / "input" / "markdown.md").read_text()
+    _populate_pages(plan, markdown_text)
 
     target = Path(f"methbooks/methodologies/{provider}/{slug}_plan.json")
     target.parent.mkdir(parents=True, exist_ok=True)

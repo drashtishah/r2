@@ -30,7 +30,7 @@ report.
 Purpose: one sentence on why this rule exists (business reason).
 Datapoints: columns read.
 Thresholds: methbook-specific constants (or kwargs if reused across meths).
-Source: methbooks/data/markdown/<file>.md section "<heading>" near line <n>.
+Source: methbooks/data/markdown/<file>.md section "<heading>" page <p> near line <n>.
 See also: methbooks/rules/<category>/<name>.py (comment on similarity or difference).
 ```
 
@@ -95,7 +95,7 @@ dictionary CSV.
 Purpose: Drop rows whose weight is zero so downstream maths is well-defined.
 Datapoints: weight.
 Thresholds: MIN_WEIGHT (module constant, 0.0).
-Source: methbooks/data/markdown/example.md section "Eligibility" near line 12.
+Source: methbooks/data/markdown/example.md section "Eligibility" page 3 near line 12.
 See also: methbooks/rules/weighting/normalise_weights.py (downstream renormaliser).
 """
 from __future__ import annotations

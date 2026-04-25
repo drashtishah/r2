@@ -1,6 +1,6 @@
 .PHONY: install update typecheck test report clean check \
     setup planner critique commit-plan implementer deterministic semantic index pr \
-    methbook graph enrich-graph
+    methbook graph enrich-graph fetch
 
 export PYTHONPATH := $(CURDIR)
 
@@ -59,6 +59,10 @@ pr:
 methbook:
 	@test -n "$(SRC)" || (echo "SRC=<pdf-or-md-path> required" && exit 1)
 	uv run python -m methbooks.pipeline.run "$(SRC)"
+
+fetch:
+	@test -n "$(CODE)" || (echo "CODE=<msci-methodology-code> required" && exit 1)
+	uv run python -m methbooks.fetcher.msci_fetch --code "$(CODE)"
 
 graph:
 	graphify update methbooks/

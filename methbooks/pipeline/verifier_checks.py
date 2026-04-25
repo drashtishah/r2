@@ -462,5 +462,23 @@ def run_deterministic_checks(plan: Methbook, git_range: str) -> dict[str, Any]:
         f"commits: {actual} (min {min_expected})",
     ))
 
+    # 19. page consistency: if any rule cites a page, every rule with a
+    #     source.line must also have one. Catches commit_plan regressions
+    #     on footered docs without flagging footer-less docs (all None).
+    cited = [r for r in plan.new_rules if r.source and r.source.line is not None]
+    if cited and any(r.source.page is not None for r in cited):
+        missing = [r.name for r in cited if r.source.page is None]
+        items.append(_result(
+            19, not missing,
+            f"rules missing page: {missing}" if missing
+            else f"page set on all {len(cited)} cited rules",
+        ))
+    else:
+        items.append(_result(
+            19, True,
+            "no pages cited (source markdown has no page footers)" if cited
+            else "no rule citations to check",
+        ))
+
     overall = "pass" if all(item["pass"] for item in items) else "fail"
     return {"overall": overall, "items": items}

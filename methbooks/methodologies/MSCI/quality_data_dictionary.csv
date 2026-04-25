@@ -1,0 +1,25 @@
+datapoint,description,source
+security_id,Unique identifier for each security,methbooks/mock_universe.py
+weight,Final normalized index weight for each security,methbooks/rules/weighting/apply_quality_score_tilt_weight.py
+roe,Return on equity; ratio of net income to shareholders equity,"methbooks/data/markdown/msci_quality_indexes_methodology_20250520.md section ""Appendix II: Quality Z-Score Computation"""
+debt_to_equity,Total debt divided by total shareholders equity,"methbooks/data/markdown/msci_quality_indexes_methodology_20250520.md section ""Appendix II: Quality Z-Score Computation"""
+earnings_variability,Standard deviation of annual earnings per share over five years,"methbooks/data/markdown/msci_quality_indexes_methodology_20250520.md section ""Appendix II: Quality Z-Score Computation"""
+parent_index_weight,Pro-forma weight of each security in the Parent Index,"methbooks/data/markdown/msci_quality_indexes_methodology_20250520.md section ""2.4 Weighting Scheme"""
+issuer_id,Identifier grouping multiple share classes under one issuer,"methbooks/data/markdown/msci_quality_indexes_methodology_20250520.md section ""2.4 Weighting Scheme"""
+is_broad_parent_index,Flag indicating whether the parent index is a broad-market index,"methbooks/data/markdown/msci_quality_indexes_methodology_20250520.md section ""2.4 Weighting Scheme"""
+is_narrow_parent_index,Flag indicating whether the parent index is a narrow index,"methbooks/data/markdown/msci_quality_indexes_methodology_20250520.md section ""Appendix IV: Issuer Weight Capping"""
+max_parent_issuer_weight,Maximum single-issuer weight in the parent index; used for narrow cap floor,"methbooks/data/markdown/msci_quality_indexes_methodology_20250520.md section ""Appendix IV: Issuer Weight Capping"""
+is_current_constituent,Flag indicating whether the security is an existing index constituent,"methbooks/data/markdown/msci_quality_indexes_methodology_20250520.md section ""3.1.1 Buffer Rules"""
+fixed_number_securities,Target number of securities selected for the index,"methbooks/data/markdown/msci_quality_indexes_methodology_20250520.md section ""2.3 Security Selection"""
+raw_fixed_number,Raw pre-rounding target count before tier-based rounding,"methbooks/data/markdown/msci_quality_indexes_methodology_20250520.md section ""Appendix III: Rules to Determine Fixed Number of Securities"""
+characteristics_changed_flag,Flag indicating a classification change occurred between reviews,"methbooks/data/markdown/msci_quality_indexes_methodology_20250520.md section ""3.2 Ongoing Event Related Changes"""
+acquirer_is_index_constituent,Whether the acquiring company is an index constituent; null if not being acquired,"methbooks/data/markdown/msci_quality_indexes_methodology_20250520.md section ""3.2 Ongoing Event Related Changes"""
+roe_winsorized,ROE clipped to the 5th and 95th percentile within the Parent Index,methbooks/rules/scoring/winsorize_quality_variables.py
+debt_to_equity_winsorized,D/E ratio clipped to the 5th and 95th percentile within the Parent Index,methbooks/rules/scoring/winsorize_quality_variables.py
+earnings_variability_winsorized,Earnings variability clipped to the 5th and 95th percentile within the Parent Index,methbooks/rules/scoring/winsorize_quality_variables.py
+roe_z_score,Standardized ROE: (roe_winsorized - mean) / std within Parent Index,methbooks/rules/scoring/compute_quality_z_scores.py
+debt_to_equity_z_score,Negated standardized D/E: -((de_winsorized - mean) / std) within Parent Index,methbooks/rules/scoring/compute_quality_z_scores.py
+earnings_variability_z_score,Negated standardized earnings variability: -((ev_winsorized - mean) / std) within Parent Index,methbooks/rules/scoring/compute_quality_z_scores.py
+composite_quality_z_score,Average of three variable z-scores; two-variable fallback when ev z-score is null,methbooks/rules/scoring/compute_composite_quality_z_score.py
+quality_score,Asymmetric transform of composite z-score: 1+Z if Z>0 else 1/(1-Z),methbooks/rules/scoring/compute_quality_score_from_z.py
+quality_rank,Descending rank by quality_score with parent_index_weight as tiebreaker,methbooks/rules/ranking/rank_by_quality_score_then_parent_weight.py

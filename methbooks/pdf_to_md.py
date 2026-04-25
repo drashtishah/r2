@@ -1,8 +1,8 @@
-"""Convert one PDF to Markdown, then delete the PDF.
+"""Convert one PDF to Markdown.
 
-Markdown is the retained artifact. The source PDF is removed after a
-successful conversion so the repo never accumulates binaries. Use
---keep-pdf to override.
+Markdown is the derived artifact; the source PDF is the source of truth
+and is kept on disk so reviewers can verify agent claims against the
+original document. Pass --delete-pdf to remove the PDF after conversion.
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from markitdown import MarkItDown
 DEFAULT_OUT_DIR = Path("methbooks/data/markdown")
 
 
-def convert(pdf_path: Path, out_dir: Path, keep_pdf: bool = False) -> Path:
+def convert(pdf_path: Path, out_dir: Path, keep_pdf: bool = True) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     md = MarkItDown().convert(str(pdf_path))
     out = out_dir / f"{pdf_path.stem}.md"
@@ -27,10 +27,10 @@ def convert(pdf_path: Path, out_dir: Path, keep_pdf: bool = False) -> Path:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Convert a PDF to Markdown and delete the PDF.")
+    parser = argparse.ArgumentParser(description="Convert a PDF to Markdown; the PDF is kept by default.")
     parser.add_argument("pdf", type=Path)
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT_DIR)
-    parser.add_argument("--keep-pdf", action="store_true", help="keep the source PDF instead of deleting it")
+    parser.add_argument("--delete-pdf", action="store_true", help="delete the source PDF after a successful conversion")
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -39,8 +39,9 @@ def main() -> None:
     )
     logger = logging.getLogger("pdf_to_md")
 
-    out = convert(args.pdf, args.out_dir, keep_pdf=args.keep_pdf)
-    logger.info("wrote=%s pdf_deleted=%s", out, not args.keep_pdf)
+    keep_pdf = not args.delete_pdf
+    out = convert(args.pdf, args.out_dir, keep_pdf=keep_pdf)
+    logger.info("wrote=%s pdf_kept=%s", out, keep_pdf)
 
 
 if __name__ == "__main__":
